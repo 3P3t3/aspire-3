@@ -366,7 +366,19 @@
     if (reduced) still(); else render();
   }
 
+  var lastW = window.innerWidth;
   addEventListener("resize", function () {
+    // A height-only change is the mobile toolbar moving, not a new layout.
+    // Nothing is sized to it, so just note the new height and carry on —
+    // a full re-measure here is what made scroll-up catch.
+    // Desktop is different: dragging a window's height DOES change the large
+    // viewport, so check the stage really held its size before skipping.
+    if (window.innerWidth === lastW && S[0].stage.offsetHeight === S[0].stageH) {
+      vh = window.innerHeight;
+      if (!reduced) kick();
+      return;
+    }
+    lastW = window.innerWidth;
     clearTimeout(window.__rz);
     window.__rz = setTimeout(restart, 120);
   }, { passive: true });

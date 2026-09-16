@@ -24,7 +24,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   --serif:"Fraunces","Iowan Old Style",Georgia,serif;
 }
-@supports(height:100dvh){:root{--stage:100dvh}}
+/* The film is sized to the LARGEST viewport, which does not change when
+   mobile Safari's toolbar slides in and out. Sizing it to the dynamic viewport
+   resized every scene on each scroll-up — the scrub caught and the canvas was
+   wiped for a frame. */
+@supports(height:100lvh){:root{--stage:100lvh}}
 
 /* ----------------------------------------------------------------- base */
 body{
@@ -113,7 +117,8 @@ body{
 /* ------------------------------------------------------------------ open */
 .open{
   position:relative;z-index:2;
-  min-height:var(--stage);
+  min-height:100vh;min-height:100svh;   /* the SMALL viewport: the headline must
+                                           clear the toolbar on first load */
   display:flex;flex-direction:column;justify-content:flex-end;
   padding:0 var(--padR) 44px var(--padL);
   background:linear-gradient(#171c30,#242a42);
