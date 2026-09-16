@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>A day — placeholder motion</title>
+<meta name="description" content="One person's day in eight beats. Scrolling moves time forward; each beat scrubs its own clip.">
+<meta name="theme-color" content="#12141f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://www.amway.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Inter:wght@400;500;600&display=swap">
+<style>/* ---------------------------------------------------------------- reset */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+
+/* --------------------------------------------------------------- tokens */
+:root{
+  --ppf:20px;                 /* scroll travel per clip frame           */
+  --stage:100vh;
+  --ink:#f4f1ec;              /* driven by scrub: flips with daylight   */
+  --ink-dim:rgba(244,241,236,.68);
+  --scrim:rgba(8,9,14,.62);
+  --scrim-bar:rgba(8,9,14,.82);   /* the bar also crosses opaque cards */
+  --rule:rgba(255,255,255,.16);
+  --bg:#12141f;
+  --gut:20px;
+  --padL:max(var(--gut),env(safe-area-inset-left,0px));
+  --padR:max(var(--gut),env(safe-area-inset-right,0px));
+  --safeT:env(safe-area-inset-top,0px);
+  --safeB:env(safe-area-inset-bottom,0px);
+  --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --serif:"Fraunces","Iowan Old Style",Georgia,serif;
+}
+@supports(height:100dvh){:root{--stage:100dvh}}
+
+/* ----------------------------------------------------------------- base */
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:16px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+.skip{
+  position:fixed;left:8px;top:calc(8px + var(--safeT));z-index:90;
+  transform:translateY(-200%);
+  background:#fbf9f6;color:#16181f;
+  padding:12px 16px;border-radius:10px;font-size:14px;font-weight:600;
+}
+.skip:focus{transform:none}
+
+:focus-visible{outline:2px solid #ffd36a;outline-offset:3px;border-radius:4px}
+
+/* ----------------------------------------------------------------- chrome */
+.bar{
+  position:fixed;inset:0 0 auto 0;z-index:60;
+  height:calc(52px + var(--safeT));display:flex;align-items:center;gap:12px;
+  padding:var(--safeT) var(--padR) 0 var(--padL);
+  color:var(--ink);
+  transition:color .25s linear;
+  pointer-events:none;
+}
+.bar::before{            /* deep enough that type fades before it reaches the clock */
+  content:"";position:absolute;inset:-4px 0 auto 0;z-index:-1;
+  height:calc(116px + var(--safeT));
+  background:linear-gradient(var(--scrim-bar) 0,var(--scrim-bar) 40%,transparent 100%);
+  transition:background .25s linear;
+}
+.bar>*{pointer-events:auto}
+.rm .clock,.rm .hud{display:none}
+.clock{
+  font-variant-numeric:tabular-nums;font-feature-settings:"tnum";
+  font-size:15px;font-weight:600;letter-spacing:.02em;min-width:5.2ch;
+}
+.bar-beat{
+  font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-dim);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;flex:1;display:none;
+}
+@media (min-width:520px){.bar-beat{display:block}}
+.hud{
+  margin-left:auto;padding-right:4px;
+  font-family:ui-monospace,"SFMono-Regular",Menlo,monospace;
+  font-size:10.5px;letter-spacing:.04em;color:var(--ink-dim);
+  white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+.bar-btn{
+  min-height:44px;min-width:44px;display:flex;align-items:center;
+  justify-content:flex-end;font-size:12px;letter-spacing:.12em;
+  text-transform:uppercase;font-weight:600;
+}
+
+/* thin progress of the whole day */
+.daybar{position:fixed;inset:auto 0 var(--safeB) 0;height:2px;z-index:60;background:rgba(255,255,255,.14)}
+.daybar i{display:block;height:100%;width:0;background:#ffd36a}
+
+/* beat index sheet */
+.sheet{
+  position:fixed;inset:0;z-index:80;background:rgba(8,9,14,.92);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  padding:calc(64px + var(--safeT)) var(--padR) calc(24px + var(--safeB)) var(--padL);
+  overflow:auto;color:#f4f1ec;
+  display:none;
+}
+.sheet[open],.sheet.on{display:block}
+.sheet h2{font-family:var(--serif);font-size:13px;font-weight:500;letter-spacing:.16em;
+  text-transform:uppercase;color:rgba(244,241,236,.6);margin:0 0 8px}
+.sheet a{
+  display:flex;gap:14px;align-items:baseline;min-height:56px;
+  padding:14px 0;border-bottom:1px solid rgba(255,255,255,.12);
+}
+.sheet a b{font-variant-numeric:tabular-nums;font-size:13px;color:rgba(244,241,236,.55);font-weight:500;min-width:4.4ch}
+.sheet a span{font-family:var(--serif);font-size:21px;font-weight:400;line-height:1.2}
+.sheet-close{position:fixed;right:var(--padR);top:calc(6px + var(--safeT));min-height:44px;min-width:44px;
+  display:flex;align-items:center;justify-content:flex-end;font-size:13px;
+  letter-spacing:.12em;text-transform:uppercase;font-weight:600;z-index:81}
+
+/* ------------------------------------------------------------------ open */
+.open{
+  position:relative;z-index:2;
+  min-height:var(--stage);
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:0 var(--padR) 44px var(--padL);
+  background:linear-gradient(#171c30,#242a42);
+}
+.open h1{
+  font-family:var(--serif);
+  font-optical-sizing:auto;
+  font-size:clamp(46px,14.5vw,68px);
+  font-weight:300;line-height:.96;letter-spacing:-.022em;
+  margin:0 0 18px;text-wrap:balance;
+}
+.open h1 em{font-style:italic;font-weight:400}
+.open p{margin:0;max-width:30ch;font-size:17px;line-height:1.45;color:var(--ink-dim)}
+.open .rule{height:1px;background:var(--rule);margin:26px 0 20px;max-width:34rem}
+.cue{
+  margin-top:40px;display:flex;align-items:center;gap:10px;
+  font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-dim);
+}
+.cue i{display:block;width:1px;height:22px;background:currentColor;opacity:.7;
+  animation:drop 2.4s ease-in-out infinite}
+@keyframes drop{0%,100%{transform:scaleY(.35);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}}
+
+/* ----------------------------------------------------------------- scene */
+.scene{position:relative;z-index:1;isolation:isolate}
+
+.stage{
+  position:sticky;top:0;z-index:0;
+  height:var(--stage);overflow:hidden;
+  background:linear-gradient(160deg,var(--c0),var(--c1));
+}
+.stage canvas{width:100%;height:100%;display:block}
+.stage::after{                  /* scrim so page type always holds up     */
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,var(--scrim) 0,transparent 26%,transparent 42%,var(--scrim) 100%);
+  transition:background .25s linear;
+}
+
+.flow{
+  position:relative;z-index:1;
+  margin-top:calc(-1 * var(--stage));
+  min-height:calc(var(--stage) + (var(--frames) * var(--ppf)));
+  padding:60svh var(--padR) 14svh var(--padL);
+}
+@supports not (height:100svh){.flow{padding:60vh var(--padR) 14vh var(--padL)}}
+
+.beat{margin:0 0 28px}
+.eyebrow{
+  display:flex;align-items:baseline;gap:9px;margin:0 0 14px;white-space:nowrap;
+  font-size:11.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-dim);
+}
+@media (min-width:900px){.eyebrow{font-size:12px;letter-spacing:.16em;gap:10px}}
+.eyebrow b{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.eyebrow s{flex:1 1 10px;min-width:8px;height:1px;background:var(--rule);text-decoration:none}
+.eyebrow i{font-style:normal;font-variant-numeric:tabular-nums;color:var(--ink);flex:none}
+.eyebrow i span{display:none}          /* the full range only where it fits */
+.eyebrow u{text-decoration:none;flex:none}
+@media (min-width:430px){.eyebrow i span{display:inline}}
+.beat h2{
+  font-family:var(--serif);font-optical-sizing:auto;
+  font-size:clamp(34px,10vw,46px);font-weight:300;line-height:1.02;
+  letter-spacing:-.02em;margin:0 0 12px;text-wrap:balance;max-width:9.4em;
+}
+.beat h2 em{font-style:italic;font-weight:400}
+.beat p{margin:0;font-size:17px;line-height:1.45;color:var(--ink-dim);max-width:30ch}
+
+.tail{
+  margin:30svh 0 0;font-family:var(--serif);font-optical-sizing:auto;
+  font-size:23px;line-height:1.28;font-weight:300;letter-spacing:-.01em;
+  max-width:9.6em;color:var(--ink);text-wrap:balance;
+}
+@supports not (height:100svh){.tail{margin-top:30vh}}
+@media (min-width:900px){.tail{font-size:27px;margin-top:26vh}}
+@media (prefers-reduced-motion:reduce){.tail{margin-top:30px}}
+
+/* ------------------------------------------------------------- products */
+.cluster{margin:0 0 26px}
+.cluster h3{
+  margin:0 0 12px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  font-weight:600;color:var(--ink-dim);
+  display:flex;align-items:center;gap:10px;
+}
+.cluster h3 s{flex:1;height:1px;background:var(--rule);text-decoration:none}
+
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px 14px;margin:0;padding:0;list-style:none}
+
+/* No card chrome. The product sits on the film like everything else in the
+   page layer; only the photographs carry a frame, because they are
+   photographs. Text rides the same --ink that flips with the hour. */
+.card{
+  display:flex;flex-direction:column;gap:9px;
+  color:var(--ink);min-height:44px;
+}
+.card .shot{position:relative;aspect-ratio:1/1}
+@supports not (aspect-ratio:1/1){.card .shot{height:0;padding-top:100%}}
+
+.card .shot img{
+  position:absolute;inset:0;width:100%;height:100%;
+  min-width:0;min-height:0;          /* never fall back to the intrinsic 690px */
+}
+
+/* real transparency in the source: let it float */
+.card.cut .shot img{
+  padding:2px;object-fit:contain;
+  filter:drop-shadow(0 10px 16px rgba(0,0,0,.42));
+}
+/* An opaque rectangle: show it as the photograph it is, edge to edge. The
+   .white ones are packshots matted on white in Amway's own source — they get
+   the same frame, because the white is the photograph's content, not chrome.
+   The class stays in the data so better photography can be styled apart. */
+.card.photo .shot img,.card.white .shot img{
+  object-fit:cover;border-radius:13px;
+  box-shadow:0 1px 2px rgba(0,0,0,.22),0 16px 30px -20px rgba(0,0,0,.75);
+}
+
+.card .name{
+  font-size:13px;line-height:1.3;font-weight:500;letter-spacing:-.005em;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+}
+.card .go{
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  font-weight:600;color:var(--ink-dim);display:flex;align-items:center;gap:6px;
+}
+.card .go::after{content:"\2192";letter-spacing:0}
+.card:active .shot{transform:translateY(1px)}
+
+/* ------------------------------------------------------------------ end */
+.end{
+  position:relative;z-index:2;background:#0d0f18;
+  padding:72px var(--padR) calc(56px + var(--safeB)) var(--padL);
+}
+.end h2{font-family:var(--serif);font-size:clamp(30px,8.5vw,40px);font-weight:300;
+  line-height:1.04;margin:0 0 14px;letter-spacing:-.02em}
+.end p{margin:0 0 26px;color:var(--ink-dim);font-size:16px;max-width:36ch}
+.end ol{margin:0;padding:0;list-style:none;border-top:1px solid rgba(255,255,255,.12)}
+.end ol a{display:flex;gap:14px;align-items:baseline;padding:15px 0;min-height:56px;
+  border-bottom:1px solid rgba(255,255,255,.12)}
+.end ol b{font-variant-numeric:tabular-nums;font-size:13px;color:rgba(244,241,236,.5);
+  font-weight:500;min-width:4.4ch}
+.end ol span{font-size:17px}
+.note{margin-top:34px;font-size:12.5px;line-height:1.6;color:rgba(244,241,236,.42);max-width:46ch}
+
+/* ================================================== desktop adaptation === */
+@media (min-width:900px){
+  :root{--gut:40px}
+  .bar{height:60px;gap:18px}
+  .open{padding-bottom:64px}
+  .open h1{font-size:clamp(68px,7.4vw,112px);max-width:14ch}
+  .open p{font-size:19px;max-width:38ch}
+
+  /* the film keeps the left; the day is read down a column on the right   */
+  .flow{
+    padding-top:54vh;padding-bottom:16vh;
+    display:grid;grid-template-columns:1fr minmax(420px,38vw);
+  }
+  .flow>*{grid-column:2}
+  .stage::after{
+    background:linear-gradient(90deg,transparent 30%,var(--scrim) 78%),
+               linear-gradient(180deg,var(--scrim) 0,transparent 24%);
+  }
+  .beat h2{font-size:clamp(44px,3.6vw,58px)}
+  .grid{grid-template-columns:repeat(3,1fr);gap:26px 16px}
+  .card .name{font-size:13.5px}
+  .end{padding:110px var(--padR) calc(80px + var(--safeB)) var(--padL)}
+  .end h2{font-size:52px}
+  .end ol{max-width:640px}
+}
+@media (min-width:1280px){
+  .flow{grid-template-columns:1fr minmax(560px,42vw)}
+}
+
+/* ================================================ reduced motion ======== */
+@media (prefers-reduced-motion:reduce){
+  .cue i{animation:none;transform:none}
+  .stage{position:relative;height:52svh}
+  .stage::after{background:linear-gradient(180deg,rgba(8,9,14,.45),rgba(8,9,14,.25))}
+  .flow{margin-top:0;min-height:0;padding-top:26px;padding-bottom:56px}
+  .card:active .shot{transform:none}
+  @media (min-width:900px){
+    .stage{height:64svh}
+    .flow{display:block;padding-top:34px}
+    .flow>*{grid-column:auto}
+    .beat{max-width:34ch}
+  }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#scene-1">Skip to the day</a>
+
+<header class="bar">
+  <span class="clock" id="clock" aria-live="off">05:48</span>
+  <span class="bar-beat" id="barbeat">Wake</span>
+  <span class="hud" id="hud" aria-hidden="true">S1 000/59</span>
+  <button class="bar-btn" id="beatsbtn" aria-expanded="false" aria-controls="sheet">Beats</button>
+</header>
+<div class="daybar" aria-hidden="true"><i id="daybar"></i></div>
+
+<nav class="sheet" id="sheet" aria-label="The eight beats">
+  <button class="sheet-close" id="sheetclose">Close</button>
+  <h2>The day</h2>
+  <a href="#scene-1"><b>05:48</b><span>Wake</span></a><a href="#scene-2"><b>06:05</b><span>Gut, first thing</span></a><a href="#scene-3"><b>06:30</b><span>Twist and load</span></a><a href="#scene-4"><b>07:10</b><span>Kitchen</span></a><a href="#scene-5"><b>08:00</b><span>Office</span></a><a href="#scene-6"><b>14:40</b><span>Hunger</span></a><a href="#scene-7"><b>15:40</b><span>Lift</span></a><a href="#scene-8"><b>18:30</b><span>Night</span></a>
+</nav>
+
+<main>
+  <section class="open">
+    <h1>One day,<br>eight <em>beats</em></h1>
+    <div class="rule"></div>
+    <p>Scrolling moves time forward. Each beat holds a stretch of the day and
+       scrubs its own clip — down it plays, up it reverses, stop and it holds.</p>
+    <p class="cue"><i></i> Scroll</p>
+  </section>
+
+<section class="scene" id="scene-1" data-scene="1" style="--frames:60;--c0:#171c30;--c1:#2a3147" aria-labelledby="h-1">
+  <div class="stage"><canvas role="img" aria-label="Bedroom before sunrise, sitting up on the edge of the bed."></canvas></div>
+  <div class="flow">
+    <div class="beat">
+      <p class="eyebrow"><b>01</b> <u>Wake</u><s></s><i>05:48<span>–06:05</span></i></p>
+      <h2 id="h-1">First light, and<em> nothing has happened yet</em></h2>
+      <p>Feet on the floor. The room is still blue.</p>
+    </div>
+    <p class="tail">Thirty seconds of sitting there before any of it starts.</p>
+  </div>
+</section>
+<section class="scene" id="scene-2" data-scene="2" style="--frames:48;--c0:#2a3147;--c1:#6a6274" aria-labelledby="h-2">
+  <div class="stage"><canvas role="img" aria-label="Still in the bedroom, a glass of water in hand before the day starts."></canvas></div>
+  <div class="flow">
+    <div class="beat">
+      <p class="eyebrow"><b>02</b> <u>Gut, first thing</u><s></s><i>06:05<span>–06:30</span></i></p>
+      <h2 id="h-2">Before<em> anything else</em></h2>
+      <p>Nothing has gone in today. This goes in first.</p>
+    </div>
+    <div class="cluster"><ul class="grid"><li><a class="card photo" href="https://amway.com/share-link/FOhn2MdGS" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/127725-en-US-690px-03?context=bWFzdGVyfGltYWdlc3w2Mjc2NDJ8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2hjZi9oNDYvOTgzMjAwMjU1MTgzOC8xMjc3MjUtZW4tVVMtNjkwcHgtMDN8ZWJjMDRmZjU0NmI4MzRjN2MxMDhlNGNmNzk3MGE2ZGE5MTMxZjQxZTA2ZjU3ODAyM2M4YTQxNmE5NmE1NDNjMA" alt="Nutrilite Begin™ Daily GI Primer" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite Begin™ Daily GI Primer</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/k5GGxS-5u" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/120571.webp" alt="Nutrilite™ Balance Within™ Probiotic" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Balance Within™ Probiotic</span><span class="go">Shop</span></a></li></ul></div><p class="tail">It is not a ritual. It is just first.</p>
+  </div>
+</section>
+<section class="scene" id="scene-3" data-scene="3" style="--frames:56;--c0:#6a6274;--c1:#b09174" aria-labelledby="h-3">
+  <div class="stage"><canvas role="img" aria-label="Water running into a bottle on the counter, a scoop resting beside it."></canvas></div>
+  <div class="flow">
+    <div class="beat">
+      <p class="eyebrow"><b>03</b> <u>Twist and load</u><s></s><i>06:30<span>–07:10</span></i></p>
+      <h2 id="h-3">Twist, and the<em> water changes colour</em></h2>
+      <p>Bottle under the tap. A scoop, a tube, done standing up.</p>
+    </div>
+    <div class="cluster"><h3>The scoop<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/TcFtuhPvJ" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128463.webp" alt="XS™ Creatine+" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Creatine+</span><span class="go">Shop</span></a></li></ul></div>
+    <div class="cluster"><h3>The twist<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/s8elwQ-bb" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110922.webp" alt="Nutrilite™ Twist Tubes 2GO™ – Variety Pack" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Twist Tubes 2GO™ – Variety Pack</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/XjBUQPtjO" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110390.webp" alt="XS™ Sports Twist Tubes – Fruit Punch" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sports Twist Tubes – Fruit Punch</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/hzkCx98xw" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/305555.webp" alt="XS™ Sports Twist Tubes – Raspberry Lemonade" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sports Twist Tubes – Raspberry Lemonade</span><span class="go">Shop</span></a></li></ul></div>
+    <div class="cluster"><h3>The water<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/Dts4kqijP" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110601.webp" alt="XS™ CocoWater Hydration Drink Mix – Strawberry/Watermelon" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ CocoWater Hydration Drink Mix – Strawberry/Watermelon</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/enbKVnLlx" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110631.webp" alt="XS™ CocoWater Hydration Drink Mix – Pineapple/Coconut" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ CocoWater Hydration Drink Mix – Pineapple/Coconut</span><span class="go">Shop</span></a></li></ul></div>
+  </div>
+</section>
+<section class="scene" id="scene-4" data-scene="4" style="--frames:60;--c0:#b09174;--c1:#d8c6a8" aria-labelledby="h-4">
+  <div class="stage"><canvas role="img" aria-label="Morning kitchen in motion, a shaker being filled on the way past."></canvas></div>
+  <div class="flow">
+    <div class="beat">
+      <p class="eyebrow"><b>04</b> <u>Kitchen</u><s></s><i>07:10<span>–08:00</span></i></p>
+      <h2 id="h-4">A scoop,<em> not a recipe</em></h2>
+      <p>Chocolate. Shaker. Out the door holding it.</p>
+    </div>
+    <div class="cluster"><h3>Whey<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/o3K2G9Gau" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128154.webp" alt="XS™ Grass-Fed Whey Protein – Chocolate" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Grass-Fed Whey Protein – Chocolate</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/LYOT5kyHn" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128155.webp" alt="XS™ Grass-Fed Whey Protein – Strawberry" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Grass-Fed Whey Protein – Strawberry</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/14~vr9fjQ" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128156.webp" alt="XS™ Grass-Fed Whey Protein – Vanilla" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Grass-Fed Whey Protein – Vanilla</span><span class="go">Shop</span></a></li></ul></div>
+    <div class="cluster"><h3>Sachets, for the bag<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/3i1Nxah8u" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128167.webp" alt="XS™ Grass-Fed Whey Protein Powder Sachets - Chocolate" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Grass-Fed Whey Protein Powder Sachets - Chocolate</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/vTiZNA5QUR" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128168.webp" alt="XS™ Grass-Fed Whey Protein Powder Sachets - Strawberry" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Grass-Fed Whey Protein Powder Sachets - Strawberry</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/V5QxGP6Xp" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128169.webp" alt="XS™ Grass-Fed Whey Protein Powder Sachets - Vanilla" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Grass-Fed Whey Protein Powder Sachets - Vanilla</span><span class="go">Shop</span></a></li></ul></div>
+    <div class="cluster"><h3>Ready to go<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/IwkAJiWQ3" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110369.webp" alt="XS™ Sports Protein Shakes – Rich Chocolate" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sports Protein Shakes – Rich Chocolate</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/ofcahKqvN" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110370.webp" alt="XS™ Sports Protein Shakes – Vanilla Crème" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sports Protein Shakes – Vanilla Crème</span><span class="go">Shop</span></a></li></ul></div>
+  </div>
+</section>
+<section class="scene" id="scene-5" data-scene="5" style="--frames:72;--c0:#d8c6a8;--c1:#cdc9bd" aria-labelledby="h-5">
+  <div class="stage"><canvas role="img" aria-label="At a desk through the middle of the day, light flattening across the room."></canvas></div>
+  <div class="flow">
+    <div class="beat">
+      <p class="eyebrow"><b>05</b> <u>Office</u><s></s><i>08:00<span>–14:40</span></i></p>
+      <h2 id="h-5">The middle of the day<em> passes here</em></h2>
+      <p>Three hours in, the screen stops being interesting.</p>
+    </div>
+    <div class="cluster"><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/EXX8FgRW6" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/101593.webp" alt="XS™ Energy + Focus Dietary Supplement - 60 Tablets" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy + Focus Dietary Supplement - 60 Tablets</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/zFoRkr5eK" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/107846.webp" alt="XS™ Energy + Focus Dietary Supplement - 30 Tablets" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy + Focus Dietary Supplement - 30 Tablets</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/gry6-Xg5l" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/266673.webp" alt="XS™ Elite + Focus Energy Drink – Peach Mango" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Elite + Focus Energy Drink – Peach Mango</span><span class="go">Shop</span></a></li></ul></div><p class="tail">Two emails matter. The rest is weather.</p>
+  </div>
+</section>
+<section class="scene" id="scene-6" data-scene="6" style="--frames:48;--c0:#cdc9bd;--c1:#c9a97e" aria-labelledby="h-6">
+  <div class="stage"><canvas role="img" aria-label="Reaching into a drawer for a bar without looking up from the desk."></canvas></div>
+  <div class="flow">
+    <div class="beat">
+      <p class="eyebrow"><b>06</b> <u>Hunger</u><s></s><i>14:40<span>–15:40</span></i></p>
+      <h2 id="h-6">The stomach<em> turns over</em></h2>
+      <p>Not a meal. Something to chew, and back to it.</p>
+    </div>
+    <div class="cluster"><h3>The reach<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/FHubIOB6L" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110385.webp" alt="XS™ Sports Protein Bars – Chocolate Peanut Butter" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sports Protein Bars – Chocolate Peanut Butter</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/IMXmJE6Fb" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110386.webp" alt="XS™ Sports Protein Bars – Chocolate Berry" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sports Protein Bars – Chocolate Berry</span><span class="go">Shop</span></a></li></ul></div>
+    <div class="cluster"><h3>Also in the drawer<s></s></h3><ul class="grid"><li><a class="card photo" href="https://amway.com/share-link/WsloZO1TV" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/316302-en-US-690px-02?context=bWFzdGVyfGltYWdlc3wyMjE1NzN8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g5MC9oYjIvOTc0MjgyMzY4NjE3NC8zMTYzMDItZW4tVVMtNjkwcHgtMDJ8MWI4MWI5YzBkODk3ZTA1ODIxNjVlYjIzMTM3NGY0ZDRlMzlhNDRlZjA5MzA1NDEzMGE0MTcyNDAyYTNmNDgyMw" alt="Nutrilite™ Organics All-in-One Bars – Peanut Butter" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Organics All-in-One Bars – Peanut Butter</span><span class="go">Shop</span></a></li><li><a class="card photo" href="https://amway.com/share-link/195NEh7tP" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/316303-en-US-690px-02?context=bWFzdGVyfGltYWdlc3wyMjg4MDd8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g2NS9oMzUvOTc0MjgyMTA5NzUwMi8zMTYzMDMtZW4tVVMtNjkwcHgtMDJ8YjIyODliODg5YTFiZTU1NjQxMmUzNDg5NWNhMzM4MDA1NDA4YTE4ZDBjMTlmYWEyNzg0Mjg5OTEwMzhiMGRiYg" alt="Nutrilite™ Organics All-in-One Bars – Double Chocolate" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Organics All-in-One Bars – Double Chocolate</span><span class="go">Shop</span></a></li><li><a class="card photo" href="https://amway.com/share-link/90MN2VV7h" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/316305-en-US-690px-02?context=bWFzdGVyfGltYWdlc3wyMTY1NjV8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g1MS9oMjcvOTc0MjgxMzM5NzAyMi8zMTYzMDUtZW4tVVMtNjkwcHgtMDJ8ODkwMjI3NmQwZGU3YzMzZTgwYzQzNWVhMTQzMDE2NDlmNDAyNGQwZjc4MjMyZTg1NDUyOTQ5YzQ4MWVjN2IwMg" alt="Nutrilite™ Organics All-in-One Bars – Berries &amp; Seeds" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Organics All-in-One Bars – Berries &amp; Seeds</span><span class="go">Shop</span></a></li></ul></div>
+    <div class="cluster"><h3>Salt, some days<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/yQu-NHOoT" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110627.webp" alt="XS™ Protein Crisps – Barbeque" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Protein Crisps – Barbeque</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/MVc4sISgs" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110628.webp" alt="XS™ Protein Crisps – Sriracha Lime" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Protein Crisps – Sriracha Lime</span><span class="go">Shop</span></a></li></ul></div>
+  </div>
+</section>
+<section class="scene" id="scene-7" data-scene="7" style="--frames:72;--c0:#c9a97e;--c1:#8c5f45" aria-labelledby="h-7">
+  <div class="stage"><canvas role="img" aria-label="Late afternoon, a cold can lifted off the shelf on the way to train."></canvas></div>
+  <div class="flow">
+    <div class="beat">
+      <p class="eyebrow"><b>07</b> <u>Lift</u><s></s><i>15:40<span>–18:30</span></i></p>
+      <h2 id="h-7">Cold can,<em> then the bar</em></h2>
+      <p>The part of the day that belongs to nobody else.</p>
+    </div>
+    <div class="cluster"><h3>Before<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/ZsJafHG0E" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/316375.webp" alt="XS™ Pre-Workout Boost - Blue Raspberry (30 Serving Pouch)" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Pre-Workout Boost - Blue Raspberry (30 Serving Pouch)</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/Om6-lIl43" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/316376.webp" alt="XS™ Pre-Workout Boost - Green Apple (30 Serving Pouch)" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Pre-Workout Boost - Green Apple (30 Serving Pouch)</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/SattacJ5V" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/316377.webp" alt="XS™ Pre-Workout Boost - Blue Raspberry (12 Stick Packs)" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Pre-Workout Boost - Blue Raspberry (12 Stick Packs)</span><span class="go">Shop</span></a></li><li><a class="card photo" href="https://amway.com/share-link/m5Jg-DMsC" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/316378-en-US-690px-03?context=bWFzdGVyfGltYWdlc3w1NDEyODV8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g0NS9oZGQvOTY4MDU5MTc0OTE1MC8zMTYzNzgtZW4tVVMtNjkwcHgtMDN8ZWY5MDI5NzNkMDNmZDEwYTA1NTJmZjExMzhiMDMzMzI3YjAxMmFkMTMxNTdjYTQ2N2JjZTljOGJmY2Y5MGVlOQ" alt="XS™ Pre-Workout Boost - Green Apple (12 Stick Packs)" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Pre-Workout Boost - Green Apple (12 Stick Packs)</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/ZcBRI5loO" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/127811.webp" alt="XS™ Ignite Powder – Moro Blood Orange" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Ignite Powder – Moro Blood Orange</span><span class="go">Shop</span></a></li></ul></div>
+    <div class="cluster"><h3>The fridge<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/xLah3mPV0" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/101444.webp" alt="XS™ Energy Drink 12 oz - Electric Lemon Limited Edition" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Electric Lemon Limited Edition</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/xwfpNhDqO" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126184.webp" alt="XS™ Energy Drink 12 oz - Citrus" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Citrus</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/WUc94jJH-" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126197.webp" alt="XS™ Energy Drink 12 oz - Cranberry-Grape" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Cranberry-Grape</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/W~TRQs7BM" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126198.webp" alt="XS™ Energy Drink 12 oz - Tamarindo" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Tamarindo</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/odDPLjdVi" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126199.webp" alt="XS™ Energy Drink 12 oz - Tropical" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Tropical</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/EGaxihDh9" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126201.webp" alt="XS™ Energy Drink 12 oz - Black Cherry Cola" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Black Cherry Cola</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/bYV674AFp" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126202.webp" alt="XS™ Energy Drink 12 oz - Root Beer" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Root Beer</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/uoKaQD8~a" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126883.webp" alt="XS™ Energy Drink 12 oz - Classic" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Classic</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/8ofd6z7Ow" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126981.webp" alt="XS™ Energy Drink 12 oz - Naranja" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Naranja</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/b40~kN2GF" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126982.webp" alt="XS™ Energy Drink 12 oz - Summit" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Summit</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/bTDU-QSAa" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126983.webp" alt="XS™ Energy Drink 12 oz - Caffeine Free Cranberry-Grape" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Caffeine Free Cranberry-Grape</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/mk5aRggdy" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126984.webp" alt="XS™ Sparkling Juiced Energy 12 oz - Caffeine Free Mango Pineapple Guava" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sparkling Juiced Energy 12 oz - Caffeine Free Mango Pineapple Guava</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/1-vD7GZEx" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126986.webp" alt="XS™ Sparkling Juiced Energy 12 oz - Mango Pineapple Guava" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sparkling Juiced Energy 12 oz - Mango Pineapple Guava</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/JGfJfQ8AB" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126987.webp" alt="XS™ Sparkling Juiced Energy 12 oz - Pink Grapefruit" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sparkling Juiced Energy 12 oz - Pink Grapefruit</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/OLeTQv5LC" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126998.webp" alt="XS™ Energy Drink 12 oz – Watermelon Lemonade" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz – Watermelon Lemonade</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/KP09m3teD" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/127070.webp" alt="XS™ Energy Drink 12 oz – Variety Case" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz – Variety Case</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/DwyiPxiIU" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/127071.webp" alt="XS™ Juiced and Burn 12 oz – Variety Case" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Juiced and Burn 12 oz – Variety Case</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/tV6oqMvMc" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/127935.webp" alt="XS™ Energy + Burn 12 oz – Blue Razz" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy + Burn 12 oz – Blue Razz</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/QVgQcE~fm" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/127936.webp" alt="XS™ Energy + Burn 12 oz – Kiwi Strawberry" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy + Burn 12 oz – Kiwi Strawberry</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/9vGPxSKNA" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128583.webp" alt="XS™ Energy Drink 12 oz – Rocket Blast Limited Edition" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz – Rocket Blast Limited Edition</span><span class="go">Shop</span></a></li></ul></div>
+    <div class="cluster"><h3>After<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/CBN8O~MnX" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/316379.webp" alt="XS™ Post-Workout Recovery - Fruit Punch (30 Serving Pouch)" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Post-Workout Recovery - Fruit Punch (30 Serving Pouch)</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/lrJlYVhGM" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/316380.webp" alt="XS™ Post-Workout Recovery - Fruit Punch (12 Stick Packs)" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Post-Workout Recovery - Fruit Punch (12 Stick Packs)</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/D2YioWCnT" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126753.webp" alt="XS™ Muscle Multiplier - Berry Blast" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Muscle Multiplier - Berry Blast</span><span class="go">Shop</span></a></li><li><a class="card photo" href="https://amway.com/share-link/WvhxbGmYf" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/126754-en-US-690px-03?context=bWFzdGVyfGltYWdlc3wxOTAwNDF8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g5Ny9oOTgvOTcwMTk1NTk5MzYzMC8xMjY3NTQtZW4tVVMtNjkwcHgtMDN8YjlmM2Q3NWMyMGIyOGQyZmNmZTlhMjU1NzQ4NDcwMTFmYzNiMzY5ZTVmYzRkN2Y1YWFhOGQ1YzVhNDU3ZmFkZg" alt="XS™ Muscle Multiplier – Watermelon" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Muscle Multiplier – Watermelon</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/AwIzUqvC1" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/296753.webp" alt="XS™ CBD Cream" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ CBD Cream</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/9EXfGTpU-" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/300323.webp" alt="XS™ CBD Pro Cream" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ CBD Pro Cream</span><span class="go">Shop</span></a></li></ul></div>
+  </div>
+</section>
+<section class="scene" id="scene-8" data-scene="8" style="--frames:66;--c0:#8c5f45;--c1:#12141f" aria-labelledby="h-8">
+  <div class="stage"><canvas role="img" aria-label="Bathroom mirror at night, then the nightstand under a low lamp."></canvas></div>
+  <div class="flow">
+    <div class="beat">
+      <p class="eyebrow"><b>08</b> <u>Night</u><s></s><i>18:30<span>–22:40</span></i></p>
+      <h2 id="h-8">Wash the day off,<em> then the lamp</em></h2>
+      <p>A small pile by the bed, and the light goes down.</p>
+    </div>
+    <div class="cluster"><h3>The mirror<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/2Vi-rjqyj" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/124812.webp" alt="Artistry Studio™ Glow Boss Cleanser + Exfoliator" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Artistry Studio™ Glow Boss Cleanser + Exfoliator</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/hKMa0MHHc" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/123783V.webp" alt="Artistry Skin Nutrition™ Renewing Softening Toner" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Artistry Skin Nutrition™ Renewing Softening Toner</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/iWAplHgh3" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/125575.webp" alt="Artistry Skin Nutrition™ Sleeping Mask" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Artistry Skin Nutrition™ Sleeping Mask</span><span class="go">Shop</span></a></li></ul></div>
+    <div class="cluster"><h3>The nightstand<s></s></h3><ul class="grid"><li><a class="card photo" href="https://amway.com/share-link/ROw2AOp7v" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/128032-en-US-690px-03?context=bWFzdGVyfGltYWdlc3w4NDAwNzV8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2hhYi9oYzkvOTk3MjU0MDYwNDQ0Ni8xMjgwMzItZW4tVVMtNjkwcHgtMDN8ODhhYTYwZjM1ZmZmMWUxYzU2ZmI1YjJhMjg0NjFhNjJmOGQ3NzMzNWEyZjdiZDQyM2Y3ODU4N2M3YTU0NDhlYg" alt="Nutrilite™ Magnesium" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Magnesium</span><span class="go">Shop</span></a></li><li><a class="card photo" href="https://amway.com/share-link/SMhXOCNJy" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/308641-en-US-690px-04?context=bWFzdGVyfGltYWdlc3wxNzY5NTF8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2gxMS9oMDUvOTc3OTY4MzA5ODY1NC8zMDg2NDEtZW4tVVMtNjkwcHgtMDR8OWE3ZGUxYTliY2JhODAzZDM1Zjg2OGQ1Nzg2ZWRhOTFmNTIxNjgxZDAxYWRlNDQ0YTc0OTU0NDY3YWI5NzhlZg" alt="Nutrilite™ Organics Ashwagandha Capsules" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Organics Ashwagandha Capsules</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/PVUuzXLQ6" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/124506.webp" alt="n* by Nutrilite™ Sweet Dreams – Sleep Gummies" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">n* by Nutrilite™ Sweet Dreams – Sleep Gummies</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/o8m6KGk53" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/127940.webp" alt="Nutrilite™ Sleep Health" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Sleep Health</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/qe6JKbGxp" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/308636.webp" alt="Nutrilite™ Organics Chamomile Tea" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Organics Chamomile Tea</span><span class="go">Shop</span></a></li></ul></div>
+  </div>
+</section>
+
+  <section class="end" id="end">
+    <h2>That was the day.</h2>
+    <p>65 products, each one where it actually belongs.</p>
+    <ol><li><a href="#scene-1"><b>05:48</b><span>Wake — before anything goes in</span></a></li><li><a href="#scene-2"><b>06:05</b><span>Gut, first thing — 2 products</span></a></li><li><a href="#scene-3"><b>06:30</b><span>Twist and load — 6 products</span></a></li><li><a href="#scene-4"><b>07:10</b><span>Kitchen — 8 products</span></a></li><li><a href="#scene-5"><b>08:00</b><span>Office — 3 products</span></a></li><li><a href="#scene-6"><b>14:40</b><span>Hunger — 7 products</span></a></li><li><a href="#scene-7"><b>15:40</b><span>Lift — 31 products</span></a></li><li><a href="#scene-8"><b>18:30</b><span>Night — 8 products</span></a></li></ol>
+    <p class="note">Motion is placeholder: every beat draws its own frame number
+      and the colour of its hour, so a scroll position can be read exactly.
+      Scene&nbsp;1 loads eagerly; every later beat is pulled in as it is
+      approached. Product photography is Amway's, served from source.</p>
+  </section>
+</main>
+
+<script>window.__SCENES__=[{"n":1,"key":"wake","title":"Wake","frames":60,"t0":348,"t1":365,"c0":"#171c30","c1":"#2a3147","media":null},{"n":2,"key":"gut","title":"Gut, first thing","frames":48,"t0":365,"t1":390,"c0":"#2a3147","c1":"#6a6274","media":null},{"n":3,"key":"load","title":"Twist and load","frames":56,"t0":390,"t1":430,"c0":"#6a6274","c1":"#b09174","media":null},{"n":4,"key":"kitchen","title":"Kitchen","frames":60,"t0":430,"t1":480,"c0":"#b09174","c1":"#d8c6a8","media":null},{"n":5,"key":"office","title":"Office","frames":72,"t0":480,"t1":880,"c0":"#d8c6a8","c1":"#cdc9bd","media":null},{"n":6,"key":"hunger","title":"Hunger","frames":48,"t0":880,"t1":940,"c0":"#cdc9bd","c1":"#c9a97e","media":null},{"n":7,"key":"lift","title":"Lift","frames":72,"t0":940,"t1":1110,"c0":"#c9a97e","c1":"#8c5f45","media":null},{"n":8,"key":"night","title":"Night","frames":66,"t0":1110,"t1":1360,"c0":"#8c5f45","c1":"#12141f","media":null}];</script>
+<script>/* =====================================================================
+   The day — scroll-driven scrub engine.
+
+   SCENES is injected by tools/build_scaffold.py from the data layer.
+   Each scene owns a stretch of scroll travel; that travel scrubs its own
+   clip forward and back. Scroll down it plays, scroll up it reverses,
+   stop and it holds.
+
+   Swapping placeholder motion for real footage is a DATA change:
+   give a scene a `media` block and makeSource() returns a real source.
+        media:{kind:"frames", pattern:"scenes/03/%d.webp", frames:56}
+        media:{kind:"video",  src:"scenes/03.mp4", fps:24, frames:56}
+   Nothing below this comment needs to change when the footage lands.
+   ===================================================================== */
+(function () {
+  "use strict";
+
+  var S = window.__SCENES__;
+  var PPF = 20;                     // px of scroll per clip frame
+  var RM = matchMedia("(prefers-reduced-motion: reduce)");
+
+  /* ------------------------------------------------------------ colour */
+  function hex(c) {
+    return [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)];
+  }
+  function mix(a, b, t) {
+    var x = hex(a), y = hex(b), o = "#";
+    for (var i = 0; i < 3; i++) {
+      var v = Math.round(x[i] + (y[i] - x[i]) * t);
+      o += (v < 16 ? "0" : "") + v.toString(16);
+    }
+    return o;
+  }
+  function lum(c) {
+    var v = hex(c).map(function (n) {
+      n /= 255;
+      return n <= 0.03928 ? n / 12.92 : Math.pow((n + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+  }
+  function clock(min) {
+    var m = Math.round(min), h = Math.floor(m / 60) % 24;
+    m = m % 60;
+    return (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m;
+  }
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+
+  /* ================================================================== */
+  /*  CLIP SOURCES — one interface, three implementations.              */
+  /*                                                                    */
+  /*    .frames                 how many frames the clip holds          */
+  /*    .state                  idle | loading | ready | error          */
+  /*    .load()   -> Promise    idempotent; the loader calls this       */
+  /*    .draw(ctx,i,w,h) -> bool  paint frame i; false = not ready yet  */
+  /*                                                                    */
+  /*  A source NEVER blocks paint. When it returns false the engine     */
+  /*  paints the flat day colour underneath, so a scene that has not    */
+  /*  arrived still reads as the right hour.                            */
+  /* ================================================================== */
+
+  function cover(ctx, src, w, h) {
+    var sw = src.videoWidth || src.width, sh = src.videoHeight || src.height;
+    if (!sw || !sh) return false;
+    var s = Math.max(w / sw, h / sh), dw = sw * s, dh = sh * s;
+    ctx.drawImage(src, (w - dw) / 2, (h - dh) / 2, dw, dh);
+    return true;
+  }
+
+  /* -- placeholder: flat colour through the day + the frame it is on -- */
+  function PlaceholderSource(sc) {
+    this.sc = sc; this.frames = sc.frames; this.state = "idle";
+  }
+  PlaceholderSource.prototype.load = function () {
+    this.state = "ready";
+    return Promise.resolve();
+  };
+  PlaceholderSource.prototype.draw = function (ctx, i, w, h) {
+    var sc = this.sc, p = sc.frames > 1 ? i / (sc.frames - 1) : 0;
+    var col = mix(sc.c0, sc.c1, p);
+    ctx.fillStyle = col;
+    ctx.fillRect(0, 0, w, h);
+
+    /* A leader, not a debug overlay. The page type scrolls straight over
+       the film, so this stays faint on purpose — the exact frame is read
+       from the bar, which nothing ever covers. */
+    var d = lum(col) < 0.42 ? "242,239,233" : "20,22,29";
+    var acc = lum(col) < 0.42 ? "255,211,106" : "140,47,18";
+    var wide = w >= 900;
+    var x = wide ? 40 : 20;
+    var y = Math.round(h * 0.17);
+    var strip = Math.min(w - x * 2, wide ? 380 : 300);
+
+    ctx.textBaseline = "alphabetic";
+    ctx.fillStyle = "rgba(" + d + ",.30)";
+    ctx.font = '600 11px ui-monospace,"SFMono-Regular",Menlo,monospace';
+    ctx.fillText("SCENE " + sc.n + "  \u00b7  " + sc.key.toUpperCase() + "  \u00b7  PLACEHOLDER", x, y);
+
+    var big = wide ? 152 : 116;
+    var base = y + big * 0.82;
+    ctx.fillStyle = "rgba(" + d + ",.22)";
+    ctx.font = '300 ' + big + 'px "Inter",system-ui,sans-serif';
+    var n = String(i);
+    while (n.length < 3) n = "0" + n;
+    ctx.fillText(n, x - 3, base);
+    var nw = ctx.measureText(n).width;
+
+    ctx.fillStyle = "rgba(" + d + ",.26)";
+    ctx.font = '500 13px ui-monospace,"SFMono-Regular",Menlo,monospace';
+    ctx.fillText("/ " + (sc.frames - 1), x + nw + 10, base);
+
+    var ty = base + 26;
+    ctx.fillStyle = "rgba(" + d + ",.22)";
+    ctx.fillRect(x, ty, strip, 1);
+    for (var k = 0; k < sc.frames; k++) {
+      var tx = x + (strip - 1) * (sc.frames > 1 ? k / (sc.frames - 1) : 0);
+      var on = k === i;
+      ctx.fillStyle = on ? "rgba(" + acc + ",.85)" : "rgba(" + d + ",.22)";
+      ctx.fillRect(Math.round(tx), ty - (on ? 10 : 4), on ? 2 : 1, on ? 20 : 8);
+    }
+    return true;
+  };
+
+  /* -- numbered frame sequence painted to canvas (exact seek anywhere) - */
+  function FrameSequenceSource(sc, m) {
+    this.sc = sc; this.m = m;
+    this.frames = m.frames || sc.frames;
+    this.bmp = new Array(this.frames);
+    this.have = 0; this.state = "idle";
+  }
+  FrameSequenceSource.prototype.url = function (i) {
+    var pad = this.m.pad || 3, n = String(i + (this.m.start || 0));
+    while (n.length < pad) n = "0" + n;
+    return this.m.pattern.replace("%d", n);
+  };
+  FrameSequenceSource.prototype.load = function () {
+    if (this._p) return this._p;
+    var self = this, conc = this.m.concurrency || 6, next = 0;
+    this.state = "loading";
+    function worker() {
+      if (next >= self.frames) return Promise.resolve();
+      var i = next++;
+      return fetch(self.url(i), { mode: "cors" })
+        .then(function (r) { return r.blob(); })
+        .then(createImageBitmap)
+        .then(function (b) {
+          self.bmp[i] = b;
+          if (++self.have === 1) self.state = "ready";
+          self.sc.dirty = true; kick();
+        })
+        .catch(function () { /* hole; draw() falls back to the nearest */ })
+        .then(worker);
+    }
+    var pool = [];
+    for (var k = 0; k < conc; k++) pool.push(worker());
+    this._p = Promise.all(pool).then(function () {
+      self.state = self.have ? "ready" : "error";
+    });
+    return this._p;
+  };
+  FrameSequenceSource.prototype.draw = function (ctx, i, w, h) {
+    var b = this.bmp[i];
+    if (!b) {
+      for (var d = 1; d < this.frames && !b; d++) b = this.bmp[i - d] || this.bmp[i + d];
+      if (!b) return false;
+    }
+    return cover(ctx, b, w, h);
+  };
+
+  /* -- short-GOP mp4 seeked by currentTime ---------------------------- */
+  function VideoSource(sc, m) {
+    this.sc = sc; this.m = m;
+    this.fps = m.fps || 24;
+    this.frames = m.frames || sc.frames;
+    this.state = "idle";
+  }
+  VideoSource.prototype.load = function () {
+    if (this._p) return this._p;
+    var self = this, v = document.createElement("video");
+    v.src = this.m.src; v.preload = "auto"; v.muted = true;
+    v.playsInline = true; v.crossOrigin = "anonymous";
+    this.v = v; this.state = "loading";
+    this._p = new Promise(function (res) {
+      v.addEventListener("loadeddata", function () {
+        self.state = "ready"; self.sc.dirty = true; kick(); res();
+      }, { once: true });
+      v.addEventListener("error", function () { self.state = "error"; res(); }, { once: true });
+    });
+    v.load();
+    return this._p;
+  };
+  VideoSource.prototype.draw = function (ctx, i, w, h) {
+    var v = this.v, self = this;
+    if (!v || this.state !== "ready" || !v.videoWidth) return false;
+    var t = Math.min(i / this.fps, (v.duration || 1e9) - 1e-3);
+    if (!this._seek && Math.abs(v.currentTime - t) > 0.5 / this.fps) {
+      this._seek = true;
+      v.addEventListener("seeked", function () {
+        self._seek = false; self.sc.dirty = true; kick();
+      }, { once: true });
+      try { v.currentTime = t; } catch (e) { this._seek = false; }
+    }
+    return cover(ctx, v, w, h);
+  };
+
+  function makeSource(sc) {
+    var m = sc.media;
+    if (m && m.kind === "frames") return new FrameSequenceSource(sc, m);
+    if (m && m.kind === "video") return new VideoSource(sc, m);
+    return new PlaceholderSource(sc);
+  }
+
+  /* ================================================================== */
+  /*  WIRE UP                                                           */
+  /* ================================================================== */
+  var root = document.documentElement;
+  var elClock = document.getElementById("clock");
+  var elBeat = document.getElementById("barbeat");
+  var elDay = document.getElementById("daybar");
+  var elHud = document.getElementById("hud");
+
+  S.forEach(function (sc) {
+    sc.el = document.getElementById("scene-" + sc.n);
+    sc.stage = sc.el.querySelector(".stage");
+    sc.cv = sc.el.querySelector("canvas");
+    sc.ctx = sc.cv.getContext("2d", { alpha: false });
+    sc.frame = -1;
+    sc.dirty = true;
+    sc.src = makeSource(sc);
+  });
+
+  /* ---- loading: scene 1 eager, the rest pulled as they approach ----- */
+  function onScreen(sc) {
+    var y = window.scrollY;
+    return sc.top < y + window.innerHeight && sc.top + sc.h > y;
+  }
+  function ensure(sc) {
+    if (!sc || sc.src.state !== "idle") return;
+    sc.src.load().then(function () {
+      sc.dirty = true;
+      if (reduced) stillFrame(sc); else kick();
+      // Warm the next one ONLY while this one is actually on screen. An
+      // unconditional chain cascades the whole day on the first load —
+      // invisible with placeholders, fatal with footage.
+      if (onScreen(sc)) ensure(S[sc.n]);
+    });
+  }
+
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var sc = S[+e.target.dataset.scene - 1];
+        ensure(sc);
+        io.unobserve(e.target);
+      });
+    }, { rootMargin: "120% 0px" });
+    S.forEach(function (sc) { if (sc.n > 1) io.observe(sc.el); });
+  } else {
+    S.forEach(ensure);
+  }
+  // Scene 1 after first paint — eager, but never in front of it.
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () { ensure(S[0]); });
+  });
+
+  /* ---- geometry ----------------------------------------------------- */
+  var vh = 0, dpr = 1;
+  function measure() {
+    vh = window.innerHeight;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    S.forEach(function (sc) {
+      sc.top = sc.el.offsetTop;
+      sc.h = sc.el.offsetHeight;
+      sc.stageH = sc.stage.offsetHeight;
+      sc.travel = Math.max(1, Math.min(sc.frames * PPF, sc.h - sc.stageH));
+      sc.w = sc.stage.clientWidth;
+      sc.ch = sc.stage.clientHeight;
+      var bw = Math.round(sc.w * dpr), bh = Math.round(sc.ch * dpr);
+      if (sc.cv.width !== bw || sc.cv.height !== bh) {
+        sc.cv.width = bw; sc.cv.height = bh;
+      }
+      sc.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      sc.dirty = true;
+    });
+  }
+
+  function hold(ctx, sc, i, w, h) {      // flat day colour under a clip
+    var p = sc.frames > 1 ? i / (sc.frames - 1) : 0;
+    ctx.fillStyle = mix(sc.c0, sc.c1, p);
+    ctx.fillRect(0, 0, w, h);
+  }
+
+  function paint(sc, i) {
+    if (!sc.src.draw(sc.ctx, i, sc.w, sc.ch)) hold(sc.ctx, sc, i, sc.w, sc.ch);
+  }
+
+  /* ---- chrome ------------------------------------------------------- */
+  var lastInk = "";
+  function chrome(sc, p) {
+    if (!sc) {                       // above the first beat, or past the last
+      var last = S[S.length - 1];
+      if (window.scrollY >= last.top + last.h) { sc = last; p = 1; }
+      else { sc = S[0]; p = 0; }
+    }
+    elClock.textContent = clock(sc.t0 + (sc.t1 - sc.t0) * p);
+    elBeat.textContent = sc.title;
+    elHud.textContent = "S" + sc.n + " " + String(Math.max(sc.frame, 0)).padStart(3, "0")
+                      + "/" + (sc.frames - 1);
+    var col = mix(sc.c0, sc.c1, p), light = lum(col) > 0.42;
+    var ink = light ? "d" : "l";
+    if (ink !== lastInk) {
+      lastInk = ink;
+      root.style.setProperty("--ink", light ? "#15171e" : "#f4f1ec");
+      root.style.setProperty("--ink-dim", light ? "rgba(21,23,30,.76)" : "rgba(244,241,236,.68)");
+      root.style.setProperty("--scrim", light ? "rgba(250,246,238,.72)" : "rgba(8,9,14,.62)");
+      root.style.setProperty("--scrim-bar", light ? "rgba(250,246,238,.86)" : "rgba(8,9,14,.82)");
+      root.style.setProperty("--rule", light ? "rgba(21,23,30,.2)" : "rgba(255,255,255,.16)");
+    }
+    var doc = document.documentElement.scrollHeight - vh;
+    elDay.style.width = (doc > 0 ? clamp(window.scrollY / doc, 0, 1) * 100 : 0) + "%";
+  }
+
+  /* ---- the scrub ---------------------------------------------------- */
+  var queued = false, reduced = RM.matches;
+  function kick() {
+    if (reduced) return;          // nothing scrubs; stills are already painted
+    if (!queued) { queued = true; requestAnimationFrame(render); }
+  }
+  function render() {
+    queued = false;
+    var y = window.scrollY, cur = null, curP = 0;
+    for (var k = 0; k < S.length; k++) {
+      var sc = S[k];
+      if (y + vh <= sc.top || y >= sc.top + sc.h) continue;       // off screen
+      var p = clamp((y - sc.top) / sc.travel, 0, 1);
+      var i = Math.round(p * (sc.frames - 1));
+      if (i !== sc.frame || sc.dirty) {
+        sc.frame = i; sc.dirty = false; paint(sc, i);
+      }
+      if (y >= sc.top && y < sc.top + sc.h) { cur = sc; curP = p; }
+    }
+    chrome(cur, curP);
+  }
+
+  /* ---- reduced motion: one still per scene, no loop ------------------ */
+  function stillFrame(sc) {
+    var i = Math.round((sc.frames - 1) / 2);
+    sc.frame = i; sc.dirty = false; paint(sc, i);
+  }
+  function still() {
+    S.forEach(stillFrame);
+    root.style.setProperty("--ink", "#f4f1ec");
+    root.style.setProperty("--ink-dim", "rgba(244,241,236,.68)");
+    root.classList.add("rm");     // the bar's scrub instruments go away
+    elBeat.textContent = "The day";
+  }
+  function start() {
+    measure();
+    if (reduced) { still(); return; }
+    root.classList.remove("rm");
+    render();
+    addEventListener("scroll", kick, { passive: true });
+  }
+  function restart() {
+    measure();
+    if (reduced) still(); else render();
+  }
+
+  addEventListener("resize", function () {
+    clearTimeout(window.__rz);
+    window.__rz = setTimeout(restart, 120);
+  }, { passive: true });
+  RM.addEventListener("change", function (e) {
+    reduced = e.matches;
+    if (reduced) removeEventListener("scroll", kick);
+    else addEventListener("scroll", kick, { passive: true });
+    restart();
+  });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(restart);
+
+  start();
+
+  /* ---- beat index --------------------------------------------------- */
+  var sheet = document.getElementById("sheet"), btn = document.getElementById("beatsbtn");
+  function setSheet(on) {
+    sheet.classList.toggle("on", on);
+    btn.setAttribute("aria-expanded", on ? "true" : "false");
+    if (on) sheet.querySelector("a").focus();
+    else btn.focus();
+  }
+  btn.addEventListener("click", function () { setSheet(!sheet.classList.contains("on")); });
+  document.getElementById("sheetclose").addEventListener("click", function () { setSheet(false); });
+  sheet.addEventListener("click", function (e) { if (e.target.closest("a")) setSheet(false); });
+  addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && sheet.classList.contains("on")) setSheet(false);
+  });
+
+  /* ---- handle for measuring, and for the day the footage lands ------- */
+  window.DAY = {
+    scenes: S,
+    render: render,
+    remeasure: restart,
+    ppf: PPF,
+    /* Cost of a scrub: walk a scene's travel and time the render path.
+       Synchronous on purpose — requestAnimationFrame is throttled in a
+       background tab, which would measure the browser, not the page.
+       Only the steps where the frame index actually changed are counted;
+       the steps that hold are free by design, and are reported apart. */
+    bench: function (n, steps) {
+      n = n || 1; steps = steps || 600;
+      var sc = S[n - 1], y0 = window.scrollY, drawn = [], all = [], i, t0, dt, was;
+      for (i = 0; i < steps; i++) {
+        window.scrollTo(0, sc.top + sc.travel * (i / (steps - 1)));
+        was = sc.frame;
+        t0 = performance.now();
+        render();
+        dt = performance.now() - t0;
+        all.push(dt);
+        if (sc.frame !== was) drawn.push(dt);
+      }
+      window.scrollTo(0, y0);
+      function q(a, f) {
+        var z = a.slice().sort(function (x, y) { return x - y; });
+        return z.length ? +z[Math.min(z.length - 1, Math.floor(z.length * f))].toFixed(3) : 0;
+      }
+      function mean(a) {
+        return +(a.reduce(function (x, y) { return x + y; }, 0) / (a.length || 1)).toFixed(3);
+      }
+      return {
+        scene: n, frames: sc.frames, travelPx: Math.round(sc.travel),
+        pxPerFrame: +(sc.travel / (sc.frames - 1)).toFixed(1),
+        steps: steps, redraws: drawn.length,
+        canvas: sc.cv.width + "x" + sc.cv.height, dpr: dpr,
+        redrawMs: { mean: mean(drawn), p50: q(drawn, .5), p95: q(drawn, .95), max: q(drawn, 1) },
+        allStepsMs: { mean: mean(all), p95: q(all, .95) }
+      };
+    }
+  };
+})();
+</script>
+</body>
+</html>

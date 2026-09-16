@@ -1,0 +1,49 @@
+# id	lead	product (comment)
+# lead is either the word 'catalog' (keep the catalogue photograph
+# in front) or a full Amway image URL to use as the card's face.
+# Anything not listed here leads with its second photograph.
+
+# Chosen by Peter in tools/pick-images.html on 2026-09-11.
+316378	https://www.amway.com/medias/316378-en-US-690px-03?context=bWFzdGVyfGltYWdlc3w1NDEyODV8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g0NS9oZGQvOTY4MDU5MTc0OTE1MC8zMTYzNzgtZW4tVVMtNjkwcHgtMDN8ZWY5MDI5NzNkMDNmZDEwYTA1NTJmZjExMzhiMDMzMzI3YjAxMmFkMTMxNTdjYTQ2N2JjZTljOGJmY2Y5MGVlOQ	XS Pre-Workout Boost Green Apple 12 Stick Packs — Peter picked -03
+128032	https://www.amway.com/medias/128032-en-US-690px-03?context=bWFzdGVyfGltYWdlc3w4NDAwNzV8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2hhYi9oYzkvOTk3MjU0MDYwNDQ0Ni8xMjgwMzItZW4tVVMtNjkwcHgtMDN8ODhhYTYwZjM1ZmZmMWUxYzU2ZmI1YjJhMjg0NjFhNjJmOGQ3NzMzNWEyZjdiZDQyM2Y3ODU4N2M3YTU0NDhlYg	Nutrilite Magnesium — Peter picked -03
+308641	https://www.amway.com/medias/308641-en-US-690px-04?context=bWFzdGVyfGltYWdlc3wxNzY5NTF8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2gxMS9oMDUvOTc3OTY4MzA5ODY1NC8zMDg2NDEtZW4tVVMtNjkwcHgtMDR8OWE3ZGUxYTliY2JhODAzZDM1Zjg2OGQ1Nzg2ZWRhOTFmNTIxNjgxZDAxYWRlNDQ0YTc0OTU0NDY3YWI5NzhlZg	Nutrilite Organics Ashwagandha — Peter picked -04
+124506	https://www.amway.com/medias/124506-en-US-690px-02?context=bWFzdGVyfGltYWdlc3w3MjI1OHxpbWFnZS9qcGVnfGltYWdlcy9oMGEvaGU2Lzg4NzM5ODk3MzQ0MzAuanBnfDI0ZTg1NmEzMjM2ODkyODFhNTc1NWE0OWVlMWMwOGQyMDUwZjE4MzRmYTJiMWIwYzU5MmEyNTc2NGFiMzNlM2U	n* Sweet Dreams Sleep Gummies — Peter picked -02
+127725	https://www.amway.com/medias/127725-en-US-690px-03?context=bWFzdGVyfGltYWdlc3w2Mjc2NDJ8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2hjZi9oNDYvOTgzMjAwMjU1MTgzOC8xMjc3MjUtZW4tVVMtNjkwcHgtMDN8ZWJjMDRmZjU0NmI4MzRjN2MxMDhlNGNmNzk3MGE2ZGE5MTMxZjQxZTA2ZjU3ODAyM2M4YTQxNmE5NmE1NDNjMA	Nutrilite Begin Daily GI Primer — Peter picked -03
+110385	https://www.amway.com/medias/110385-en-US-690px-02?context=bWFzdGVyfGltYWdlc3w1NDM3OXxpbWFnZS9qcGVnfGltYWdlcy9oNTMvaGE5Lzg4NzU4MTk4OTI3NjYuanBnfDViYTRmM2Y4NzgzZTU5ZDNlNzQ4ZWMxZmU4NGFkMzFjZmM0NmIyYzEzYmUwNTE4NTFmMDc4NDc5N2QyYTcyOTQ	XS Sports Protein Bars Chocolate Peanut Butter — Peter picked -02
+110386	https://www.amway.com/medias/110386-en-US-690px-02?context=bWFzdGVyfGltYWdlc3w1MzA2MnxpbWFnZS9qcGVnfGltYWdlcy9oODYvaDA3Lzg4NzU4MjA1MTUzNTguanBnfDc1NWRjZjNkMjNjMzdhZmFlZTZlMDZiM2E1ODNlZDMyNThhNzFkNDZkYTVkZTlmNGY1YjA2ZWE5OTc2MGMyNTQ	XS Sports Protein Bars Chocolate Berry — matched to 110385
+126754	https://www.amway.com/medias/126754-en-US-690px-03?context=bWFzdGVyfGltYWdlc3wxOTAwNDF8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g5Ny9oOTgvOTcwMTk1NTk5MzYzMC8xMjY3NTQtZW4tVVMtNjkwcHgtMDN8YjlmM2Q3NWMyMGIyOGQyZmNmZTlhMjU1NzQ4NDcwMTFmYzNiMzY5ZTVmYzRkN2Y1YWFhOGQ1YzVhNDU3ZmFkZg	XS Muscle Multiplier Watermelon — Peter picked -03
+126753	catalog	XS Muscle Multiplier Berry Blast — Amway publishes no -03 for it; pinned to the packshot rather than risk the compare sheet
+316302	https://www.amway.com/medias/316302-en-US-690px-02?context=bWFzdGVyfGltYWdlc3wyMjE1NzN8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g5MC9oYjIvOTc0MjgyMzY4NjE3NC8zMTYzMDItZW4tVVMtNjkwcHgtMDJ8MWI4MWI5YzBkODk3ZTA1ODIxNjVlYjIzMTM3NGY0ZDRlMzlhNDRlZjA5MzA1NDEzMGE0MTcyNDAyYTNmNDgyMw	Nutrilite Organics All-in-One Bars Peanut Butter — Peter picked -02
+316303	https://www.amway.com/medias/316303-en-US-690px-02?context=bWFzdGVyfGltYWdlc3wyMjg4MDd8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g2NS9oMzUvOTc0MjgyMTA5NzUwMi8zMTYzMDMtZW4tVVMtNjkwcHgtMDJ8YjIyODliODg5YTFiZTU1NjQxMmUzNDg5NWNhMzM4MDA1NDA4YTE4ZDBjMTlmYWEyNzg0Mjg5OTEwMzhiMGRiYg	Nutrilite Organics All-in-One Bars Double Chocolate — matched to 316302
+316305	https://www.amway.com/medias/316305-en-US-690px-02?context=bWFzdGVyfGltYWdlc3wyMTY1NjV8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g1MS9oMjcvOTc0MjgxMzM5NzAyMi8zMTYzMDUtZW4tVVMtNjkwcHgtMDJ8ODkwMjI3NmQwZGU3YzMzZTgwYzQzNWVhMTQzMDE2NDlmNDAyNGQwZjc4MjMyZTg1NDUyOTQ5YzQ4MWVjN2IwMg	Nutrilite Organics All-in-One Bars Berries & Seeds — matched to 316302
+123783V	https://www.amway.com/medias/123783V-en-US-690px-02?context=bWFzdGVyfGltYWdlc3w5MjI4OXxpbWFnZS9qcGVnfGltYWdlcy9oYTIvaDJmLzkyMTAzNjk4MDIyNzAuanBnfDA1MzhjMjY4MTU1NDI0Nzg1OTcwMzQwNjM3MzI0MjYzZGIwNDY4ODk1ZmNkZDE0N2Q3OWM5MGM3ZDQwZDRhZDA	Artistry Skin Nutrition Renewing Softening Toner — Peter picked -02
+
+# Pinned to the catalogue packshot.
+101444	catalog	XS™ Energy Drink 12 oz - Electric Lemon Limited Edition
+126184	catalog	XS™ Energy Drink 12 oz - Citrus
+126197	catalog	XS™ Energy Drink 12 oz - Cranberry-Grape
+126198	catalog	XS™ Energy Drink 12 oz - Tamarindo
+126199	catalog	XS™ Energy Drink 12 oz - Tropical
+126201	catalog	XS™ Energy Drink 12 oz - Black Cherry Cola
+126202	catalog	XS™ Energy Drink 12 oz - Root Beer
+126883	catalog	XS™ Energy Drink 12 oz - Classic
+126981	catalog	XS™ Energy Drink 12 oz - Naranja
+126982	catalog	XS™ Energy Drink 12 oz - Summit
+126983	catalog	XS™ Energy Drink 12 oz - Caffeine Free Cranberry-Grape
+126984	catalog	XS™ Sparkling Juiced Energy 12 oz - Caffeine Free Mango Pineapple Guava
+126986	catalog	XS™ Sparkling Juiced Energy 12 oz - Mango Pineapple Guava
+126987	catalog	XS™ Sparkling Juiced Energy 12 oz - Pink Grapefruit
+126998	catalog	XS™ Energy Drink 12 oz – Watermelon Lemonade
+127070	catalog	XS™ Energy Drink 12 oz – Variety Case
+127071	catalog	XS™ Juiced and Burn 12 oz – Variety Case
+127935	catalog	XS™ Energy + Burn 12 oz – Blue Razz
+127936	catalog	XS™ Energy + Burn 12 oz – Kiwi Strawberry
+128583	catalog	XS™ Energy Drink 12 oz – Rocket Blast Limited Edition
+266673	catalog	XS™ Elite + Focus Energy Drink – Peach Mango
+107846	catalog	XS™ Energy + Focus Dietary Supplement - 30 Tablets
+128154	catalog	XS™ Grass-Fed Whey Protein – Chocolate
+128155	catalog	XS™ Grass-Fed Whey Protein – Strawberry
+128156	catalog	XS™ Grass-Fed Whey Protein – Vanilla
+128167	catalog	XS™ Grass-Fed Whey Protein Powder Sachets - Chocolate
+128168	catalog	XS™ Grass-Fed Whey Protein Powder Sachets - Strawberry
+128169	catalog	XS™ Grass-Fed Whey Protein Powder Sachets - Vanilla

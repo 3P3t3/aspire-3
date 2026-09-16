@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "aspire-3",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "/Users/petorious/Desktop/aspire-3/tools/serve.py",
+        "8777"
+      ],
+      "port": 8777
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+.env.agents
+_publish/
+__pycache__/
+node_modules/
+.DS_Store
+
+# Personal photographs — present on disk, deliberately not published.
+# Nothing in the build references them.
+assets/photos/
+
+# Internal working documents — the brief, the machine notes, the planning.
+CLAUDE.md
+environment.md
+products.md
+day-sequence.md
+Design Notes.pdf
