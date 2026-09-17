@@ -1,0 +1,50 @@
+{
+  "about": "Stop 1 dive end state: a view from inside the water looking down into green plumes, no glass visible. Used to lock the end of the dive patch so the camera goes into the water, not beside the glass.",
+  "jobs": [
+    {
+      "name": "stop1-inside-1409",
+      "model": "fal-ai/flux-pro/v1.1-ultra",
+      "out": "stop1/inside-1409.png",
+      "cost_note": "$0.06 per image (fal model page, checked 2026-09-16)",
+      "input": {
+        "prompt": "Vertical photograph taken from inside a glass of water, fully submerged, the camera looking straight down into the depth of the water. All around and below, fine green powder blooms into soft, curling, swirling plumes and clouds of green, like ink dissolving, with tiny suspended green particles drifting in the foreground. Warm golden morning light shines down through the water from above, catching the edges of the plumes and making the water glow, fading to a deeper green below. Realistic, macro, shallow depth of field, fine film grain, moody and quiet. The water and the plumes fill the entire frame edge to edge: no glass walls, no rim, no water line, no surface, no table, no room, nothing outside the water visible. No hands, no scoop, no person, no text.",
+        "aspect_ratio": "9:16",
+        "raw": true,
+        "seed": 1409,
+        "num_images": 1,
+        "output_format": "png",
+        "safety_tolerance": "2"
+      }
+    },
+    {
+      "name": "stop1-inside-2718",
+      "model": "fal-ai/flux-pro/v1.1-ultra",
+      "out": "stop1/inside-2718.png",
+      "cost_note": "$0.06 per image (fal model page, checked 2026-09-16)",
+      "input": {
+        "prompt": "Vertical photograph taken from inside a glass of water, fully submerged, the camera looking straight down into the depth of the water. All around and below, fine green powder blooms into soft, curling, swirling plumes and clouds of green, like ink dissolving, with tiny suspended green particles drifting in the foreground. Warm golden morning light shines down through the water from above, catching the edges of the plumes and making the water glow, fading to a deeper green below. Realistic, macro, shallow depth of field, fine film grain, moody and quiet. The water and the plumes fill the entire frame edge to edge: no glass walls, no rim, no water line, no surface, no table, no room, nothing outside the water visible. No hands, no scoop, no person, no text.",
+        "aspect_ratio": "9:16",
+        "raw": true,
+        "seed": 2718,
+        "num_images": 1,
+        "output_format": "png",
+        "safety_tolerance": "2"
+      }
+    },
+    {
+      "name": "stop1-inside-8128",
+      "model": "fal-ai/flux-pro/v1.1-ultra",
+      "out": "stop1/inside-8128.png",
+      "cost_note": "$0.06 per image (fal model page, checked 2026-09-16)",
+      "input": {
+        "prompt": "Vertical photograph taken from inside a glass of water, fully submerged, the camera looking straight down into the depth of the water. All around and below, fine green powder blooms into soft, curling, swirling plumes and clouds of green, like ink dissolving, with tiny suspended green particles drifting in the foreground. Warm golden morning light shines down through the water from above, catching the edges of the plumes and making the water glow, fading to a deeper green below. Realistic, macro, shallow depth of field, fine film grain, moody and quiet. The water and the plumes fill the entire frame edge to edge: no glass walls, no rim, no water line, no surface, no table, no room, nothing outside the water visible. No hands, no scoop, no person, no text.",
+        "aspect_ratio": "9:16",
+        "raw": true,
+        "seed": 8128,
+        "num_images": 1,
+        "output_format": "png",
+        "safety_tolerance": "2"
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "about": "Stop 1 dive patch: from frame 53 of real-clip2b (scoop tipping, before the powder lands) into a locked end frame fully inside the water (inside-1409), replacing the mound and the view from beside the glass.",
+  "jobs": [
+    {
+      "name": "stop1-dive-patch",
+      "model": "minimax/h3/image-to-video",
+      "out": "stop1/dive-patch.mp4",
+      "cost_note": "5s x $0.13/s at 2K = $0.65",
+      "input": {
+        "image_file": "assets/generated/stop1/dive-f53.jpg",
+        "end_image_file": "assets/generated/stop1/inside-1409.jpg",
+        "prompt": "Continuing exactly from this frame: looking straight down from above into a glass of clear water as a scoop tips fine green powder into it. As the powder falls, the camera plunges straight down after it and passes through the water's surface, fully into the water, and keeps sinking and looking down: the green powder bursts into soft, curling, swirling plumes all around us, like ink dissolving, lit by warm golden morning light from above. Once we are under, the entire frame is water and green plumes edge to edge: the glass walls, the rim, the water line and the room are never seen again. No powder resting on the surface, no mound. One smooth continuous movement, no cut. Realistic, macro, shallow depth of field, fine film grain. No person, no face, no text.",
+        "duration": 5,
+        "resolution": "2K"
+      }
+    }
+  ]
+}

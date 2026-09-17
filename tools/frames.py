@@ -6,8 +6,11 @@ page can scrub (FrameSequenceSource).
     python3 tools/frames.py clipA.mp4 clipB.mp4 stop1 --every 2
     python3 tools/frames.py clipA2.mp4:66 clipB.mp4 stop1 --every 2
 
-A clip written as path:N is used from its frame N onward (1-based), to trim
-off an opening that went wrong.
+A clip written as path:N is used from its frame N onward (1-based), and
+path:N-M uses frames N to M, to trim off a part of a take that went wrong.
+
+--fade N cross-fades N frames wherever a clip joins at a cut — i.e. a clip
+that doesn't start at its frame 1. Continuous joins are left alone.
 
 --inset F trims the fraction F from every edge of every frame (0.10 = a 1.25x
 push-in), keeping the shape. Use it to lose something that crept in at the
@@ -56,6 +59,11 @@ def main():
         i = args.index("--every")
         every = int(args[i + 1])
         del args[i:i + 2]
+    fade = 0
+    if "--fade" in args:
+        i = args.index("--fade")
+        fade = int(args[i + 1])
+        del args[i:i + 2]
     inset = 0.0
     if "--inset" in args:
         i = args.index("--inset")
@@ -65,10 +73,14 @@ def main():
         sys.exit(__doc__)
     *specs, name = args
     clips, starts = [], []
+    ends = []
     for c in specs:
-        path, _, start = c.rpartition(":") if c.rpartition(":")[2].isdigit() else (c, "", "1")
-        clips.append(Path(path).resolve())
-        starts.append(int(start))
+        head, _, tail = c.rpartition(":")
+        if head and tail.replace("-", "").isdigit():
+            a, _, b = tail.partition("-")
+            clips.append(Path(head).resolve()); starts.append(int(a)); ends.append(int(b) if b else None)
+        else:
+            clips.append(Path(c).resolve()); starts.append(1); ends.append(None)
     out = clips[0].parent / ("frames-" + name)
     out.mkdir(exist_ok=True)
     for old in out.glob("*.webp"):
@@ -81,13 +93,23 @@ def main():
             d.mkdir()
             frames = extract(clip, d, inset)
             total = len(frames)
-            frames = frames[starts[k] - 1:]
+            frames = frames[starts[k] - 1:ends[k]]
             if k and starts[k] == 1:                 # shared join frame: keep once
                 frames = frames[1:]
+            if k and starts[k] > 1 and fade and len(seq) >= fade and len(frames) >= fade:
+                # a cut: blend the last `fade` frames into the first `fade`
+                from PIL import Image
+                for j in range(fade):
+                    a = Image.open(seq[-fade + j]).convert("RGB")
+                    b = Image.open(frames[j]).convert("RGB").resize(a.size, Image.LANCZOS)
+                    out_f = d / ("fade-%03d.webp" % j)
+                    Image.blend(a, b, (j + 1) / (fade + 1)).save(out_f, quality=82)
+                    seq[-fade + j] = out_f
+                frames = frames[fade:]
             seq += frames
             print("%-14s %s  (using %d of %d frames%s)" % (
                 clip.name, probe(clip)[:60], len(frames), total,
-                ", from %d" % starts[k] if starts[k] > 1 else ""))
+                ", frames %d-%s" % (starts[k], ends[k] or "end") if starts[k] > 1 or ends[k] else ""))
         kept = seq[::every]
         if seq and kept[-1] != seq[-1]:              # always end on the true last frame
             kept.append(seq[-1])
