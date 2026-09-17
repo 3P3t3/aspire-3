@@ -1,0 +1,47 @@
+{
+  "about": "Stop 1 bake-off: same start frame (eyes-open-9913) and same motion prompt on three video models. Winner becomes the model for all six stops. Estimated total ~$1.88.",
+  "jobs": [
+    {
+      "name": "take-kling",
+      "model": "fal-ai/kling-video/v3/pro/image-to-video",
+      "out": "stop1/take-kling.mp4",
+      "cost_note": "4s x $0.112/s (sound off) = $0.45",
+      "input": {
+        "start_image_file": "assets/generated/stop1/start-9913.jpg",
+        "prompt": "First-person point of view, continuing exactly from this frame. Someone has just woken up lying on their side in bed at dawn, facing their nightstand. The view eases slowly and steadily forward and slightly down toward the nightstand, as if lifting the head from the pillow. Their own right hand, in a soft plain grey long-sleeved sleep shirt with the cuff at the wrist, enters calmly from the bottom edge of the frame, reaches to the nightstand drawer, takes its edge and slides it open a few centimetres, then rests. One smooth, steady, gimbal-like movement: no head bob, no shake, no cut. The room stays exactly as it is: same nightstand, one glass of water, the brass lamp stays switched off, the same warm morning glow through the linen curtains, dark walls, white duvet. No person visible, no face, no mirror, nothing appears or disappears. Natural, quiet, photographic, documentary.",
+        "negative_prompt": "camera shake, handheld wobble, head bob, fast motion, morphing, warping, extra fingers, extra hands, deformed hand, face, person, lamp turning on, objects appearing, cut, text, logo, blur",
+        "duration": "4",
+        "generate_audio": false,
+        "cfg_scale": 0.5
+      }
+    },
+    {
+      "name": "take-minimax",
+      "model": "minimax/h3/image-to-video",
+      "out": "stop1/take-minimax.mp4",
+      "cost_note": "5s x $0.13/s at 2K = $0.65",
+      "input": {
+        "image_file": "assets/generated/stop1/start-9913.jpg",
+        "prompt": "First-person point of view, continuing exactly from this frame. Someone has just woken up lying on their side in bed at dawn, facing their nightstand. The view eases slowly and steadily forward and slightly down toward the nightstand, as if lifting the head from the pillow. Their own right hand, in a soft plain grey long-sleeved sleep shirt with the cuff at the wrist, enters calmly from the bottom edge of the frame, reaches to the nightstand drawer, takes its edge and slides it open a few centimetres, then rests. One smooth, steady, gimbal-like movement: no head bob, no shake, no cut. The room stays exactly as it is: same nightstand, one glass of water, the brass lamp stays switched off, the same warm morning glow through the linen curtains, dark walls, white duvet. No person visible, no face, no mirror, nothing appears or disappears. Natural, quiet, photographic, documentary.",
+        "duration": 5,
+        "resolution": "2K"
+      }
+    },
+    {
+      "name": "take-ltx",
+      "model": "lightricks/ltx-2.5/image-to-video/fast",
+      "out": "stop1/take-ltx.mp4",
+      "cost_note": "6s x $0.13/s at 1080p = $0.78",
+      "input": {
+        "image_file": "assets/generated/stop1/start-9913.jpg",
+        "prompt": "First-person point of view, continuing exactly from this frame. Someone has just woken up lying on their side in bed at dawn, facing their nightstand. The view eases slowly and steadily forward and slightly down toward the nightstand, as if lifting the head from the pillow. Their own right hand, in a soft plain grey long-sleeved sleep shirt with the cuff at the wrist, enters calmly from the bottom edge of the frame, reaches to the nightstand drawer, takes its edge and slides it open a few centimetres, then rests. One smooth, steady, gimbal-like movement: no head bob, no shake, no cut. The room stays exactly as it is: same nightstand, one glass of water, the brass lamp stays switched off, the same warm morning glow through the linen curtains, dark walls, white duvet. No person visible, no face, no mirror, nothing appears or disappears. Natural, quiet, photographic, documentary.",
+        "duration": 6,
+        "resolution": "1080p",
+        "fps": 24,
+        "aspect_ratio": "9:16",
+        "camera_motion": "dolly_in",
+        "generate_audio": false
+      }
+    }
+  ]
+}

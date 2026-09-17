@@ -1,0 +1,17 @@
+{
+  "jobs": [
+    {
+      "name": "stop1-clipA2",
+      "model": "minimax/h3/image-to-video",
+      "out": "stop1/clipA2.mp4",
+      "cost_note": "5s x $0.13/s at 2K = $0.65",
+      "input": {
+        "image_file": "assets/generated/stop1/start-A.jpg",
+        "end_image_file": "assets/generated/stop1/join-AB.jpg",
+        "prompt": "Someone lying in bed has just woken, facing their nightstand. Their right hand enters calmly from the right edge, picks up the folded black glasses from the nightstand, unfolds them, and brings them straight toward the camera: the glasses grow larger and larger until the frames pass just beyond the edges of the view, as they are put on over the eyes, and the hand leaves the frame. At the same time the view leans steadily forward and down, closer to the nightstand, and settles on a close, calm view of the GI primer tub and the glass of water standing on the nightstand above the drawer. Soft stylized 3D render, clean CG product-film look, warm morning light, continuing exactly from this frame. First-person point of view. One smooth, steady, gimbal-like movement: no head bob, no shake, no cut. The room stays as it is: same soft light, the lamp stays switched off, the green-lidded nutrilite begin GI primer tub keeps its shape, colours and label. Their own hand wears a soft plain grey long-sleeved sleep shirt with the cuff at the wrist. No person visible, no face, no mirror, no text overlay.",
+        "duration": 5,
+        "resolution": "2K"
+      }
+    }
+  ]
+}

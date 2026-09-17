@@ -1,0 +1,22 @@
+{
+  "about": "Stop 1, realistic again: the chosen photoreal first frame (eyes-open-9913) with the real GI Primer tub placed on the nightstand, lit like the room.",
+  "jobs": [
+    {
+      "name": "stop1-real-tub",
+      "model": "fal-ai/nano-banana-pro/edit",
+      "out": "stop1/real-tub.png",
+      "cost_note": "$0.15 per image x 2 = $0.30 (fal model page, checked 2026-09-16)",
+      "input": {
+        "image_files": [
+          "assets/generated/refs/real-9913.jpg",
+          "assets/generated/refs/gi-primer.png"
+        ],
+        "prompt": "Edit the first image, a realistic, moody photograph taken from bed at first light: a dark-oak nightstand with one drawer, a single glass of water, a brass lamp that is switched off, linen curtains glowing with low morning sun, deep shadows, a white duvet in the foreground. Keep everything about it exactly the same: camera, composition, the low warm light and deep shadow, film grain, every object. Make only this change: stand the real product from the second image, the white tub with a green lid ('nutrilite begin Daily GI primer'), upright on the nightstand top beside the glass of water, label facing the viewer, at a realistic size for a 255 g tub. Match its shape, lid colour and label artwork as closely as possible. Light it exactly like the room: warm low sun from the window catching one side, the rest falling into the same soft shadow, with a real contact shadow on the wood, so it looks photographed in this room, not pasted in. Photorealistic, not a 3D render. No hands, no person, no other new objects.",
+        "aspect_ratio": "9:16",
+        "resolution": "2K",
+        "num_images": 2,
+        "output_format": "png"
+      }
+    }
+  ]
+}

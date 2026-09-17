@@ -1,0 +1,16 @@
+{
+  "jobs": [
+    {
+      "name": "stop1-clipB",
+      "model": "minimax/h3/image-to-video",
+      "out": "stop1/clipB.mp4",
+      "cost_note": "8s x $0.13/s at 2K = $1.04",
+      "input": {
+        "image_file": "assets/generated/stop1/join-AB.jpg",
+        "prompt": "A close view of a nightstand: the GI primer tub and a glass of water. Their right hand enters from the right, lifts the green lid off the tub and sets it down, dips a small white scoop into the tub and lifts out a heaped scoop of fine green powder, carries it across and tips it over the glass of water. The camera follows the scoop and pushes in closer to the glass as the green powder falls into the water and blooms into soft swirling green clouds, ending on a close-up of the glass as the water turns a gentle green. Soft stylized 3D render, clean CG product-film look, warm morning light, continuing exactly from this frame. First-person point of view. One smooth, steady, gimbal-like movement: no head bob, no shake, no cut. The room stays as it is: same soft light, the lamp stays switched off, the green-lidded nutrilite begin GI primer tub keeps its shape, colours and label. Their own hand wears a soft plain grey long-sleeved sleep shirt with the cuff at the wrist. No person visible, no face, no mirror, no text overlay.",
+        "duration": 8,
+        "resolution": "2K"
+      }
+    }
+  ]
+}

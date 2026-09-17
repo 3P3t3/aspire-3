@@ -165,7 +165,8 @@ def human(n):
 # ---------- the work ----------
 
 def resolve_local_files(inputs):
-    """Turn any "<name>_file": "relative/path" input into "<name>_url": data-URI.
+    """Turn "<name>_file": "path" into "<name>_url": data-URI, and
+    "<name>_files": [paths] into "<name>_urls": [data-URIs].
 
     fal's image inputs accept data URIs, so a local keyframe can be sent inline
     without a separate upload step. Paths are relative to the project root.
@@ -173,16 +174,22 @@ def resolve_local_files(inputs):
     import base64
     import mimetypes
 
+    def uri(k, v):
+        path = v if os.path.isabs(v) else os.path.join(ROOT, v)
+        if not os.path.exists(path):
+            raise Bail("input '%s' points at a missing file: %s" % (k, path))
+        mime = mimetypes.guess_type(path)[0] or "image/jpeg"
+        with open(path, "rb") as fh:
+            return "data:%s;base64,%s" % (mime, base64.b64encode(fh.read()).decode("ascii"))
+
     out = {}
     for k, v in inputs.items():
         if k.endswith("_file") and isinstance(v, str):
-            path = v if os.path.isabs(v) else os.path.join(ROOT, v)
-            if not os.path.exists(path):
-                raise Bail("input '%s' points at a missing file: %s" % (k, path))
-            mime = mimetypes.guess_type(path)[0] or "image/jpeg"
-            with open(path, "rb") as fh:
-                b64 = base64.b64encode(fh.read()).decode("ascii")
-            out[k[:-5] + "_url"] = "data:%s;base64,%s" % (mime, b64)
+            out[k[:-5] + "_url"] = uri(k, v)
+        elif k.endswith("_files") and isinstance(v, list):
+            # "image_files": [a, b] -> "image_urls": [data-URI, data-URI],
+            # for models that take several reference images at once
+            out[k[:-6] + "_urls"] = [uri(k, x) for x in v]
         else:
             out[k] = v
     return out

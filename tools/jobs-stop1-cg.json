@@ -1,0 +1,50 @@
+{
+  "about": "Stop 1 first frame in stylized 3D realism (soft CG product film, after the Waymark suitcase reference), to compare against the photoreal eyes-open-9913. Same room and composition.",
+  "jobs": [
+    {
+      "name": "stop1-cg-9913",
+      "model": "fal-ai/flux-pro/v1.1-ultra",
+      "out": "stop1/cg-9913.png",
+      "cost_note": "$0.06 per image (fal model page, checked 2026-09-16)",
+      "input": {
+        "prompt": "Stylized 3D render, soft CG product-film look, almost photographic but clearly rendered: first-person point of view of someone who has just woken, lying on their side in bed, head on the pillow, facing their nightstand, vertical frame. In the soft, out-of-focus foreground, the edge of a clean white pillow and a smooth off-white duvet with gentle folds. In the centre of the frame, a simple solid wood nightstand in a smooth matte walnut finish with a single drawer and one small round brass knob; the drawer front clearly visible. On top: exactly one glass of water and a brass table lamp, switched off, with a matte dark shade. Behind, a tall window with soft linen curtains parted a little: warm early-morning light glows through and fills the room with soft, even global illumination and long, gentle, diffused shadows. Calm, minimal room: smooth warm-grey matte walls, a clean pale wood floor, simplified surfaces with no wear, no texture noise, no film grain. Muted warm neutral palette of beige, warm grey and soft brass. Clean, quiet, premium, slightly idealised, like a high-end product film rendered in Octane or Blender Cycles. Nightstand, drawer and window near the centre; nothing important near the left or right edges. No person, no hands, no mirror, no second glass, no plants, no flowers, no candles, no text, no logos.",
+        "aspect_ratio": "9:16",
+        "raw": false,
+        "seed": 9913,
+        "num_images": 1,
+        "output_format": "png",
+        "safety_tolerance": "2"
+      }
+    },
+    {
+      "name": "stop1-cg-3361",
+      "model": "fal-ai/flux-pro/v1.1-ultra",
+      "out": "stop1/cg-3361.png",
+      "cost_note": "$0.06 per image (fal model page, checked 2026-09-16)",
+      "input": {
+        "prompt": "Stylized 3D render, soft CG product-film look, almost photographic but clearly rendered: first-person point of view of someone who has just woken, lying on their side in bed, head on the pillow, facing their nightstand, vertical frame. In the soft, out-of-focus foreground, the edge of a clean white pillow and a smooth off-white duvet with gentle folds. In the centre of the frame, a simple solid wood nightstand in a smooth matte walnut finish with a single drawer and one small round brass knob; the drawer front clearly visible. On top: exactly one glass of water and a brass table lamp, switched off, with a matte dark shade. Behind, a tall window with soft linen curtains parted a little: warm early-morning light glows through and fills the room with soft, even global illumination and long, gentle, diffused shadows. Calm, minimal room: smooth warm-grey matte walls, a clean pale wood floor, simplified surfaces with no wear, no texture noise, no film grain. Muted warm neutral palette of beige, warm grey and soft brass. Clean, quiet, premium, slightly idealised, like a high-end product film rendered in Octane or Blender Cycles. Nightstand, drawer and window near the centre; nothing important near the left or right edges. No person, no hands, no mirror, no second glass, no plants, no flowers, no candles, no text, no logos.",
+        "aspect_ratio": "9:16",
+        "raw": false,
+        "seed": 3361,
+        "num_images": 1,
+        "output_format": "png",
+        "safety_tolerance": "2"
+      }
+    },
+    {
+      "name": "stop1-cg-6182",
+      "model": "fal-ai/flux-pro/v1.1-ultra",
+      "out": "stop1/cg-6182.png",
+      "cost_note": "$0.06 per image (fal model page, checked 2026-09-16)",
+      "input": {
+        "prompt": "Stylized 3D render, soft CG product-film look, almost photographic but clearly rendered: first-person point of view of someone who has just woken, lying on their side in bed, head on the pillow, facing their nightstand, vertical frame. In the soft, out-of-focus foreground, the edge of a clean white pillow and a smooth off-white duvet with gentle folds. In the centre of the frame, a simple solid wood nightstand in a smooth matte walnut finish with a single drawer and one small round brass knob; the drawer front clearly visible. On top: exactly one glass of water and a brass table lamp, switched off, with a matte dark shade. Behind, a tall window with soft linen curtains parted a little: warm early-morning light glows through and fills the room with soft, even global illumination and long, gentle, diffused shadows. Calm, minimal room: smooth warm-grey matte walls, a clean pale wood floor, simplified surfaces with no wear, no texture noise, no film grain. Muted warm neutral palette of beige, warm grey and soft brass. Clean, quiet, premium, slightly idealised, like a high-end product film rendered in Octane or Blender Cycles. Nightstand, drawer and window near the centre; nothing important near the left or right edges. No person, no hands, no mirror, no second glass, no plants, no flowers, no candles, no text, no logos.",
+        "aspect_ratio": "9:16",
+        "raw": false,
+        "seed": 6182,
+        "num_images": 1,
+        "output_format": "png",
+        "safety_tolerance": "2"
+      }
+    }
+  ]
+}

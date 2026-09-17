@@ -1,0 +1,22 @@
+{
+  "about": "Stop 1, realistic: the join frame \u2014 close on the nightstand, lid off, a heaped scoop held over the water. Clip 1 ends here, the dive clip starts here.",
+  "jobs": [
+    {
+      "name": "stop1-real-join",
+      "model": "fal-ai/nano-banana-pro/edit",
+      "out": "stop1/real-join.png",
+      "cost_note": "$0.15 per image x 2 = $0.30 (fal model page, checked 2026-09-16)",
+      "input": {
+        "image_files": [
+          "assets/generated/refs/real-closeup.jpg",
+          "assets/generated/refs/gi-primer.png"
+        ],
+        "prompt": "Edit the first image, a realistic, moody photograph at first light: a close view of a dark-oak nightstand with a glass of water, a brass lamp that is switched off, and a white green-lidded 'nutrilite begin Daily GI primer' tub, lit by low warm window light with deep shadows. Keep the camera, composition, light, shadows, film grain and every object exactly the same, and keep the tub's shape and label matching the second image. Make only these changes: the tub's green lid is off and resting on the nightstand beside it, so the tub is open. A right hand, seen from the person's own eyes (back of the hand toward the viewer, thumb on the left side of the hand), in a soft plain grey long-sleeved sleep shirt with the cuff at the wrist, enters from the right edge and holds a small white measuring scoop, heaped with fine matte green powder, just above the rim of the glass of water, about to tip it in. The water is still perfectly clear. The hand and scoop are lit by the same low warm window light and fall into the same shadow. Photorealistic, not a 3D render. No face, no other person, no extra objects.",
+        "aspect_ratio": "9:16",
+        "resolution": "2K",
+        "num_images": 2,
+        "output_format": "png"
+      }
+    }
+  ]
+}

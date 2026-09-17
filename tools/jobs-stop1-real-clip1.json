@@ -1,0 +1,17 @@
+{
+  "jobs": [
+    {
+      "name": "stop1-real-clip1",
+      "model": "minimax/h3/image-to-video",
+      "out": "stop1/real-clip1.mp4",
+      "cost_note": "5s x $0.13/s at 2K = $0.65",
+      "input": {
+        "image_file": "assets/generated/stop1/real-start.jpg",
+        "end_image_file": "assets/generated/stop1/real-join.jpg",
+        "prompt": "Someone has just woken, lying in bed looking at their nightstand. The view eases steadily forward and closer to the nightstand. Their right hand enters from the right edge, lifts the green lid off the GI primer tub and sets it down on the nightstand, the view glances down into the open tub at the fine green powder, the hand dips a small white scoop in and lifts out a heaped scoop, and carries it over the glass of water, holding it just above the rim. Realistic, moody photograph in motion, continuing exactly from this frame: first light in a quiet bedroom, low warm sun through linen curtains, deep soft shadows, fine film grain, shot on a 35mm lens. First-person point of view, one smooth, steady, gimbal-like movement, no head bob, no shake, no cut. Their own right hand, seen from their own eyes with the back of the hand toward the viewer, wears a soft plain grey long-sleeved sleep shirt with the cuff at the wrist. The brass lamp stays switched off. The nutrilite begin GI primer tub keeps its shape, colours and label. No face, no other person, no mirror, no text overlay, nothing appears or disappears.",
+        "duration": 5,
+        "resolution": "2K"
+      }
+    }
+  ]
+}

@@ -121,10 +121,19 @@
   };
 
   /* -- numbered frame sequence painted to canvas (exact seek anywhere) - */
+  /* Frames are downloaded as compressed blobs and only DECODED near the frame
+     being shown. A decoded 1440px frame is ~4.7MB; holding a whole clip decoded
+     would be hundreds of MB and crash a phone's browser. So a small cache of
+     bitmaps follows the scroll, the rest are released, and while a frame
+     decodes the nearest one already decoded is drawn instead. */
+  var FRAME_CACHE = 16;
   function FrameSequenceSource(sc, m) {
     this.sc = sc; this.m = m;
     this.frames = m.frames || sc.frames;
+    this.blob = new Array(this.frames);
     this.bmp = new Array(this.frames);
+    this.used = [];                                  // decoded frames, oldest first
+    this.pending = {};
     this.have = 0; this.state = "idle";
   }
   FrameSequenceSource.prototype.url = function (i) {
@@ -139,13 +148,11 @@
     function worker() {
       if (next >= self.frames) return Promise.resolve();
       var i = next++;
-      return fetch(self.url(i), { mode: "cors" })
-        .then(function (r) { return r.blob(); })
-        .then(createImageBitmap)
+      return fetch(self.url(i))
+        .then(function (r) { if (!r.ok) throw 0; return r.blob(); })
         .then(function (b) {
-          self.bmp[i] = b;
-          if (++self.have === 1) self.state = "ready";
-          self.sc.dirty = true; kick();
+          self.blob[i] = b;
+          if (++self.have === 1) { self.state = "ready"; self.decode(0); }
         })
         .catch(function () { /* hole; draw() falls back to the nearest */ })
         .then(worker);
@@ -157,11 +164,35 @@
     });
     return this._p;
   };
+  FrameSequenceSource.prototype.decode = function (i) {
+    var self = this;
+    if (i < 0 || i >= this.frames || this.bmp[i] || this.pending[i] || !this.blob[i]) return;
+    this.pending[i] = true;
+    createImageBitmap(this.blob[i]).then(function (b) {
+      delete self.pending[i];
+      self.bmp[i] = b;
+      self.used.push(i);
+      while (self.used.length > FRAME_CACHE) {
+        var old = self.used.shift();
+        if (self.bmp[old]) { self.bmp[old].close && self.bmp[old].close(); self.bmp[old] = null; }
+      }
+      if (i === self.want) { self.sc.dirty = true; kick(); }
+    }, function () { delete self.pending[i]; });
+  };
   FrameSequenceSource.prototype.draw = function (ctx, i, w, h) {
+    this.want = i;
+    var dir = this.last == null || i >= this.last ? 1 : -1;
+    this.last = i;
+    this.decode(i);                                  // the frame asked for,
+    this.decode(i + dir);                            // and the next two in the
+    this.decode(i + 2 * dir);                        // direction of travel
     var b = this.bmp[i];
     if (!b) {
       for (var d = 1; d < this.frames && !b; d++) b = this.bmp[i - d] || this.bmp[i + d];
       if (!b) return false;
+    } else {
+      var at = this.used.indexOf(i);                 // recently shown: keep it
+      if (at > -1) { this.used.splice(at, 1); this.used.push(i); }
     }
     return cover(ctx, b, w, h);
   };

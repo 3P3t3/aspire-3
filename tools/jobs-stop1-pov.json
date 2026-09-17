@@ -1,0 +1,35 @@
+{
+  "about": "Stop 1 in first person: the viewer is the person. Two key moments — eyes open across the pillow, then the reach to the drawer. Also corrects the light from the hands test: one low sunbeam and deep shadow, not a bright even room. Written from house.md.",
+  "jobs": [
+    {
+      "name": "stop1-pov-eyes-open",
+      "model": "fal-ai/flux-pro/v1.1-ultra",
+      "out": "stop1/pov-eyes-open.png",
+      "cost_note": "$0.06 per image (fal model page, checked 2026-09-16)",
+      "input": {
+        "prompt": "First-person point of view, vertical photograph: the exact view of someone who has just opened their eyes while lying on their side in bed at dawn, head on the pillow. In the immediate foreground, very close and softly out of focus, the edge of a white pillow and rumpled duvet. Beyond it, at mattress height and in the centre of the frame, a plain solid dark-oak nightstand with one closed drawer and no handle clutter; on it a brass lamp, switched off, and a half-full glass of water left overnight. Behind, one tall window with heavy linen curtains a hand's width apart: a single narrow beam of low, cold-gold first sunlight comes through the gap and cuts diagonally across the dark room, catching the glass of water and the corner of the nightstand. The rest of the room falls into deep, soft shadow: bare walls of dark warm-grey matte paint, a real oak floor. A quiet, expensive, deliberately underfurnished room, lived in, not staged. Low-contrast shadows, real light, natural film grain, documentary. The nightstand, lamp and light beam sit near the centre; nothing important near the left or right edges. No person visible, no hands, no mirror, no plants, no flowers, no candles, no marble, no text, no logos.",
+        "aspect_ratio": "9:16",
+        "raw": true,
+        "seed": 5209,
+        "num_images": 1,
+        "output_format": "png",
+        "safety_tolerance": "2"
+      }
+    },
+    {
+      "name": "stop1-pov-reach",
+      "model": "fal-ai/flux-pro/v1.1-ultra",
+      "out": "stop1/pov-reach.png",
+      "cost_note": "$0.06 per image (fal model page, checked 2026-09-16)",
+      "input": {
+        "prompt": "First-person point of view, vertical photograph: the exact view of someone sitting on the edge of their bed at dawn, looking down and to the side at their nightstand as they reach to open its drawer. Their own forearm enters from the bottom edge of the frame, in a soft plain grey long-sleeved cotton sleep shirt with the cuff at the wrist; only the hand and cuff are visible, fingers on the drawer's edge, the drawer pulled open a few centimetres. The nightstand is plain, solid dark oak with one drawer, in the centre of the frame; on top a brass lamp, switched off, and a half-full glass of water left overnight. A single narrow beam of low, cold-gold first sunlight from a gap in heavy linen curtains falls across the top of the nightstand and the back of the hand. The rest of the room is in deep, soft shadow: dark warm-grey matte walls, real oak floor, the rumpled edge of a slept-in white duvet at the lower corner. Quiet, expensive, underfurnished, lived in. Low-contrast shadows, natural film grain, documentary. Hand, drawer and lamp near the centre; nothing important near the left or right edges. No face, no body beyond the one forearm, no mirror, no plants, no flowers, no candles, no marble, no text, no logos.",
+        "aspect_ratio": "9:16",
+        "raw": true,
+        "seed": 5209,
+        "num_images": 1,
+        "output_format": "png",
+        "safety_tolerance": "2"
+      }
+    }
+  ]
+}

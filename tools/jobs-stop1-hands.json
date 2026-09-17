@@ -1,0 +1,35 @@
+{
+  "about": "Stop 1 (Nightstand, waking), opening still, generated twice to choose whose hands carry the whole chain. Identical prompt and seed; only the person changes. Written from house.md.",
+  "jobs": [
+    {
+      "name": "stop1-hands-women",
+      "model": "fal-ai/flux-pro/v1.1-ultra",
+      "out": "stop1/hands-women.png",
+      "cost_note": "$0.06 per image (fal model page, checked 2026-09-16)",
+      "input": {
+        "prompt": "Vertical photograph, early morning in a quiet, expensive bedroom. A woman in her early thirties sits on the edge of a slept-in bed, seen from behind and slightly to one side: the back of her head, one shoulder, her forearm and hand. Her face is turned away toward the window and is not visible. She is fit in the way of someone who trains consistently, not a bodybuilder. She wears a plain, soft, unbranded grey cotton t-shirt. Her right hand rests on the edge of the mattress, a few inches from a solid wooden nightstand with a single closed plain drawer. On the nightstand: a warm brass lamp, switched off, and a half-full glass of water left overnight. One tall window with linen curtains half open; low, cold-to-warm first sunlight rakes across the room and catches her shoulder and hand. The bed is genuinely good and clearly slept in, the duvet pushed back, not arranged. In the background a simple wooden chair holds yesterday's clothes. Walls are bare, large surfaces of good matte paint falling into deep shadow. Real oak floor, heavy door. Deliberately underfurnished, lots of space around each object. Deep, low-contrast shadows with real light cutting through. The hand, the drawer, the lamp and the window are all in frame and near the centre; nothing important near the left or right edges. Natural, unposed, documentary. No plants, no flowers, no candles, no marble, no text, no logos.",
+        "aspect_ratio": "9:16",
+        "raw": true,
+        "seed": 3107,
+        "num_images": 1,
+        "output_format": "png",
+        "safety_tolerance": "2"
+      }
+    },
+    {
+      "name": "stop1-hands-men",
+      "model": "fal-ai/flux-pro/v1.1-ultra",
+      "out": "stop1/hands-men.png",
+      "cost_note": "$0.06 per image (fal model page, checked 2026-09-16)",
+      "input": {
+        "prompt": "Vertical photograph, early morning in a quiet, expensive bedroom. A man in his early thirties sits on the edge of a slept-in bed, seen from behind and slightly to one side: the back of his head, one shoulder, his forearm and hand. His face is turned away toward the window and is not visible. He is fit in the way of someone who trains consistently, not a bodybuilder. He wears a plain, soft, unbranded grey cotton t-shirt. His right hand rests on the edge of the mattress, a few inches from a solid wooden nightstand with a single closed plain drawer. On the nightstand: a warm brass lamp, switched off, and a half-full glass of water left overnight. One tall window with linen curtains half open; low, cold-to-warm first sunlight rakes across the room and catches his shoulder and hand. The bed is genuinely good and clearly slept in, the duvet pushed back, not arranged. In the background a simple wooden chair holds yesterday's clothes. Walls are bare, large surfaces of good matte paint falling into deep shadow. Real oak floor, heavy door. Deliberately underfurnished, lots of space around each object. Deep, low-contrast shadows with real light cutting through. The hand, the drawer, the lamp and the window are all in frame and near the centre; nothing important near the left or right edges. Natural, unposed, documentary. No plants, no flowers, no candles, no marble, no text, no logos.",
+        "aspect_ratio": "9:16",
+        "raw": true,
+        "seed": 3107,
+        "num_images": 1,
+        "output_format": "png",
+        "safety_tolerance": "2"
+      }
+    }
+  ]
+}

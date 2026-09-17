@@ -1,0 +1,22 @@
+{
+  "about": "Stop 1, B->C join frame: the close-up with the lid off and a heaped scoop of GI Primer held above the glass, so clips B and C can be locked to it and rendered in parallel.",
+  "jobs": [
+    {
+      "name": "stop1-join-BC",
+      "model": "fal-ai/nano-banana-pro/edit",
+      "out": "stop1/join-BC.png",
+      "cost_note": "$0.15 per image x 2 = $0.30 (fal model page, checked 2026-09-16)",
+      "input": {
+        "image_files": [
+          "assets/generated/stop1/join-AB.jpg",
+          "assets/generated/refs/gi-primer.png"
+        ],
+        "prompt": "Edit the first image, a soft stylized 3D render of a close view of a walnut nightstand with a green-lidded nutrilite begin GI primer tub and a clear glass of water in warm morning light. Keep the camera angle, composition, light, nightstand, lamp and the glass of water exactly the same, and keep the tub's shape, colours and label matching the second image. Make only these changes: the green lid is off the tub and resting on the nightstand beside it, so the tub is open. A right hand, seen from the person's own eyes (back of the hand toward the viewer, thumb on the left side of the hand), in a soft plain grey long-sleeved sleep shirt with the cuff at the wrist, enters from the right edge and holds a small white measuring scoop, heaped with fine, matte, pale-green powder, just above the rim of the glass of water, about to tip it in. The water is still perfectly clear. Same soft clean 3D product-film style and light. No face, no other person, no extra objects, no text overlay.",
+        "aspect_ratio": "9:16",
+        "resolution": "2K",
+        "num_images": 2,
+        "output_format": "png"
+      }
+    }
+  ]
+}

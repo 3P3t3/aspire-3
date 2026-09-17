@@ -269,6 +269,22 @@ def build():
     for row in data:
         row["media"] = None          # ← swap in footage here, nothing else changes
 
+    # --take NAME: put a generated take into stop 1 and write it as its own page,
+    # for judging footage by scrubbing it on a phone. Frames come from
+    # tools/frames.py (assets/generated/stop1/frames-NAME/0001.webp ...).
+    out = OUT
+    if TAKE:
+        d = ROOT / "assets" / "generated" / "stop1" / ("frames-" + TAKE)
+        frames = sorted(d.glob("*.webp"))
+        if not frames:
+            sys.exit("no frames for take %r in %s — run tools/frames.py first" % (TAKE, d))
+        data[0]["frames"] = len(frames)
+        data[0]["media"] = {"kind": "frames", "frames": len(frames), "start": 1, "pad": 4,
+                            "pattern": "assets/generated/stop1/frames-%s/%%d.webp" % TAKE}
+        sections[0] = sections[0].replace('--frames:%d;' % SCENES[0]["frames"],
+                                          '--frames:%d;' % len(frames), 1)
+        out = ROOT / ("scaffold-take-%s.html" % TAKE)
+
     total = len(placed_list)
     ov = OVERNIGHT
     overnight = (
@@ -296,11 +312,11 @@ def build():
                    .replace("<!--INDEX-->", "".join(index)) \
                    .replace("<!--OVERNIGHT-->", overnight) \
                    .replace("<!--COUNT-->", str(total))
-    OUT.write_text(page, encoding="utf-8")
+    out.write_text(page, encoding="utf-8")
     shown = sum(1 for sc in SCENES for bx in sc["boxes"]
                 if any(ids for _, ids in bx["clusters"]))
-    print("scaffold.html  %.1f KB  ·  %d stops  ·  %d containers shown  ·  %d products"
-          % (OUT.stat().st_size / 1024, len(SCENES), shown, total))
+    print(out.name + "  %.1f KB  ·  %d stops  ·  %d containers shown  ·  %d products"
+          % (out.stat().st_size / 1024, len(SCENES), shown, total))
     if empty:
         print("containers waiting for products (not shown): " + "; ".join(empty))
 
@@ -371,5 +387,9 @@ TEMPLATE = """<!doctype html>
 </html>
 """
 
+TAKE = None
+
 if __name__ == "__main__":
+    if "--take" in sys.argv:
+        TAKE = sys.argv[sys.argv.index("--take") + 1]
     build()

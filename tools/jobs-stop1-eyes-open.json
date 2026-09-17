@@ -1,0 +1,50 @@
+{
+  "about": "Stop 1 first frame, re-roll: one glass, lamp clearly off, white duvet, drawer front lit. Three seeds to choose from.",
+  "jobs": [
+    {
+      "name": "stop1-eyes-open-5209",
+      "model": "fal-ai/flux-pro/v1.1-ultra",
+      "out": "stop1/eyes-open-5209.png",
+      "cost_note": "$0.06 per image (fal model page, checked 2026-09-16)",
+      "input": {
+        "prompt": "First-person point of view, vertical photograph: the exact view of someone who has just opened their eyes at dawn, lying on their side in bed, head on the pillow, facing their nightstand. In the immediate foreground, very close and softly out of focus, the edge of a white pillow and a rumpled off-white linen duvet. Beyond it, at mattress height and in the centre of the frame, a plain, solid, dark-oak nightstand with a single drawer; the drawer front is clearly visible. On top of the nightstand there is exactly one glass of water, half full, left overnight, and one brass table lamp that is switched off: its fabric shade is dark, unlit and in shadow. Behind, one tall window with heavy linen curtains parted a hand's width: a single narrow beam of low, cold-gold early-morning sun comes through the gap and falls diagonally across the dark room, lighting the glass of water, the top edge of the nightstand and part of the drawer front, but not the lampshade. Everything else falls into deep, soft shadow: bare walls of dark warm-grey matte paint, a real oak floor. A quiet, expensive, deliberately underfurnished room, lived in, not staged. Low-contrast shadows, real light, fine natural film grain, documentary, shot on a 35mm lens. The nightstand, drawer and light beam are near the centre; nothing important near the left or right edges. No person, no hands, no mirror, no second glass, no plants, no flowers, no candles, no marble, no text, no logos.",
+        "aspect_ratio": "9:16",
+        "raw": true,
+        "seed": 5209,
+        "num_images": 1,
+        "output_format": "png",
+        "safety_tolerance": "2"
+      }
+    },
+    {
+      "name": "stop1-eyes-open-7741",
+      "model": "fal-ai/flux-pro/v1.1-ultra",
+      "out": "stop1/eyes-open-7741.png",
+      "cost_note": "$0.06 per image (fal model page, checked 2026-09-16)",
+      "input": {
+        "prompt": "First-person point of view, vertical photograph: the exact view of someone who has just opened their eyes at dawn, lying on their side in bed, head on the pillow, facing their nightstand. In the immediate foreground, very close and softly out of focus, the edge of a white pillow and a rumpled off-white linen duvet. Beyond it, at mattress height and in the centre of the frame, a plain, solid, dark-oak nightstand with a single drawer; the drawer front is clearly visible. On top of the nightstand there is exactly one glass of water, half full, left overnight, and one brass table lamp that is switched off: its fabric shade is dark, unlit and in shadow. Behind, one tall window with heavy linen curtains parted a hand's width: a single narrow beam of low, cold-gold early-morning sun comes through the gap and falls diagonally across the dark room, lighting the glass of water, the top edge of the nightstand and part of the drawer front, but not the lampshade. Everything else falls into deep, soft shadow: bare walls of dark warm-grey matte paint, a real oak floor. A quiet, expensive, deliberately underfurnished room, lived in, not staged. Low-contrast shadows, real light, fine natural film grain, documentary, shot on a 35mm lens. The nightstand, drawer and light beam are near the centre; nothing important near the left or right edges. No person, no hands, no mirror, no second glass, no plants, no flowers, no candles, no marble, no text, no logos.",
+        "aspect_ratio": "9:16",
+        "raw": true,
+        "seed": 7741,
+        "num_images": 1,
+        "output_format": "png",
+        "safety_tolerance": "2"
+      }
+    },
+    {
+      "name": "stop1-eyes-open-9913",
+      "model": "fal-ai/flux-pro/v1.1-ultra",
+      "out": "stop1/eyes-open-9913.png",
+      "cost_note": "$0.06 per image (fal model page, checked 2026-09-16)",
+      "input": {
+        "prompt": "First-person point of view, vertical photograph: the exact view of someone who has just opened their eyes at dawn, lying on their side in bed, head on the pillow, facing their nightstand. In the immediate foreground, very close and softly out of focus, the edge of a white pillow and a rumpled off-white linen duvet. Beyond it, at mattress height and in the centre of the frame, a plain, solid, dark-oak nightstand with a single drawer; the drawer front is clearly visible. On top of the nightstand there is exactly one glass of water, half full, left overnight, and one brass table lamp that is switched off: its fabric shade is dark, unlit and in shadow. Behind, one tall window with heavy linen curtains parted a hand's width: a single narrow beam of low, cold-gold early-morning sun comes through the gap and falls diagonally across the dark room, lighting the glass of water, the top edge of the nightstand and part of the drawer front, but not the lampshade. Everything else falls into deep, soft shadow: bare walls of dark warm-grey matte paint, a real oak floor. A quiet, expensive, deliberately underfurnished room, lived in, not staged. Low-contrast shadows, real light, fine natural film grain, documentary, shot on a 35mm lens. The nightstand, drawer and light beam are near the centre; nothing important near the left or right edges. No person, no hands, no mirror, no second glass, no plants, no flowers, no candles, no marble, no text, no logos.",
+        "aspect_ratio": "9:16",
+        "raw": true,
+        "seed": 9913,
+        "num_images": 1,
+        "output_format": "png",
+        "safety_tolerance": "2"
+      }
+    }
+  ]
+}

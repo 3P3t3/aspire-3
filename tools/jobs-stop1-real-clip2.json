@@ -1,0 +1,16 @@
+{
+  "jobs": [
+    {
+      "name": "stop1-real-clip2",
+      "model": "minimax/h3/image-to-video",
+      "out": "stop1/real-clip2.mp4",
+      "cost_note": "6s x $0.13/s at 2K = $0.78",
+      "input": {
+        "image_file": "assets/generated/stop1/real-join.jpg",
+        "prompt": "A close view of a glass of clear water on a nightstand, a hand holding a heaped scoop of fine green powder just above it. The hand tips the scoop and the green powder falls into the water. The camera follows the falling powder down and pushes into the glass, passing through the surface of the water, so we are inside the water as the green powder blooms into soft swirling plumes all around us, with warm morning light glowing through the glass. The powder dissolves completely into the water: nothing is left floating on the surface or sitting on top. Ends inside the softly green, glowing water. Realistic, moody photograph in motion, continuing exactly from this frame: first light in a quiet bedroom, low warm sun through linen curtains, deep soft shadows, fine film grain, shot on a 35mm lens. First-person point of view, one smooth, steady, gimbal-like movement, no head bob, no shake, no cut. Their own right hand, seen from their own eyes with the back of the hand toward the viewer, wears a soft plain grey long-sleeved sleep shirt with the cuff at the wrist. The brass lamp stays switched off. The nutrilite begin GI primer tub keeps its shape, colours and label. No face, no other person, no mirror, no text overlay, nothing appears or disappears.",
+        "duration": 6,
+        "resolution": "2K"
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "about": "Stop 1 first frame: 3D 4402 with the pillow and card removed, and the real GI Primer and Creatine+ tubs placed on the nightstand from their packshots. Two outputs to choose from.",
+  "jobs": [
+    {
+      "name": "stop1-edit-products",
+      "model": "fal-ai/nano-banana-pro/edit",
+      "out": "stop1/edit-4402-products.png",
+      "cost_note": "$0.15 per image x 2 = $0.30 (fal model page, checked 2026-09-16)",
+      "input": {
+        "image_files": [
+          "assets/generated/refs/scene-4402.jpg",
+          "assets/generated/refs/gi-primer.png",
+          "assets/generated/refs/creatine.png"
+        ],
+        "prompt": "Edit the first image, a soft stylized 3D render of a bedroom seen from bed, and keep everything about it the same: the same camera angle, composition, soft warm morning light, walnut nightstand with its closed drawer and brass knob, the brass-and-white table lamp with its grey shade, the tall glass of water, the folded black glasses, the curtains and window. Make only these changes: remove the white pillow that is leaning on top of the nightstand, and remove the small card or paper under the glasses, so the nightstand top is clean. Then place two real products standing upright on the nightstand top, beside the glass of water, both clearly visible and not overlapping the drawer front: the tub from the second image (a white tub with a green lid, the 'nutrilite begin Daily GI primer') and the tub from the third image (a white tub with a black lid, 'XS Creatine+'). Match each product's real shape, lid colour and label colours as closely as possible, at a realistic size next to the glass. Render both products in the same soft, clean 3D product-film style and the same warm morning light as the room, with soft contact shadows. No hands, no person, no extra objects.",
+        "aspect_ratio": "9:16",
+        "resolution": "2K",
+        "num_images": 2,
+        "output_format": "png"
+      }
+    }
+  ]
+}

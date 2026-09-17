@@ -1,0 +1,50 @@
+{
+  "about": "Stop 2 (Kitchen counter) first frame, first person, three seeds. Starts on the protein cabinet and counter with the sink (second mug) entering on the right; the 6-second move continues to the pantry.",
+  "jobs": [
+    {
+      "name": "stop2-first-2231",
+      "model": "fal-ai/flux-pro/v1.1-ultra",
+      "out": "stop2/first-2231.png",
+      "cost_note": "$0.06 per image (fal model page, checked 2026-09-16)",
+      "input": {
+        "prompt": "First-person point of view, vertical photograph: the exact view of someone standing at their kitchen counter mid-morning, looking straight ahead at chest height. In the centre of the frame, a run of honed dark stone countertop that has clearly been cooked on, with a plain upper cabinet above it: solid dark-oak doors, closed, no glass, simple brass pulls. On the counter below the cabinet, a stainless blender base with its jar, and one plain matte shaker bottle with no label. On the right third of the frame the counter continues to a deep undermount sink with a brushed brass tap; in the sink sits a single used ceramic mug, left there earlier. Mid-morning sun, higher and harder than dawn, comes from a window out of frame on the left and throws crisp, clean shadows of the tap and blender across the stone. Walls of dark warm-grey matte paint; the rest of the kitchen falls into deep, soft shadow at the edges. Quiet, expensive in materials not objects: real wood, stone that is actually stone, matte surfaces, deliberately underfurnished, lived in, not styled. Low-contrast shadows with real light cutting through, fine natural film grain, documentary, shot on a 35mm lens. The cabinet, blender and sink are well inside the frame; nothing important near the left or right edges. No person, no hands, no reflections of a person, no window in frame, no plants, no herbs, no fruit bowl, no flowers, no candles, no coffee steam, no marble, no text, no labels, no logos.",
+        "aspect_ratio": "9:16",
+        "raw": true,
+        "seed": 2231,
+        "num_images": 1,
+        "output_format": "png",
+        "safety_tolerance": "2"
+      }
+    },
+    {
+      "name": "stop2-first-4817",
+      "model": "fal-ai/flux-pro/v1.1-ultra",
+      "out": "stop2/first-4817.png",
+      "cost_note": "$0.06 per image (fal model page, checked 2026-09-16)",
+      "input": {
+        "prompt": "First-person point of view, vertical photograph: the exact view of someone standing at their kitchen counter mid-morning, looking straight ahead at chest height. In the centre of the frame, a run of honed dark stone countertop that has clearly been cooked on, with a plain upper cabinet above it: solid dark-oak doors, closed, no glass, simple brass pulls. On the counter below the cabinet, a stainless blender base with its jar, and one plain matte shaker bottle with no label. On the right third of the frame the counter continues to a deep undermount sink with a brushed brass tap; in the sink sits a single used ceramic mug, left there earlier. Mid-morning sun, higher and harder than dawn, comes from a window out of frame on the left and throws crisp, clean shadows of the tap and blender across the stone. Walls of dark warm-grey matte paint; the rest of the kitchen falls into deep, soft shadow at the edges. Quiet, expensive in materials not objects: real wood, stone that is actually stone, matte surfaces, deliberately underfurnished, lived in, not styled. Low-contrast shadows with real light cutting through, fine natural film grain, documentary, shot on a 35mm lens. The cabinet, blender and sink are well inside the frame; nothing important near the left or right edges. No person, no hands, no reflections of a person, no window in frame, no plants, no herbs, no fruit bowl, no flowers, no candles, no coffee steam, no marble, no text, no labels, no logos.",
+        "aspect_ratio": "9:16",
+        "raw": true,
+        "seed": 4817,
+        "num_images": 1,
+        "output_format": "png",
+        "safety_tolerance": "2"
+      }
+    },
+    {
+      "name": "stop2-first-8053",
+      "model": "fal-ai/flux-pro/v1.1-ultra",
+      "out": "stop2/first-8053.png",
+      "cost_note": "$0.06 per image (fal model page, checked 2026-09-16)",
+      "input": {
+        "prompt": "First-person point of view, vertical photograph: the exact view of someone standing at their kitchen counter mid-morning, looking straight ahead at chest height. In the centre of the frame, a run of honed dark stone countertop that has clearly been cooked on, with a plain upper cabinet above it: solid dark-oak doors, closed, no glass, simple brass pulls. On the counter below the cabinet, a stainless blender base with its jar, and one plain matte shaker bottle with no label. On the right third of the frame the counter continues to a deep undermount sink with a brushed brass tap; in the sink sits a single used ceramic mug, left there earlier. Mid-morning sun, higher and harder than dawn, comes from a window out of frame on the left and throws crisp, clean shadows of the tap and blender across the stone. Walls of dark warm-grey matte paint; the rest of the kitchen falls into deep, soft shadow at the edges. Quiet, expensive in materials not objects: real wood, stone that is actually stone, matte surfaces, deliberately underfurnished, lived in, not styled. Low-contrast shadows with real light cutting through, fine natural film grain, documentary, shot on a 35mm lens. The cabinet, blender and sink are well inside the frame; nothing important near the left or right edges. No person, no hands, no reflections of a person, no window in frame, no plants, no herbs, no fruit bowl, no flowers, no candles, no coffee steam, no marble, no text, no labels, no logos.",
+        "aspect_ratio": "9:16",
+        "raw": true,
+        "seed": 8053,
+        "num_images": 1,
+        "output_format": "png",
+        "safety_tolerance": "2"
+      }
+    }
+  ]
+}

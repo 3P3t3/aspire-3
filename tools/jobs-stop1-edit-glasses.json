@@ -1,0 +1,22 @@
+{
+  "about": "Stop 1 first frame, one product per stop: from edit 2 (preferred GI Primer render), remove Creatine+ and put the original folded glasses in its place.",
+  "jobs": [
+    {
+      "name": "stop1-edit-glasses",
+      "model": "fal-ai/nano-banana-pro/edit",
+      "out": "stop1/edit-gi-glasses.png",
+      "cost_note": "$0.15 per image x 2 = $0.30 (fal model page, checked 2026-09-16)",
+      "input": {
+        "image_files": [
+          "assets/generated/refs/scene-edit2.jpg",
+          "assets/generated/refs/scene-4402.jpg"
+        ],
+        "prompt": "Edit the first image, a soft stylized 3D render of a bedroom nightstand seen from bed, and keep everything about it exactly the same: camera angle, composition, soft warm morning light, walnut nightstand with its closed drawer and brass knob, the white ceramic lamp with its grey shade, the tall glass of water, the curtains and window, and the green-lidded 'nutrilite begin Daily GI primer' tub exactly as it is, unchanged. Make only these changes: remove the black-lidded 'XS Creatine+' tub completely, filling in the nightstand top and the curtain behind it naturally, as if it was never there. Then, in the space where it was, to the right of the GI primer tub and well inside the frame, place the same pair of folded black glasses shown in the second image, lying flat on the nightstand top, fully visible, not touching the edge of the nightstand, with a soft contact shadow, in the same soft 3D render style and light. No hands, no person, no other new objects.",
+        "aspect_ratio": "9:16",
+        "resolution": "2K",
+        "num_images": 2,
+        "output_format": "png"
+      }
+    }
+  ]
+}
