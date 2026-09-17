@@ -1,0 +1,22 @@
+{
+  "about": "Stop 1 v3 mid-dive frame, re-roll: the first pair looked through the side of the glass. This asks for a true over-under from inside the water, with no vessel edges in view.",
+  "jobs": [
+    {
+      "name": "stop1-v3-surface-b",
+      "model": "fal-ai/nano-banana-pro/edit",
+      "out": "stop1/v3-surface-b.png",
+      "cost_note": "$0.15 per image x 2 = $0.30 (fal model page, checked 2026-09-16)",
+      "input": {
+        "image_files": [
+          "assets/generated/stop1/v3-above-1.jpg",
+          "assets/generated/stop1/v3-under-b-1.jpg"
+        ],
+        "prompt": "A realistic vertical split-level over-under photograph, like a half-submerged dome lens: the camera is floating IN the water, its lens half underwater, and the waterline runs straight across the frame just above the middle, with a few water droplets and a thin sheet of water clinging to the lens along that line. The water extends edge to edge across the whole frame: no glass rim, no glass walls, no container edges and no outside of any vessel are visible anywhere. Above the waterline, in warm dim air: the same white scoop from the first image hovers just ahead and slightly above the lens, tilted, pouring a thin steady stream of fine olive-green powder that falls and strikes the water right in front of us; behind it only soft, dark, warm out-of-focus bedroom shadow and a golden glow. Below the waterline, sharp: the stream pierces the surface and immediately sinks and blooms into soft, smoky, earthy olive-green plumes exactly like the second image, curling outward and down, with fine particles and tiny bubbles, lit by warm golden light from above. The powder does not sit or float on the surface; the surface is clean apart from the point where the stream enters. Natural light, film grain, photographic. No person, no hands, no text.",
+        "aspect_ratio": "9:16",
+        "resolution": "2K",
+        "num_images": 2,
+        "output_format": "png"
+      }
+    }
+  ]
+}

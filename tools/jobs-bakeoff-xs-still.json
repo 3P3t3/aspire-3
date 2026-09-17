@@ -1,0 +1,19 @@
+{
+  "about": "Physics bake-off, shot 2 start frame: from inside the cup on the office desk, looking straight up at the hero XS can (Peach Mango) tipping over the rim, a moment before it pours. Direction v3 in house.md.",
+  "jobs": [
+    {
+      "name": "bakeoff-xs-start",
+      "model": "fal-ai/nano-banana-pro/edit",
+      "out": "bakeoff/xs-start.png",
+      "cost_note": "$0.15 per image x 2 = $0.30 (fal model page, checked 2026-09-16)",
+      "input": {
+        "image_files": ["assets/generated/refs/xs-peach-mango.png"],
+        "prompt": "A realistic, moody vertical photograph, shot from the bottom of an empty clear drinking glass standing on an office desk, the camera looking straight up out of the glass. The glass's round rim frames the view as a softly refracting, slightly out-of-focus ring near the edges of the frame, with faint water droplets on its inner wall. Above the rim, filling the upper centre of the frame, floats the energy drink can from the reference image: the same orange can with the large white XS ELITE lettering, keep its colours and big lettering, the small print can be simple. No hand holds it; it hangs in the air on its own, tilted about 45 degrees toward us, its tab already cracked open, the dark opening at its top edge pointing down at the camera, the very first thin thread of pale orange liquid just beginning to spill from the opening. Beyond the can, out of focus: a plain office ceiling with soft recessed daylight panels and a warm late-afternoon glow. Real light, gentle film grain, shallow depth of field on the can. No person, no hands, no text other than on the can, no logos other than the can's.",
+        "aspect_ratio": "9:16",
+        "resolution": "2K",
+        "num_images": 2,
+        "output_format": "png"
+      }
+    }
+  ]
+}

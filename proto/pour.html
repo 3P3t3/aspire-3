@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Pour</title>
+<style>
+  :root{
+    --ink:#fff8f0; --ink-dim:rgba(255,248,240,.72); --line:rgba(255,255,255,.22);
+    --bg:#1a1310; --pop:#ef8a35;
+    --safeT:env(safe-area-inset-top,0px); --safeB:env(safe-area-inset-bottom,0px);
+    --sans:-apple-system,system-ui,"Segoe UI",sans-serif;
+    --serif:ui-serif,Georgia,"Times New Roman",serif;
+    /* the stage is sized to the large viewport: mobile Safari's toolbar coming
+       back must not resize it mid-scrub */
+    --stage:100vh;
+  }
+  @supports (height:100lvh){:root{--stage:100lvh}}
+  *{box-sizing:border-box}
+  html{scroll-behavior:auto}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    -webkit-text-size-adjust:100%}
+  :focus-visible{outline:2px solid #ffd36a;outline-offset:3px;border-radius:6px}
+
+  .stage{position:sticky;top:0;height:var(--stage);overflow:hidden;background:var(--bg)}
+  .stage canvas{display:block;width:100%;height:100%;object-fit:cover}
+  /* a scrim so type always has contrast, whatever the frame under it is doing */
+  .stage::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(rgba(20,13,9,.55) 0,rgba(20,13,9,.12) 34%,rgba(20,13,9,0) 52%)}
+  .run{position:relative}
+
+  /* the opening line, over the first frames */
+  .beat{position:fixed;top:calc(var(--safeT) + 9vh);left:20px;right:20px;z-index:3;
+    pointer-events:none;transition:opacity .45s}
+  .beat h1{font-family:var(--serif);font-weight:400;font-size:clamp(34px,10vw,48px);
+    line-height:1.03;letter-spacing:-.02em;margin:0 0 10px;max-width:11ch;
+    text-shadow:0 2px 24px rgba(0,0,0,.35)}
+  .beat p{margin:0;font-size:16px;line-height:1.45;color:var(--ink-dim);max-width:24ch;
+    text-shadow:0 1px 18px rgba(0,0,0,.35)}
+  .cap{position:fixed;left:0;right:0;bottom:calc(16px + var(--safeB));z-index:3;
+    text-align:center;font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--ink-dim);transition:opacity .35s;pointer-events:none}
+
+  /* the rooms, once the pour has filled the frame */
+  .rooms{position:fixed;inset:auto 0 0;z-index:4;
+    padding:26px 16px calc(22px + var(--safeB));
+    background:linear-gradient(rgba(26,19,16,0) 0,rgba(26,19,16,.62) 34%,rgba(26,19,16,.9) 100%);
+    opacity:0;visibility:hidden;transform:translateY(14px);
+    transition:opacity .45s,transform .45s,visibility .45s}
+  .rooms.on{opacity:1;visibility:visible;transform:none}
+  .rooms h2{font-family:var(--serif);font-weight:400;font-size:22px;margin:0 0 12px}
+  .rooms ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+  .room{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;
+    padding:13px 15px;border:1px solid var(--line);border-radius:14px;
+    background:rgba(255,255,255,.1);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+    color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+  .room b{font-weight:600;font-size:15.5px;flex:1}
+  .room span{font-size:12px;color:var(--ink-dim);font-variant-numeric:tabular-nums}
+  .room i{width:8px;height:8px;border-radius:50%;background:var(--pop);flex:none}
+
+  /* one room */
+  .sheet{position:fixed;inset:0;z-index:5;background:#120d0b;
+    padding:calc(16px + var(--safeT)) 0 calc(18px + var(--safeB));
+    display:flex;flex-direction:column;gap:14px;
+    opacity:0;visibility:hidden;transform:scale(1.2);
+    transition:opacity .4s ease-out,transform .5s cubic-bezier(.16,.84,.28,1),visibility .5s}
+  .sheet.on{opacity:1;visibility:visible;transform:none}
+  .sheet header{display:flex;align-items:flex-start;gap:12px;padding:0 20px}
+  .sheet h2{font-family:var(--serif);font-weight:400;font-size:29px;margin:0;flex:1}
+  .back{width:44px;height:44px;flex:none;border:1px solid var(--line);border-radius:50%;
+    background:rgba(255,255,255,.08);color:var(--ink);font-size:17px;cursor:pointer}
+  .rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
+    padding:4px 20px 14px;-webkit-overflow-scrolling:touch}
+  .rail::-webkit-scrollbar{display:none}
+  .mini{scroll-snap-align:start;flex:0 0 76%;min-height:172px;border-radius:16px;
+    border:1px solid var(--line);background:rgba(255,255,255,.06);padding:16px;
+    display:flex;flex-direction:column;gap:6px}
+  .mini b{font-size:15px}
+  .mini p{margin:0;font-size:13.5px;line-height:1.45;color:var(--ink-dim)}
+  .mini ul{margin:auto 0 0;padding:0;list-style:none;display:flex;gap:6px;flex-wrap:wrap}
+  .mini li{font-size:11.5px;border:1px solid var(--line);border-radius:999px;padding:4px 9px}
+
+  @media (min-width:900px){
+    .beat{left:7vw;right:auto;top:calc(var(--safeT) + 20vh)}
+    .rooms{max-width:440px;left:7vw;border-radius:18px 18px 0 0}
+    .mini{flex-basis:320px}
+  }
+
+  /* nothing here is gated behind motion: no scrub, everything still reachable */
+  @media (prefers-reduced-motion:reduce){
+    .run{height:auto !important}
+    .cap{display:none}
+    .rooms{position:static;opacity:1;visibility:visible;transform:none;background:var(--bg)}
+  }
+</style>
+</head>
+<body>
+
+<div class="run" id="run">
+  <div class="stage" id="stage">
+    <canvas id="film" role="img"
+      aria-label="An XS Peach Mango can pours into a glass, seen from inside the glass looking up, until the frame fills with orange drink."></canvas>
+  </div>
+</div>
+
+<div class="beat" id="beat">
+  <h1>One can,<br>five rooms</h1>
+  <p>Scroll. The can does the rest.</p>
+</div>
+<p class="cap" id="cap">Scroll</p>
+
+<nav class="rooms" id="rooms" aria-label="Rooms">
+  <h2>Where do you want to start?</h2>
+  <ul id="room-list"></ul>
+</nav>
+
+<section class="sheet" id="sheet" aria-hidden="true" aria-labelledby="sheet-title">
+  <header><h2 id="sheet-title"></h2>
+    <button class="back" id="back" aria-label="Back to the rooms">&times;</button></header>
+  <div class="rail" id="rail"></div>
+</section>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ------------------------------------------------------------ the rooms */
+  var ROOMS = [
+    {name:'Sunrise Stack', n:12, minis:[
+      ['Morning greens','What the day starts on.',['GI Primer','Daily fibre']],
+      ['Multivitamin','The base layer.',['Double X','Vitamin D']],
+      ['First water','Before the coffee.',['Electrolytes']]]},
+    {name:'Protein Snack Pack', n:15, minis:[
+      ['Shakes','Whey and plant.',['Vanilla','Chocolate']],
+      ['Bars','Pocket protein.',['PB bar','Crisp bar']],
+      ['Add-ins','Into anything.',['Collagen','Creamer']]]},
+    {name:'Energy Elevation', n:14, minis:[
+      ['XS cans','The hero.',['Peach Mango Elite','Electric Lemon']],
+      ['Pre-workout','Before the session.',['Sports pre','Twist tubes']],
+      ['Focus','Without the crash.',['Elite + Focus']]]},
+    {name:'Recovery Room', n:13, minis:[
+      ['Post-workout','After the session.',['Recovery blend']],
+      ['Calm','Down-regulate.',['CBD','Ashwagandha']],
+      ['Sleep stack','The overnight shift.',['Sleep Health','Sweet Dreams']]]},
+    {name:'Skin Redefined', n:11, minis:[
+      ['Cleanse','Start clean.',['Cleanser','Toner']],
+      ['Treat','The actives.',['Serum','Sleeping mask']],
+      ['Nutrition','From the inside.',['Skin nutrition','Glow up']]]}
+  ];
+
+  /* ----------------------------------------------------------- the film */
+  // Two sizes of the same 75 frames: phones take the light set, big screens
+  // the tall one. Swapping footage is a change to these three lines.
+  var BIG = innerWidth > 900 || (devicePixelRatio > 2 && innerWidth > 480);
+  var DIR = '../assets/generated/bakeoff/' + (BIG ? 'frames-counter-pour' : 'frames-pour-sm');
+  var FRAMES = 75, PPF = 24, CACHE = 14;
+
+  var run = document.getElementById('run'), stage = document.getElementById('stage');
+  var cv = document.getElementById('film'), ctx = cv.getContext('2d', {alpha:false});
+  var beat = document.getElementById('beat'), cap = document.getElementById('cap');
+  var roomsEl = document.getElementById('rooms');
+  var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var blobs = new Array(FRAMES), bmps = new Array(FRAMES), used = [];
+  var loaded = 0, last = -1, p = 0, dir = 1, ticking = false, w = 0, h = 0;
+
+  function url(i){ return DIR + '/' + String(i + 1).padStart(4, '0') + '.webp'; }
+
+  // first frame first, so there is something on screen immediately
+  function load(){
+    fetch(url(0)).then(function(r){ return r.blob(); }).then(function(b){
+      blobs[0] = b; loaded = 1; draw(0);
+      var i = 1;
+      (function next(){
+        if (i >= FRAMES) return;
+        var k = i++;
+        fetch(url(k)).then(function(r){ return r.blob(); }).then(function(b){
+          blobs[k] = b; loaded++; next();
+        }).catch(next);
+      })();
+    }).catch(function(){});
+  }
+
+  // decode on demand, keep a small window of bitmaps: 75 decoded frames would
+  // be hundreds of MB on a phone
+  function decode(i){
+    if (bmps[i] || !blobs[i]) return;
+    bmps[i] = 'pending';
+    createImageBitmap(blobs[i]).then(function(bm){
+      bmps[i] = bm; used.push(i);
+      while (used.length > CACHE){
+        var old = used.shift();
+        if (old !== i && bmps[old] && bmps[old].close){ bmps[old].close(); bmps[old] = null; }
+      }
+      if (i === last) paint(bm);
+    }).catch(function(){ bmps[i] = null; });
+  }
+
+  function paint(bm){
+    var s = Math.max(w / bm.width, h / bm.height);
+    var dw = bm.width * s, dh = bm.height * s;
+    ctx.drawImage(bm, (w - dw) / 2, (h - dh) / 2, dw, dh);
+  }
+
+  function draw(i){
+    last = i;
+    decode(i); decode(i + dir); decode(i + 2 * dir);
+    for (var d = 0; d < FRAMES; d++){                 // nearest frame we can show
+      var a = i - d, b = i + d;
+      if (bmps[a] && bmps[a] !== 'pending'){ paint(bmps[a]); return; }
+      if (bmps[b] && bmps[b] !== 'pending'){ paint(bmps[b]); return; }
+    }
+  }
+
+  function size(){
+    var r = Math.min(devicePixelRatio || 1, 2);
+    w = stage.offsetWidth; h = stage.offsetHeight;
+    cv.width = Math.round(w * r); cv.height = Math.round(h * r);
+    ctx.setTransform(r, 0, 0, r, 0, 0);
+    ctx.imageSmoothingQuality = 'high';
+    run.style.height = (reduced ? h : h + FRAMES * PPF) + 'px';
+    if (last >= 0) draw(last); else draw(0);
+  }
+
+  function render(){
+    ticking = false;
+    var travel = run.offsetHeight - h;
+    var q = travel > 0 ? Math.min(1, Math.max(0, scrollY / travel)) : 1;
+    dir = q >= p ? 1 : -1; p = q;
+    var i = Math.round(p * (FRAMES - 1));
+    if (i !== last) draw(i);
+
+    beat.style.opacity = String(Math.max(0, 1 - p * 5));   // the line clears early
+    cap.style.opacity = String(Math.max(0, 1 - p * 8));
+    var open = p > 0.88;
+    roomsEl.classList.toggle('on', open);
+  }
+  function tick(){ if (!ticking){ ticking = true; requestAnimationFrame(render); } }
+
+  addEventListener('scroll', tick, {passive:true});
+  addEventListener('resize', function(){
+    // height-only changes (mobile Safari's toolbar) must not re-size the stage
+    if (stage.offsetWidth === w && stage.offsetHeight === h) return;
+    size(); render();
+  });
+
+  /* ------------------------------------------------------ rooms and sheet */
+  var list = document.getElementById('room-list');
+  var sheet = document.getElementById('sheet'), rail = document.getElementById('rail');
+  ROOMS.forEach(function(r){
+    var li = document.createElement('li');
+    var b = document.createElement('button');
+    b.className = 'room'; b.type = 'button';
+    b.innerHTML = '<i></i><b>' + r.name + '</b><span>' + r.n + '</span>';
+    b.addEventListener('click', function(){ open(r); });
+    li.appendChild(b); list.appendChild(li);
+  });
+  function open(r){
+    document.getElementById('sheet-title').textContent = r.name;
+    rail.innerHTML = r.minis.map(function(m){
+      return '<article class="mini"><b>' + m[0] + '</b><p>' + m[1] + '</p><ul>' +
+        m[2].map(function(t){ return '<li>' + t + '</li>'; }).join('') + '</ul></article>';
+    }).join('');
+    sheet.classList.add('on'); sheet.setAttribute('aria-hidden', 'false');
+    document.getElementById('back').focus();
+  }
+  function close(){
+    sheet.classList.remove('on'); sheet.setAttribute('aria-hidden', 'true');
+  }
+  document.getElementById('back').addEventListener('click', close);
+  addEventListener('keydown', function(e){ if (e.key === 'Escape') close(); });
+
+  size(); load(); render();
+  if (reduced){ roomsEl.classList.add('on'); beat.style.opacity = 1; }
+
+  window.POUR = {frames:FRAMES, ppf:PPF, dir:DIR, travel:function(){ return FRAMES * PPF; }};
+})();
+</script>
+</body>
+</html>

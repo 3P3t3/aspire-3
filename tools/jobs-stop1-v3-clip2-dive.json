@@ -1,0 +1,20 @@
+{
+  "about": "Stop 1 v3 on Wan 3.0 Prime with locked start and end frames. Design approved 2026-09-17 (house.md).",
+  "jobs": [
+    {
+      "name": "v3-clip2-dive",
+      "model": "alibaba/wan-3.0-prime/image-to-video",
+      "out": "stop1/v3-clip2-dive.mp4",
+      "cost_note": "5s x $0.28/s at 1080p = $1.40",
+      "input": {
+        "start_image_file": "assets/generated/stop1/v3-above-1.jpg",
+        "end_image_file": "assets/generated/stop1/v3-under-b-1.jpg",
+        "prompt": "A realistic photograph come to life, one continuous shot with no cuts. It begins exactly on the first frame: looking down at a glass of clear water on a dark oak nightstand, a white scoop of fine green powder floating on its own above it. The scoop tips further and the powder pours down in a thin, steady stream into the water. The camera follows the falling powder straight down into the glass and plunges through the water's surface, continuing downward past the surface and deeper, so the surface is left behind above and out of view. Underwater, the powder does not float or sit on top: it sinks and dissolves at once into soft, smoky plumes of earthy olive-green that bloom outward and curl upward all around the camera, rising to fill the top of the frame and covering any view of the surface. Fine particles drift, a few tiny bubbles rise, warm golden light glows down through the plumes. The shot ends fully submerged inside the green swirl, exactly matching the last frame. Realistic fluid motion, natural light, film grain. No person, no hands.",
+        "duration": 5,
+        "resolution": "1080p",
+        "aspect_ratio": "9:16",
+        "audio": false
+      }
+    }
+  ]
+}

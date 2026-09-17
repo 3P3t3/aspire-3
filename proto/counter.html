@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Counter Prototype</title>
+<style>
+  :root{
+    --ink:#241d16; --ink-dim:#6b5e51; --line:rgba(36,29,22,.14);
+    --warm:#f6efe4; --pop:#e8742c; --safeB:env(safe-area-inset-bottom,0px);
+    --sans:-apple-system,system-ui,"Segoe UI",sans-serif;
+    --serif:ui-serif,Georgia,"Times New Roman",serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--warm);color:var(--ink);font-family:var(--sans);
+    -webkit-text-size-adjust:100%}
+  canvas{display:block}
+  /* the scene is sticky; the tall run below it is what the scroll scrubs */
+  #stage{position:fixed;inset:0;z-index:0}
+  #run{position:relative;height:420vh;z-index:1;pointer-events:none}
+  .cap{position:fixed;left:0;right:0;bottom:calc(18px + var(--safeB));z-index:3;
+    text-align:center;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ink-dim);transition:opacity .35s;pointer-events:none}
+  .beat{position:fixed;left:20px;right:20px;top:14vh;z-index:3;pointer-events:none;
+    opacity:0;transform:translateY(10px);transition:opacity .4s,transform .4s}
+  .beat.on{opacity:1;transform:none}
+  .beat h1{font-family:var(--serif);font-weight:400;font-size:clamp(30px,9vw,44px);
+    line-height:1.05;margin:0 0 8px;letter-spacing:-.02em;max-width:11ch}
+  .beat p{margin:0;font-size:15.5px;line-height:1.5;color:var(--ink-dim);max-width:26ch}
+
+  .vig{position:fixed;inset:0;z-index:1;pointer-events:none;
+    background:radial-gradient(120% 90% at 50% 42%,transparent 40%,rgba(52,38,22,.22) 100%)}
+
+  /* the drink filling the frame: cheaper and cleaner than flying into a mesh */
+  #wash{position:fixed;inset:0;z-index:2;opacity:0;pointer-events:none;
+    background:radial-gradient(120% 80% at 50% 78%,#f4a259 0%,#ec8433 45%,#d96a1d 100%)}
+
+  /* rooms: the pour opens into these */
+  #rooms{position:fixed;inset:0;z-index:4;padding:0 16px calc(24px + var(--safeB));
+    display:flex;flex-direction:column;justify-content:flex-end;gap:10px;
+    opacity:0;visibility:hidden;transition:opacity .45s}
+  #rooms.on{opacity:1;visibility:visible}
+  #rooms h2{font-family:var(--serif);font-weight:400;font-size:26px;margin:0 0 4px}
+  .room{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;
+    padding:14px 16px;border:1px solid var(--line);border-radius:14px;
+    background:rgba(255,255,255,.72);backdrop-filter:blur(6px);
+    font:inherit;color:inherit;text-align:left;cursor:pointer}
+  .room b{font-weight:600;font-size:16px;flex:1}
+  .room span{font-size:12px;color:var(--ink-dim);font-variant-numeric:tabular-nums}
+  .room i{width:10px;height:10px;border-radius:50%;background:var(--pop);flex:none}
+
+  /* one room, after the whoosh */
+  #room{position:fixed;inset:0;z-index:5;background:var(--warm);
+    padding:calc(18px + env(safe-area-inset-top,0px)) 0 calc(20px + var(--safeB));
+    display:flex;flex-direction:column;gap:14px;
+    opacity:0;visibility:hidden;transform:scale(1.22);
+    transition:opacity .42s ease-out,transform .5s cubic-bezier(.16,.84,.28,1),visibility .5s}
+  #room.on{opacity:1;visibility:visible;transform:none}
+  #room header{padding:0 20px;display:flex;align-items:flex-start;gap:12px}
+  #room h2{font-family:var(--serif);font-weight:400;font-size:30px;margin:0;flex:1}
+  .back{width:44px;height:44px;flex:none;border:1px solid var(--line);border-radius:50%;
+    background:#fff;font-size:18px;line-height:1;cursor:pointer}
+  .rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
+    padding:4px 20px 12px;-webkit-overflow-scrolling:touch}
+  .rail::-webkit-scrollbar{display:none}
+  .mini{scroll-snap-align:start;flex:0 0 78%;min-height:180px;border-radius:16px;
+    border:1px solid var(--line);background:#fff;padding:16px;display:flex;
+    flex-direction:column;gap:6px}
+  .mini b{font-size:15px}
+  .mini p{margin:0;font-size:13.5px;line-height:1.45;color:var(--ink-dim)}
+  .mini ul{margin:auto 0 0;padding:0;list-style:none;display:flex;gap:6px;flex-wrap:wrap}
+  .mini li{font-size:11.5px;border:1px solid var(--line);border-radius:999px;padding:4px 9px}
+
+  @media (min-width:900px){
+    .beat{left:8vw;right:auto;top:22vh}
+    #rooms{max-width:420px;padding-bottom:40px}
+    .mini{flex-basis:300px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    #run{height:100vh}
+    .cap{display:none}
+  }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="run"></div>
+
+<div class="beat" id="beat"><h1></h1><p></p></div>
+<p class="cap" id="cap">Scroll &middot; tap the counter</p>
+
+<div class="vig" aria-hidden="true"></div>
+<div id="wash" aria-hidden="true"></div>
+
+<section id="rooms" aria-hidden="true">
+  <h2>Pick a room</h2>
+</section>
+
+<section id="room" aria-hidden="true">
+  <header><h2 id="room-title"></h2><button class="back" id="back" aria-label="Back to the rooms">&times;</button></header>
+  <div class="rail" id="rail"></div>
+</section>
+
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+/* ------------------------------------------------------------------ data */
+const ROOMS = [
+  {key:'sunrise', name:'Sunrise Stack', n:12, minis:[
+    ['Morning greens','What the day starts on.',['GI Primer','Daily fibre']],
+    ['Multivitamin','The base layer.',['Double X','Vitamin D']],
+    ['First water','Before the coffee.',['Electrolytes']]]},
+  {key:'protein', name:'Protein Snack Pack', n:15, minis:[
+    ['Shakes','Whey and plant.',['Vanilla','Chocolate']],
+    ['Bars','Pocket protein.',['PB bar','Crisp bar']],
+    ['Add-ins','Into anything.',['Collagen','Creamer']]]},
+  {key:'energy', name:'Energy Elevation', n:14, minis:[
+    ['XS cans','The hero.',['Peach Mango Elite','Electric Lemon']],
+    ['Pre-workout','Before the session.',['Sports pre','Twist tubes']],
+    ['Focus','Without the crash.',['Elite + Focus']]]},
+  {key:'recovery', name:'Recovery Room', n:13, minis:[
+    ['Post-workout','After the session.',['Recovery blend']],
+    ['Calm','Down-regulate.',['CBD','Ashwagandha']],
+    ['Sleep stack','The overnight shift.',['Sleep Health','Sweet Dreams']]]},
+  {key:'skin', name:'Skin Redefined', n:11, minis:[
+    ['Cleanse','Start clean.',['Cleanser','Toner']],
+    ['Treat','The actives.',['Serum','Sleeping mask']],
+    ['Nutrition','From the inside.',['Skin nutrition','Glow up']]]},
+];
+
+const BEATS = [
+  [0.00,'A counter, mid-morning','Everything here is live. Tap the toaster, the fruit, the cup.'],
+  [0.30,'It cracks','Scroll opens the can. Nobody touches it.'],
+  [0.52,'It pours','And the pour becomes the whole page.'],
+];
+
+/* ------------------------------------------------------- scene, stylised */
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const stage = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({antialias:true, alpha:false});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));   // phone GPUs: cap at 2
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;      // filmic, not flat
+renderer.toneMappingExposure = 0.92;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+stage.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#e9e0d1');
+scene.fog = new THREE.Fog('#e9e0d1', 9, 24);
+const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 60);
+
+// a room environment gives metal and glass something real to reflect
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.03).texture;
+scene.environmentIntensity = 0.55;
+
+scene.add(new THREE.HemisphereLight('#fff4e4', '#9c8a73', 0.35));
+const key = new THREE.DirectionalLight('#ffe3ba', 2.6);
+key.position.set(-3.4, 5.6, 3.2);
+key.castShadow = true;
+key.shadow.mapSize.set(1024, 1024);
+key.shadow.radius = 4;
+key.shadow.bias = -0.0012;
+const sc = key.shadow.camera;
+sc.left = -6; sc.right = 6; sc.top = 6; sc.bottom = -3; sc.near = 0.5; sc.far = 18;
+scene.add(key);
+const rim = new THREE.DirectionalLight('#dce8ff', 0.5);   // cool bounce from the window side
+rim.position.set(4.2, 2.4, -2.2);
+scene.add(rim);
+
+const mat = (c, r=0.6, m=0.0) => new THREE.MeshStandardMaterial({color:c, roughness:r, metalness:m});
+const add = (geo, material, x, y, z) => {
+  const m = new THREE.Mesh(geo, material); m.position.set(x, y, z);
+  m.castShadow = true; m.receiveShadow = true; scene.add(m); return m;
+};
+const rbox = (w, h, d, r=0.06) => new RoundedBoxGeometry(w, h, d, 4, r);
+
+// counter and wall
+const counter = add(rbox(14, 0.5, 5, 0.05), mat('#e4d8c2', .5), 0, -0.25, 0);
+counter.castShadow = false;
+const wall = add(new THREE.BoxGeometry(14, 7, 0.4), mat('#cfc2ad', .97), 0, 3.2, -2.6);
+wall.castShadow = false;
+
+// the XS can: a cylinder with a label drawn on a canvas (stylised, not the photo)
+function labelTexture(){
+  const c = document.createElement('canvas'); c.width = 1024; c.height = 512;
+  const g = c.getContext('2d');
+  const grd = g.createLinearGradient(0, 0, 0, 512);
+  grd.addColorStop(0, '#f2913f'); grd.addColorStop(.5, '#e8742c'); grd.addColorStop(1, '#cf5d1c');
+  g.fillStyle = grd; g.fillRect(0, 0, 1024, 512);
+  g.fillStyle = '#1f7a4c'; g.fillRect(0, 384, 1024, 128);          // the green Focus band
+  g.fillStyle = 'rgba(255,255,255,.16)'; g.fillRect(0, 0, 1024, 26);
+  const font = getComputedStyle(document.body).fontFamily;
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  // the label repeats twice around the can, so it reads from any angle
+  for (const x of [256, 768]){
+    g.fillStyle = '#fff';
+    g.font = 'italic 900 190px ' + font;  g.fillText('XS', x, 165);
+    g.font = '800 74px ' + font;          g.fillText('ELITE', x, 290);
+    g.font = '600 38px ' + font;          g.fillText('PEACH MANGO', x, 448);
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+  return t;
+}
+const can = new THREE.Group();
+const body = new THREE.Mesh(new THREE.CylinderGeometry(0.33, 0.315, 1.9, 48),
+  new THREE.MeshStandardMaterial({map:labelTexture(), roughness:.34, metalness:.18,
+    envMapIntensity:.7}));
+can.add(body);
+const alu = new THREE.MeshStandardMaterial({color:'#e3e6e8', roughness:.22, metalness:1, envMapIntensity:1.1});
+const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.255, 0.33, 0.2, 48), alu);
+neck.position.y = 1.03; can.add(neck);
+const base = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.27, 0.1, 48), alu);
+base.position.y = -0.98; can.add(base);
+const lid = new THREE.Mesh(new THREE.CylinderGeometry(0.29, 0.33, 0.14, 44), mat('#d5d9dc', .28, .9));
+lid.position.y = 1.04; can.add(lid);
+const tab = new THREE.Mesh(new THREE.TorusGeometry(0.075, 0.02, 10, 24), alu);
+tab.rotation.x = Math.PI / 2; tab.position.set(0.075, 1.19, 0); can.add(tab);
+can.position.set(0, 0.98, 0.2);
+can.traverse(o => { if (o.isMesh){ o.castShadow = true; o.receiveShadow = true; } });
+scene.add(can);
+
+// props that answer a tap
+const props = [];
+function prop(group, spin){
+  group.userData = {t:0, spin};
+  group.traverse(o => { if (o.isMesh){ o.castShadow = true; o.receiveShadow = true; } });
+  props.push(group); scene.add(group); return group;
+}
+
+const toaster = new THREE.Group();
+const tbody = new THREE.Mesh(rbox(1.5, 0.95, 0.95, 0.16), mat('#cdc6bb', .28, .65));
+toaster.add(tbody);
+const slot = new THREE.Mesh(rbox(0.82, 0.1, 0.3, 0.04), mat('#3a332c', .9));
+slot.position.y = 0.48; toaster.add(slot);
+const lever = new THREE.Mesh(rbox(0.12, 0.12, 0.2, 0.05), mat('#9a9188', .35, .7));
+lever.position.set(0.8, 0.12, 0); toaster.add(lever);
+toaster.userData.lever = lever;
+const toast = new THREE.Mesh(rbox(0.62, 0.64, 0.14, 0.06), mat('#cf9a54', .85));
+toast.position.y = 0.1; toaster.add(toast);
+toaster.position.set(-1.72, 0.48, -0.7);
+toaster.scale.setScalar(0.85);
+toaster.userData.toast = toast;
+prop(toaster, 0);
+toaster.traverse(o => { if (o.isMesh) o.castShadow = true; });
+
+const bowl = new THREE.Group();
+const bowlMesh = new THREE.Mesh(
+  new THREE.SphereGeometry(0.62, 30, 16, 0, Math.PI*2, Math.PI/2, Math.PI/2),
+  new THREE.MeshStandardMaterial({color:'#cfc0a8', roughness:.35, metalness:.05, side:THREE.DoubleSide}));
+bowl.add(bowlMesh);
+const fruit = [];
+[['#e0642f', -0.2, 0.16], ['#c53b33', 0.22, -0.1], ['#8aa93f', 0.02, 0.3]].forEach(([c, x, z], i) => {
+  const f = new THREE.Mesh(new THREE.SphereGeometry(0.23, 24, 18), mat(c, .52));
+  f.scale.y = 0.92;
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.018, 0.12, 6), mat('#6b5a3a', .9));
+  stem.position.y = 0.2; stem.rotation.z = 0.25; f.add(stem);
+  f.position.set(x, -0.12 + i * 0.04, z); bowl.add(f); fruit.push(f);
+});
+bowl.position.set(1.62, 0.6, -0.45); bowl.userData.fruit = fruit;
+prop(bowl, 0);
+
+const cup = prop(new THREE.Group(), 1);
+cup.add(new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.24, 0.62, 28),
+  new THREE.MeshStandardMaterial({color:'#ffffff', roughness:.08, metalness:0,
+    transparent:true, opacity:.34, depthWrite:false})));   // a glass, so the fill shows
+cup.position.set(0.92, 0.31, 0.72);
+
+// soft contact shadows: a cheap gradient sprite under each object
+function shadowTex(){
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const g = c.getContext('2d');
+  const r = g.createRadialGradient(64, 64, 4, 64, 64, 62);
+  r.addColorStop(0, 'rgba(60,44,28,.42)'); r.addColorStop(1, 'rgba(60,44,28,0)');
+  g.fillStyle = r; g.fillRect(0, 0, 128, 128);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+const shadowMat = new THREE.MeshBasicMaterial({map:shadowTex(), transparent:true, depthWrite:false});
+function ground(x, z, w, d){
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), shadowMat);
+  m.rotation.x = -Math.PI / 2; m.position.set(x, 0.011, z); scene.add(m); return m;
+}
+const canShadow = ground(0, 0.2, 1.5, 1.5);
+ground(-1.72, -0.55, 2.6, 2.0); ground(1.62, -0.35, 2.0, 1.8); ground(0.92, 0.72, 1.1, 1.1);
+
+// the pour: a stream from the can's lip into the cup, and what lands in it
+const stream = new THREE.Mesh(new THREE.CylinderGeometry(0.036, 0.062, 1, 18, 1, true),
+  new THREE.MeshStandardMaterial({color:'#f0913f', roughness:.22, metalness:.05,
+    transparent:true, opacity:.88, side:THREE.DoubleSide}));
+stream.visible = false; stream.castShadow = true; scene.add(stream);
+const fill = new THREE.Mesh(new THREE.CylinderGeometry(0.265, 0.215, 1, 32),
+  new THREE.MeshStandardMaterial({color:'#ef8a35', roughness:.12, metalness:0,
+    transparent:true, opacity:.95, envMapIntensity:1.2}));
+fill.visible = false; scene.add(fill);
+const drops = [];
+for (let i = 0; i < 12; i++){
+  const d = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 6),
+    new THREE.MeshStandardMaterial({color:'#f6aa55', roughness:.3}));
+  d.visible = false; scene.add(d); drops.push(d);
+}
+const lipV = new THREE.Vector3(), cupV = new THREE.Vector3(), dirV = new THREE.Vector3();
+const UP = new THREE.Vector3(0, 1, 0), q = new THREE.Quaternion();
+
+/* -------------------------------------------------------------- timeline */
+const run = document.getElementById('run');
+const beatEl = document.getElementById('beat');
+const capEl = document.getElementById('cap');
+const roomsEl = document.getElementById('rooms');
+const wash = document.getElementById('wash');
+let p = 0, target = 0;
+
+const lerp = (a, b, t) => a + (b - a) * Math.min(1, Math.max(0, t));
+const seg = (x, a, b) => Math.min(1, Math.max(0, (x - a) / (b - a)));
+const ease = t => t < .5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2)/2;
+
+function frame(){
+  // 0-.30 push in from the wide counter · .30-.52 the crack · .52-.80 the pour
+  // · .80-1 the pour fills the frame and hands over to the rooms
+  const a = ease(seg(p, 0, .30)), cr = ease(seg(p, .30, .52));
+  const po = ease(seg(p, .52, .80)), into = ease(seg(p, .80, 1));
+
+  const cupTop = 0.62, cupX = 0.92, cupZ = 0.72;
+  camera.position.set(lerp(lerp(lerp(0.35, 0.3, a), cupX + 0.2, po), cupX, into),
+                      lerp(lerp(lerp(2.35, 1.9, a), 1.62, po), cupTop + 0.2, into),
+                      lerp(lerp(lerp(8.6, 5.2, a), 3.7, po), cupZ + 0.55, into));
+  camera.lookAt(lerp(lerp(0, cupX * 0.8, po), cupX, into),
+                lerp(lerp(lerp(1.05, 1.15, a), 0.95, po), cupTop - 0.05, into),
+                lerp(lerp(0, cupZ * 0.6, po), cupZ, into));
+
+  // the can: turns, cracks, then tips over the cup on its own
+  can.rotation.y = -Math.PI / 2 + p * 1.5;   // u=0 is the seam: turn it away from us
+  can.position.x = lerp(0, cupX - 0.42, po);
+  can.position.z = lerp(0.2, cupZ - 0.16, po);
+  can.position.y = 0.98 + Math.sin(performance.now() / 900) * 0.012 * (1 - a) + po * 0.34;
+  can.rotation.z = -po * 1.0;
+  tab.rotation.z = -cr * 1.5;                       // the tab lifts: it cracks
+  tab.position.y = 1.19 + cr * 0.05;
+  canShadow.position.x = can.position.x;
+  canShadow.material.opacity = 1 - po * 0.75;
+
+  // stream: lip of the can to the mouth of the cup
+  const pour = po > 0.18 && into < 0.85;
+  stream.visible = pour;
+  fill.visible = po > 0.2;
+  if (pour){
+    const t = can.rotation.z;
+    lipV.set(can.position.x + Math.sin(-t) * 1.02, can.position.y + Math.cos(t) * 1.02, can.position.z);
+    cupV.set(cupX, cupTop, cupZ);
+    dirV.subVectors(cupV, lipV);
+    const len = dirV.length();
+    stream.position.copy(lipV).addScaledVector(dirV, 0.5);
+    q.setFromUnitVectors(UP, dirV.clone().normalize());
+    stream.quaternion.copy(q);
+    stream.scale.set(1, len, 1);
+    stream.material.opacity = 0.96 * Math.min(1, (po - 0.18) * 6);
+  }
+  if (fill.visible){
+    const h = 0.04 + Math.min(1, (po - 0.2) / 0.7) * 0.5;
+    fill.scale.set(1, h, 1);
+    fill.position.set(cupX, 0.03 + h / 2, cupZ);
+  }
+  drops.forEach((d, i) => {
+    d.visible = pour && po > 0.3;
+    if (!d.visible) return;
+    const t = ((performance.now() / 620) + i / drops.length) % 1;
+    d.position.set(cupX + Math.sin(i * 2.1) * 0.22 * t, cupTop + 0.12 * t - 0.2 * t * t,
+                   cupZ + Math.cos(i * 1.6) * 0.2 * t);
+    d.scale.setScalar(1.1 - t * 0.7);
+  });
+
+  // props keep a little life of their own, and answer a tap
+  props.forEach(g => {
+    const u = g.userData;
+    if (u.t > 0){
+      u.t = Math.max(0, u.t - 0.02);
+      const k = Math.sin(u.t * Math.PI * 3) * u.t;
+      if (u.toast) u.toast.position.y = 0.1 + Math.abs(k) * 1.3;
+      if (u.lever) u.lever.position.y = 0.12 - Math.abs(k) * 0.22;
+      if (u.fruit) u.fruit.forEach((f, i) => f.position.y = -0.12 + i * 0.04 + Math.abs(k) * 0.4 * (1 - i * .2));
+      if (u.spin) g.rotation.y = k * 6;
+    }
+  });
+
+  // the last stretch: the drink fills the frame, then the rooms arrive
+  wash.style.opacity = String(Math.min(1, into * 1.25));
+  const open = p > 0.94;
+  roomsEl.classList.toggle('on', open);
+  roomsEl.setAttribute('aria-hidden', String(!open));
+  scene.fog.near = lerp(9, 1.4, into); scene.fog.far = lerp(24, 4.2, into);
+
+  let k = -1;
+  BEATS.forEach((bt, i) => { if (p >= bt[0]) k = i; });
+  if (k > -1 && beatEl.dataset.k !== String(k)){
+    beatEl.dataset.k = String(k);
+    beatEl.querySelector('h1').textContent = BEATS[k][1];
+    beatEl.querySelector('p').textContent = BEATS[k][2];
+  }
+  beatEl.classList.toggle('on', !open && k > -1 && into < 0.5);
+  capEl.style.opacity = p > 0.04 ? 0 : 1;
+}
+
+function tick(){
+  target = reduced ? 0 : Math.min(1, Math.max(0, scrollY / (run.offsetHeight - innerHeight)));
+  p += (target - p) * 0.12;                        // a little smoothing under a thumb
+  frame();
+  renderer.render(scene, camera);
+  requestAnimationFrame(tick);
+}
+
+function size(){
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.fov = w < 700 ? 58 : 40;                  // phone: a wider lens, counter still reads
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', size);
+size(); tick();
+
+/* ---------------------------------------------------------- interactions */
+// tap is the real affordance (390 first). Hover is wired the same way, and only
+// turned on where a real pointer exists — desktop gets it for free later.
+const ray = new THREE.Raycaster(), pt = new THREE.Vector2();
+function hit(x, y){
+  pt.set((x / innerWidth) * 2 - 1, -(y / innerHeight) * 2 + 1);
+  ray.setFromCamera(pt, camera);
+  const found = ray.intersectObjects(props, true)[0];
+  if (!found) return null;
+  let o = found.object; while (o.parent && !props.includes(o)) o = o.parent;
+  return props.includes(o) ? o : null;
+}
+addEventListener('pointerdown', e => {
+  const g = hit(e.clientX, e.clientY);
+  if (g) g.userData.t = 1;
+}, {passive:true});
+if (matchMedia('(hover:hover)').matches){
+  addEventListener('pointermove', e => {
+    const g = hit(e.clientX, e.clientY);
+    if (g && g.userData.t < 0.35) g.userData.t = 0.7;
+    document.body.style.cursor = g ? 'pointer' : '';
+  }, {passive:true});
+}
+
+/* -------------------------------------------------------------- the rooms */
+const roomEl = document.getElementById('room');
+const railEl = document.getElementById('rail');
+ROOMS.forEach(r => {
+  const b = document.createElement('button');
+  b.className = 'room';
+  b.innerHTML = '<i></i><b>' + r.name + '</b><span>' + r.n + '</span>';
+  b.addEventListener('click', () => enter(r));
+  roomsEl.appendChild(b);
+});
+function enter(r){
+  document.getElementById('room-title').textContent = r.name;
+  railEl.innerHTML = r.minis.map(([t, d, tags]) =>
+    '<article class="mini"><b>' + t + '</b><p>' + d + '</p><ul>' +
+    tags.map(x => '<li>' + x + '</li>').join('') + '</ul></article>').join('');
+  roomEl.classList.add('on');                      // the whoosh: the room rushes in
+  roomEl.setAttribute('aria-hidden', 'false');
+}
+document.getElementById('back').addEventListener('click', () => {
+  roomEl.classList.remove('on');
+  roomEl.setAttribute('aria-hidden', 'true');
+});
+</script>
+</body>
+</html>

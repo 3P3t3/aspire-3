@@ -1,0 +1,19 @@
+{
+  "about": "Direction v5, clip 1 start frame: the kitchen counter, wide. The XS Peach Mango can is the hero; toaster, fruit, an empty glass. Reference image fixes the can's colours and lettering.",
+  "jobs": [
+    {
+      "name": "counter-open",
+      "model": "fal-ai/nano-banana-pro/edit",
+      "out": "counter/open.png",
+      "cost_note": "$0.15 per image x 2 = $0.30 (fal model page, checked 2026-09-16)",
+      "input": {
+        "image_files": ["assets/generated/refs/xs-peach-mango.png"],
+        "prompt": "A realistic vertical photograph of a quiet, expensive kitchen counter in the late morning. A pale honed-stone counter runs across the lower half of the frame, with a plain warm off-white wall behind it and soft daylight raking in from the left, casting long soft shadows to the right. Standing in the centre of the counter, upright and hero-lit, is the slim orange energy drink can from the reference image: keep its orange body, its large white XS ELITE lettering and its green band exactly, small print can be simple. To the left, further back, a compact stainless steel two-slot toaster. To the right, a shallow ceramic bowl with a few pieces of fresh fruit. Just beside the can, an empty clear drinking glass. Nothing else on the counter: no clutter, no plants, no text anywhere except on the can. The top third of the frame is calm empty wall, with room for a headline. Photographic, shallow depth of field, gentle film grain, real light. No person, no hands.",
+        "aspect_ratio": "9:16",
+        "resolution": "2K",
+        "num_images": 2,
+        "output_format": "png"
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "about": "Stop 1 v3 on Wan 3.0 Prime with locked start and end frames. Design approved 2026-09-17 (house.md).",
+  "jobs": [
+    {
+      "name": "v3-clip1-scoop",
+      "model": "alibaba/wan-3.0-prime/image-to-video",
+      "out": "stop1/v3-clip1-scoop.mp4",
+      "cost_note": "5s x $0.28/s at 1080p = $1.40",
+      "input": {
+        "start_image_file": "assets/generated/bakeoff/tub-start.jpg",
+        "end_image_file": "assets/generated/stop1/v3-above-1.jpg",
+        "prompt": "A realistic, moody photograph come to life, one continuous shot with no cuts. It begins exactly on the first frame: a dim bedroom at first light seen from the bed, a dark oak nightstand with a glass of water, a brass lamp and a white tub of greens powder with a green lid. The camera glides smoothly forward off the bed toward the nightstand and rises a little, drifting closer. As we approach, with no one touching it, the tub's green lid twists itself loose, lifts off and settles down on the nightstand beside the tub. A plain white measuring scoop rises by itself out of the open tub, heaped with fine green powder, and floats through the air to hang just above the glass of water, tilting over it, a thin trickle of powder starting to fall. The camera ends looking down at the glass from above at a three-quarter angle, with the lamp base and the open tub in frame, exactly matching the last frame. The tub and scoop are rigid and keep their shape; powder falls with gravity. Low warm light, deep shadows, film grain. No person, no hands.",
+        "duration": 5,
+        "resolution": "1080p",
+        "aspect_ratio": "9:16",
+        "audio": false
+      }
+    }
+  ]
+}

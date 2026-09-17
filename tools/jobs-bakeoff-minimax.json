@@ -1,0 +1,29 @@
+{
+  "about": "Physics bake-off (Direction v3): the same two shots on minimax. Shot 1 a rigid tub flipping and opening; shot 2 a liquid pour from inside the cup. MiniMax is the control.",
+  "jobs": [
+    {
+      "name": "minimax-tub",
+      "model": "minimax/h3/image-to-video",
+      "out": "bakeoff/minimax-tub.mp4",
+      "cost_note": "5s x $0.06/s at 768P = $0.30",
+      "input": {
+        "image_file": "assets/generated/bakeoff/tub-start.jpg",
+        "prompt": "A realistic, moody photograph come to life, continuing exactly from this frame: a dim bedroom at first light, a nightstand with a glass of water, a brass lamp and a white tub of greens powder with a green lid. With no one touching it, the tub lifts itself off the nightstand and rises into the air, then flips slowly end over end through the air toward us in one full, weighty rotation. Mid-flip its green lid pops off and tumbles away on its own arc, and a little green powder spills out of the open tub in a soft curving trail that falls with gravity. The tub is rigid and keeps its exact shape, size and label the whole time; the lid is a separate solid piece. The camera pushes gently forward to follow the open tub. Everything else in the room stays still. Natural light, real shadows, film grain. No person, no hands.",
+        "duration": 5,
+        "resolution": "768P"
+      }
+    },
+    {
+      "name": "minimax-xs",
+      "model": "minimax/h3/image-to-video",
+      "out": "bakeoff/minimax-xs.mp4",
+      "cost_note": "5s x $0.06/s at 768P = $0.30",
+      "input": {
+        "image_file": "assets/generated/bakeoff/xs-start.jpg",
+        "prompt": "A realistic photograph come to life, continuing exactly from this frame: we look straight up from inside an empty clear glass on an office desk at an orange XS energy drink can floating above the rim, already open and starting to pour. With no one holding it, the can tips further toward us and the pour grows into a thick, glossy stream of pale orange liquid falling straight down into the glass and at the camera, like looking up into a waterfall. The liquid obeys gravity: it splashes where it hits the bottom of the glass around us, throws droplets onto the inside of the glass, fizzes with rising bubbles, and the level rises up the walls of the glass until the view is underwater looking up through the churning liquid at the can. The can stays rigid and keeps its colours and big white XS ELITE lettering. The camera stays still at the bottom of the glass. No person, no hands.",
+        "duration": 5,
+        "resolution": "768P"
+      }
+    }
+  ]
+}

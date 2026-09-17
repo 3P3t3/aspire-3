@@ -18,3 +18,8 @@ Design Notes.pdf
 
 # Running list of future work — candid, kept local like the docs above.
 BACKLOG.md
+
+# Footage tests: take pages, the links page, and generated media
+takes.html
+scaffold-take-*.html
+assets/generated/

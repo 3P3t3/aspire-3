@@ -1,0 +1,37 @@
+{
+  "about": "Stop 1 (Direction v3), the two locked frames for the scoop and dive. A: straight down into the glass on the nightstand, the scoop tipping over it on its own. B: underwater inside the glass, green blooming around us — the end frame and the hand-off to stop 2's swirl. Approved design in house.md, 2026-09-17.",
+  "jobs": [
+    {
+      "name": "stop1-v3-above",
+      "model": "fal-ai/nano-banana-pro/edit",
+      "out": "stop1/v3-above.png",
+      "cost_note": "$0.15 per image x 2 = $0.30 (fal model page, checked 2026-09-16)",
+      "input": {
+        "image_files": [
+          "assets/generated/bakeoff/tub-start.jpg",
+          "assets/generated/refs/gi-primer.png"
+        ],
+        "prompt": "A realistic, moody vertical photograph in the same bedroom, light and colour as the first image: low warm first light from the curtained window, deep soft shadows, dark oak, film grain. The camera now looks straight down from directly above the clear glass of water on the dark oak nightstand, so the glass is a round circle of still water in the centre of the frame, the wood grain of the nightstand around it. Beside the glass, partly in frame at one side, the open tub of greens powder from the second image, its green lid lying loose next to it; keep the tub's white body and green lid, the label can be simple. Floating in the air just above the glass, with no one holding it, a plain white measuring scoop heaped with fine bright green powder, tilted over the water, the very first thin trickle of powder beginning to fall from its edge toward the water's surface. The water surface is clean and clear, no powder on it yet. No person, no hands, no text other than the tub's label.",
+        "aspect_ratio": "9:16",
+        "resolution": "2K",
+        "num_images": 2,
+        "output_format": "png"
+      }
+    },
+    {
+      "name": "stop1-v3-under",
+      "model": "fal-ai/flux-pro/v1.1-ultra",
+      "out": "stop1/v3-under.png",
+      "cost_note": "$0.06 per image x 2 = $0.12 (fal model page, checked 2026-09-16)",
+      "input": {
+        "prompt": "Vertical underwater macro photograph from inside a glass of clear water: the camera is fully submerged, surrounded by billowing clouds of fine bright green powder dissolving into the water, blooming outward and curling into soft swirling plumes and spiral eddies all around the lens, like ink in water. Tiny green particles and a few small air bubbles drift through the frame. Warm low morning light enters from above and glows through the green clouds, with clear pockets of water between them; the curved glass wall is only a faint soft reflection at the far edges. Deep, rich greens against glowing clear water, soft shadows, realistic, high detail, shallow depth of field. No water surface visible, no powder floating on a surface, no objects, no text.",
+        "aspect_ratio": "9:16",
+        "raw": true,
+        "seed": 2917,
+        "num_images": 2,
+        "output_format": "png",
+        "safety_tolerance": "2"
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "about": "Stop 1 v3 mid-dive frame: the lens at the water's surface inside the glass, so the dive can be two short clips that can't swing outside the glass. References: scoop A (above) and underwater A (below).",
+  "jobs": [
+    {
+      "name": "stop1-v3-surface",
+      "model": "fal-ai/nano-banana-pro/edit",
+      "out": "stop1/v3-surface.png",
+      "cost_note": "$0.15 per image x 2 = $0.30 (fal model page, checked 2026-09-16)",
+      "input": {
+        "image_files": [
+          "assets/generated/stop1/v3-above-1.jpg",
+          "assets/generated/stop1/v3-under-b-1.jpg"
+        ],
+        "prompt": "A realistic vertical split-level over-under photograph taken from INSIDE the glass of water from the first image: the camera lens sits exactly at the water's surface, inside the glass, looking down and slightly forward, so the waterline cuts horizontally across the frame a little above the middle. Above the waterline, close and slightly out of focus: the inside wall of the glass curving around, and the thin steady stream of fine green powder pouring down from the tilted white scoop above, the same scoop and powder as the first image. Below the waterline, sharp and filling most of the frame: the stream entering the water right in front of the lens and immediately sinking and blooming into soft, smoky, earthy olive-green plumes, exactly like the second image, curling outward and downward with fine particles and tiny bubbles. The powder does not sit or float on the surface. The same warm, low, golden morning light and deep shadows as both images. We are clearly inside the glass: no view of the outside of the glass, no nightstand seen through the side. No person, no hands, no text.",
+        "aspect_ratio": "9:16",
+        "resolution": "2K",
+        "num_images": 2,
+        "output_format": "png"
+      }
+    }
+  ]
+}

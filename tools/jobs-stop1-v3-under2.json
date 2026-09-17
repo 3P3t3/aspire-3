@@ -1,0 +1,19 @@
+{
+  "about": "Stop 1 v3 underwater end frame, re-roll: the first two were shot from outside the glass (neon) or cartoonish (teal). Uses the chosen scoop frame (v3-above-1) as the reference for the powder's colour and the room's warm light.",
+  "jobs": [
+    {
+      "name": "stop1-v3-under-b",
+      "model": "fal-ai/nano-banana-pro/edit",
+      "out": "stop1/v3-under-b.png",
+      "cost_note": "$0.15 per image x 2 = $0.30 (fal model page, checked 2026-09-16)",
+      "input": {
+        "image_files": ["assets/generated/stop1/v3-above-1.jpg"],
+        "prompt": "A realistic vertical underwater photograph. The camera has plunged beneath the surface of the glass of water in this image and is now fully submerged inside it, looking down and forward. All around the lens, the fine green powder from the scoop is dissolving: soft, smoky, translucent plumes and wisps curl and spiral outward like ink or smoke in water, with fine drifting particles and a few tiny air bubbles. The green is exactly the muted, earthy matcha-olive green of the powder in this image, not neon and not teal. The water is lit only by the same low, warm, golden morning light, coming down from above and glowing through the plumes, with darker, deeper shadow toward the bottom; clear pockets of water between the clouds. The glass itself is not seen from outside: at most a faint curved reflection at the far edges. No water surface, no powder floating on a surface, no scoop, no tub, no room, no person, no text. Natural, photographic, film grain, shallow depth of field.",
+        "aspect_ratio": "9:16",
+        "resolution": "2K",
+        "num_images": 2,
+        "output_format": "png"
+      }
+    }
+  ]
+}
