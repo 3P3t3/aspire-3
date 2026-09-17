@@ -304,7 +304,9 @@
     }
     elClock.textContent = clock(sc.t0 + (sc.t1 - sc.t0) * p);
     elBeat.textContent = sc.title;
-    elHud.textContent = "S" + sc.n + " " + String(Math.max(sc.frame, 0)).padStart(3, "0")
+    // from the scroll position, not the last painted frame, which is stale
+    // when a jump skips a scene entirely
+    elHud.textContent = "S" + sc.n + " " + String(Math.round(p * (sc.frames - 1))).padStart(3, "0")
                       + "/" + (sc.frames - 1);
     var col = mix(sc.c0, sc.c1, p), light = lum(col) > 0.42;
     var ink = light ? "d" : "l";
@@ -391,6 +393,23 @@
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(restart);
 
   start();
+
+  /* ---- containers ---------------------------------------------------- */
+  // Opening one changes the page's height, which moves where every later
+  // place starts — so re-measure, or the scrub lands on the wrong frame.
+  [].forEach.call(document.querySelectorAll(".box"), function (box) {
+    var btn = box.querySelector(".box-btn");
+    function set(open) {
+      box.classList.toggle("is-open", open);
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    set(false);
+    btn.addEventListener("click", function () {
+      set(!box.classList.contains("is-open"));
+      restart();
+    });
+  });
+  restart();
 
   /* ---- beat index --------------------------------------------------- */
   var sheet = document.getElementById("sheet"), btn = document.getElementById("beatsbtn");

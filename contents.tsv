@@ -1,0 +1,76 @@
+# What's inside each container. One row per product.
+#
+# Add a product by adding a row; move one by changing its container. The
+# footage never changes when this file does. A new product must exist in the
+# data layer first (catalog.json or shelves.tsv) — the build says so if not.
+#
+# container     a key from containers.tsv
+# group         optional sub-heading inside the container; blank for none
+# id            product id
+#
+# container	group	id
+morning-stack		127725
+morning-stack		120571
+morning-stack		128463
+morning-stack		110922
+protein-shelf	Whey	128154
+protein-shelf	Whey	128155
+protein-shelf	Whey	128156
+protein-shelf	From the fridge	110369
+protein-shelf	From the fridge	110370
+training-bag	For training	316375
+training-bag	For training	316376
+training-bag	For training	316377
+training-bag	For training	316378
+training-bag	For training	127811
+training-bag	For after	316379
+training-bag	For after	316380
+training-bag	For after	126753
+training-bag	For after	126754
+training-bag	For after	296753
+training-bag	For after	300323
+training-bag	For the water bottle	110601
+training-bag	For the water bottle	110631
+training-bag	For the water bottle	110390
+training-bag	For the water bottle	305555
+training-bag	For later	110385
+training-bag	For later	110386
+training-bag	For later	316302
+training-bag	For later	316303
+training-bag	For later	316305
+training-bag	For later	110627
+training-bag	For later	110628
+training-bag	For later	128167
+training-bag	For later	128168
+training-bag	For later	128169
+desk-drawer		101593
+desk-drawer		107846
+mini-fridge		266673
+mini-fridge		101444
+mini-fridge		126184
+mini-fridge		126197
+mini-fridge		126198
+mini-fridge		126199
+mini-fridge		126201
+mini-fridge		126202
+mini-fridge		126883
+mini-fridge		126981
+mini-fridge		126982
+mini-fridge		126983
+mini-fridge		126984
+mini-fridge		126986
+mini-fridge		126987
+mini-fridge		126998
+mini-fridge		127070
+mini-fridge		127071
+mini-fridge		127935
+mini-fridge		127936
+mini-fridge		128583
+skin-nutrition		123783V
+skin-nutrition		125575
+glow-up		124812
+night-stack		128032
+night-stack		308641
+night-stack		124506
+night-stack		127940
+night-stack		308636

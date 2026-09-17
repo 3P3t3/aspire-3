@@ -1,0 +1,24 @@
+# The containers: the clickable things in each place.
+#
+# A container is filmed — it has to be in frame at its stop — so adding one is
+# a footage decision. What's inside it is not (see contents.tsv). Containers
+# show on the page in the order listed here. One with nothing in it yet is kept
+# but not shown.
+#
+# key           id used by contents.tsv
+# stop          which place (STOPS in tools/build_scaffold.py)
+# label         what the button says
+# on film       where it physically is, for writing that stop's footage prompt
+#
+# key	stop	label	on film
+morning-stack	nightstand-am	Morning stack	nightstand drawer, beside the bed
+protein-shelf	kitchen	The protein shelf	cabinet above the counter, shaker and blender below
+kitchen-sink	kitchen	Under the sink	cabinet under the kitchen sink — a quick moment, not a focus
+supplements	kitchen	Supplements	pantry shelf
+kids	kitchen	Kids	pantry, a lower shelf
+training-bag	bag	Training bag	training bag, open on the bench by the door
+desk-drawer	desk	Desk drawer	desk drawer
+mini-fridge	desk	Mini fridge	small fridge under or beside the desk
+skin-nutrition	bathroom	Skin Nutrition	cabinet on one side of the mirror
+glow-up	bathroom	Glow Up	cabinet on the other side of the mirror
+night-stack	nightstand-pm	Night stack	the same nightstand drawer as the morning

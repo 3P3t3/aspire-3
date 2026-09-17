@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<script>document.documentElement.classList.add("js")</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>A day — placeholder motion</title>
-<meta name="description" content="One person's day in eight beats. Scrolling moves time forward; each beat scrubs its own clip.">
+<meta name="description" content="One day in one house, bed to bed. Scrolling moves time forward through six places.">
 <meta name="theme-color" content="#12141f">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -256,6 +257,68 @@ body{
 .card .go::after{content:"\2192";letter-spacing:0}
 .card:active .shot{transform:translateY(1px)}
 
+/* -------------------------------------------------------------- container */
+/* Each place has one container: a drawer, a bag, a cabinet. It is the
+   clickable; what is inside it is data. Rendered open, so everything is
+   reachable without JavaScript — the engine closes them once it runs. */
+.box{margin:4px 0 30px}
+.box-btn{
+  width:100%;min-height:58px;display:flex;align-items:center;gap:12px;
+  padding:14px 16px 14px 18px;text-align:left;
+  border:1px solid var(--rule);border-radius:14px;
+  background:var(--scrim);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  color:var(--ink);
+}
+.box-name{font-family:var(--serif);font-size:22px;font-weight:400;line-height:1.15;flex:1}
+.box-count{
+  min-width:28px;height:28px;padding:0 9px;border-radius:14px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;
+  border:1px solid var(--rule);color:var(--ink-dim);
+}
+.box-btn::after{
+  content:"";width:9px;height:9px;margin:0 4px 4px 2px;
+  border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+  transform:rotate(45deg);transition:transform .2s ease;
+}
+.box-btn[aria-expanded="true"]::after{transform:rotate(225deg);margin-bottom:-4px}
+.box-body{padding-top:22px}
+.js .box:not(.is-open) .box-body{display:none}
+
+/* ------------------------------------------------------------ overnight */
+/* After the day: no film, no products. It picks up the last colour of the
+   night and uses the same type as the stops, so it reads as the day's end
+   rather than a separate page. */
+.overnight{
+  --ink:#f4f1ec;--ink-dim:rgba(244,241,236,.66);--rule:rgba(255,255,255,.16);
+  position:relative;z-index:2;color:var(--ink);
+  background:linear-gradient(#120f0d 0,#0f0e14 60%,#0d0f18 100%);
+  padding:88px var(--padR) 84px var(--padL);
+}
+.overnight h2{
+  font-family:var(--serif);font-optical-sizing:auto;
+  font-size:clamp(34px,10vw,46px);font-weight:300;line-height:1.02;
+  letter-spacing:-.02em;margin:0 0 14px;max-width:9.4em;text-wrap:balance;
+}
+.overnight h2 em{font-style:italic;font-weight:400}
+.ov-line{margin:0 0 36px;font-size:17px;line-height:1.5;color:var(--ink-dim);max-width:32ch}
+.steps{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+.steps li{padding:22px 0 24px;border-bottom:1px solid var(--rule);
+  display:grid;grid-template-columns:3.2ch 1fr;column-gap:12px;align-content:start}
+.steps b{font-variant-numeric:tabular-nums;font-size:13px;font-weight:600;
+  color:var(--ink-dim);padding-top:5px}
+.steps h3{grid-column:2;margin:0 0 6px;font-family:var(--serif);
+  font-size:22px;font-weight:400;line-height:1.2}
+.steps p{grid-column:2;margin:0;font-size:15.5px;line-height:1.5;color:var(--ink-dim);max-width:36ch}
+@media (min-width:900px){
+  .overnight{padding:130px var(--rail) 120px}
+  .overnight h2{font-size:clamp(48px,4vw,64px)}
+  .ov-line{font-size:19px;max-width:40ch;margin-bottom:48px}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);column-gap:40px;border-top:0}
+  .steps li{border-top:1px solid var(--rule);border-bottom:0;padding-top:26px}
+}
+
 /* ------------------------------------------------------------------ end */
 .end{
   position:relative;z-index:2;background:#0d0f18;
@@ -274,31 +337,36 @@ body{
 
 /* ================================================== desktop adaptation === */
 @media (min-width:900px){
-  :root{--gut:40px}
+  :root{
+    --gut:40px;
+    /* Footage is shot 9:16. On a wide screen it becomes a full-height column
+       instead of being cropped to fill: the frame that was paid for is shown
+       whole, and the content lives beside it. */
+    --colw:min(calc(var(--stage) * 9 / 16), 44vw);
+    --rail:max(var(--padL), calc((100vw - 1360px) / 2));
+  }
   .bar{height:60px;gap:18px}
   .open{padding-bottom:64px}
   .open h1{font-size:clamp(68px,7.4vw,112px);max-width:14ch}
   .open p{font-size:19px;max-width:38ch}
 
-  /* the film keeps the left; the day is read down a column on the right   */
-  .flow{
-    padding-top:54vh;padding-bottom:16vh;
-    display:grid;grid-template-columns:1fr minmax(420px,38vw);
-  }
-  .flow>*{grid-column:2}
+  .scene{background:linear-gradient(160deg,var(--c0),var(--c1))}
+  .stage{width:var(--colw);margin-left:var(--rail)}
   .stage::after{
-    background:linear-gradient(90deg,transparent 30%,var(--scrim) 78%),
-               linear-gradient(180deg,var(--scrim) 0,transparent 24%);
+    background:linear-gradient(180deg,var(--scrim) 0,transparent 20%,
+                               transparent 82%,var(--scrim) 100%);
   }
+  .flow{
+    padding:54vh var(--rail) 16vh
+            calc(var(--rail) + var(--colw) + clamp(40px,5vw,88px));
+  }
+  .flow>*{max-width:620px}
   .beat h2{font-size:clamp(44px,3.6vw,58px)}
   .grid{grid-template-columns:repeat(3,1fr);gap:26px 16px}
   .card .name{font-size:13.5px}
   .end{padding:110px var(--padR) calc(80px + var(--safeB)) var(--padL)}
   .end h2{font-size:52px}
   .end ol{max-width:640px}
-}
-@media (min-width:1280px){
-  .flow{grid-template-columns:1fr minmax(560px,42vw)}
 }
 
 /* ================================================ reduced motion ======== */
@@ -308,11 +376,10 @@ body{
   .stage::after{background:linear-gradient(180deg,rgba(8,9,14,.45),rgba(8,9,14,.25))}
   .flow{margin-top:0;min-height:0;padding-top:26px;padding-bottom:56px}
   .card:active .shot{transform:none}
+  .box-btn::after{transition:none}
   @media (min-width:900px){
-    .stage{height:64svh}
-    .flow{display:block;padding-top:34px}
-    .flow>*{grid-column:auto}
-    .beat{max-width:34ch}
+    .stage{height:64svh;width:calc(64svh * 9 / 16);margin-left:var(--rail)}
+    .flow{padding:34px var(--rail) 56px}
   }
 }
 </style>
@@ -321,138 +388,160 @@ body{
 <a class="skip" href="#scene-1">Skip to the day</a>
 
 <header class="bar">
-  <span class="clock" id="clock" aria-live="off">05:48</span>
-  <span class="bar-beat" id="barbeat">Wake</span>
+  <span class="clock" id="clock" aria-live="off">06:10</span>
+  <span class="bar-beat" id="barbeat">Nightstand</span>
   <span class="hud" id="hud" aria-hidden="true">S1 000/59</span>
-  <button class="bar-btn" id="beatsbtn" aria-expanded="false" aria-controls="sheet">Beats</button>
+  <button class="bar-btn" id="beatsbtn" aria-expanded="false" aria-controls="sheet">Day</button>
 </header>
 <div class="daybar" aria-hidden="true"><i id="daybar"></i></div>
 
-<nav class="sheet" id="sheet" aria-label="The eight beats">
+<nav class="sheet" id="sheet" aria-label="The day, by place">
   <button class="sheet-close" id="sheetclose">Close</button>
   <h2>The day</h2>
-  <a href="#scene-1"><b>05:48</b><span>Wake</span></a><a href="#scene-2"><b>06:05</b><span>Gut, first thing</span></a><a href="#scene-3"><b>06:30</b><span>Twist and load</span></a><a href="#scene-4"><b>07:10</b><span>Kitchen</span></a><a href="#scene-5"><b>08:00</b><span>Office</span></a><a href="#scene-6"><b>14:40</b><span>Hunger</span></a><a href="#scene-7"><b>15:40</b><span>Lift</span></a><a href="#scene-8"><b>18:30</b><span>Night</span></a>
+  <a href="#scene-1"><b>06:10</b><span>Nightstand</span></a><a href="#scene-2"><b>07:40</b><span>Kitchen counter</span></a><a href="#scene-3"><b>08:10</b><span>By the door</span></a><a href="#scene-4"><b>15:00</b><span>Desk</span></a><a href="#scene-5"><b>21:40</b><span>Bathroom counter</span></a><a href="#scene-6"><b>22:05</b><span>Nightstand</span></a><a href="#overnight"><b>Night</b><span>Overnight</span></a>
 </nav>
 
 <main>
   <section class="open">
-    <h1>One day,<br>eight <em>beats</em></h1>
+    <h1>One day,<br>bed to <em>bed</em></h1>
     <div class="rule"></div>
-    <p>Scrolling moves time forward. Each beat holds a stretch of the day and
-       scrubs its own clip — down it plays, up it reverses, stop and it holds.</p>
+    <p>Scrolling moves time forward. Six places in one house, from the first
+       light to the lamp going off. Open what's in each one.</p>
     <p class="cue"><i></i> Scroll</p>
   </section>
 
-<section class="scene" id="scene-1" data-scene="1" style="--frames:60;--c0:#171c30;--c1:#2a3147" aria-labelledby="h-1">
-  <div class="stage"><canvas role="img" aria-label="Bedroom before sunrise, sitting up on the edge of the bed."></canvas></div>
+<section class="scene" id="scene-1" data-scene="1" style="--frames:60;--c0:#1d2233;--c1:#7a6a5c" aria-labelledby="h-1">
+  <div class="stage"><canvas role="img" aria-label="Morning. Low sun through the bedroom window; a hand opens the nightstand drawer beside a slept-in bed."></canvas></div>
   <div class="flow">
     <div class="beat">
-      <p class="eyebrow"><b>01</b> <u>Wake</u><s></s><i>05:48<span>–06:05</span></i></p>
-      <h2 id="h-1">First light, and<em> nothing has happened yet</em></h2>
-      <p>Feet on the floor. The room is still blue.</p>
+      <p class="eyebrow"><b>01</b> <u>Nightstand</u><s></s><i>06:10<span>–06:35</span></i></p>
+      <h2 id="h-1">Before the house<em> is awake</em></h2>
+      <p>Feet on the floor. The drawer, first.</p>
     </div>
-    <p class="tail">Thirty seconds of sitting there before any of it starts.</p>
+    <div class="box">
+      <button class="box-btn" type="button" aria-expanded="true" aria-controls="box-morning-stack"><span class="box-name">Morning stack</span><span class="box-count">4</span></button>
+      <div class="box-body" id="box-morning-stack">
+        <div class="cluster"><ul class="grid"><li><a class="card photo" href="https://amway.com/share-link/FOhn2MdGS" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/127725-en-US-690px-03?context=bWFzdGVyfGltYWdlc3w2Mjc2NDJ8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2hjZi9oNDYvOTgzMjAwMjU1MTgzOC8xMjc3MjUtZW4tVVMtNjkwcHgtMDN8ZWJjMDRmZjU0NmI4MzRjN2MxMDhlNGNmNzk3MGE2ZGE5MTMxZjQxZTA2ZjU3ODAyM2M4YTQxNmE5NmE1NDNjMA" alt="Nutrilite Begin™ Daily GI Primer" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite Begin™ Daily GI Primer</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/k5GGxS-5u" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/120571.webp" alt="Nutrilite™ Balance Within™ Probiotic" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Balance Within™ Probiotic</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/TcFtuhPvJ" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128463.webp" alt="XS™ Creatine+" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Creatine+</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/s8elwQ-bb" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110922.webp" alt="Nutrilite™ Twist Tubes 2GO™ – Variety Pack" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Twist Tubes 2GO™ – Variety Pack</span><span class="go">Shop</span></a></li></ul></div>
+      </div>
+    </div>
   </div>
 </section>
-<section class="scene" id="scene-2" data-scene="2" style="--frames:48;--c0:#2a3147;--c1:#6a6274" aria-labelledby="h-2">
-  <div class="stage"><canvas role="img" aria-label="Still in the bedroom, a glass of water in hand before the day starts."></canvas></div>
+<section class="scene" id="scene-2" data-scene="2" style="--frames:144;--c0:#7a6a5c;--c1:#cdb797" aria-labelledby="h-2">
+  <div class="stage"><canvas role="img" aria-label="Kitchen counter in hard mid-morning light; hands scoop protein into a blender. A second mug sits in the sink."></canvas></div>
   <div class="flow">
     <div class="beat">
-      <p class="eyebrow"><b>02</b> <u>Gut, first thing</u><s></s><i>06:05<span>–06:30</span></i></p>
-      <h2 id="h-2">Before<em> anything else</em></h2>
-      <p>Nothing has gone in today. This goes in first.</p>
+      <p class="eyebrow"><b>02</b> <u>Kitchen counter</u><s></s><i>07:40<span>–08:10</span></i></p>
+      <h2 id="h-2">A scoop,<em> not a recipe</em></h2>
+      <p>The sun is up properly now. Blender, shaker, done.</p>
     </div>
-    <div class="cluster"><ul class="grid"><li><a class="card photo" href="https://amway.com/share-link/FOhn2MdGS" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/127725-en-US-690px-03?context=bWFzdGVyfGltYWdlc3w2Mjc2NDJ8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2hjZi9oNDYvOTgzMjAwMjU1MTgzOC8xMjc3MjUtZW4tVVMtNjkwcHgtMDN8ZWJjMDRmZjU0NmI4MzRjN2MxMDhlNGNmNzk3MGE2ZGE5MTMxZjQxZTA2ZjU3ODAyM2M4YTQxNmE5NmE1NDNjMA" alt="Nutrilite Begin™ Daily GI Primer" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite Begin™ Daily GI Primer</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/k5GGxS-5u" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/120571.webp" alt="Nutrilite™ Balance Within™ Probiotic" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Balance Within™ Probiotic</span><span class="go">Shop</span></a></li></ul></div><p class="tail">It is not a ritual. It is just first.</p>
+    <div class="box">
+      <button class="box-btn" type="button" aria-expanded="true" aria-controls="box-protein-shelf"><span class="box-name">The protein shelf</span><span class="box-count">5</span></button>
+      <div class="box-body" id="box-protein-shelf">
+        <div class="cluster"><h3>Whey<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/o3K2G9Gau" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128154.webp" alt="XS™ Grass-Fed Whey Protein – Chocolate" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Grass-Fed Whey Protein – Chocolate</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/LYOT5kyHn" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128155.webp" alt="XS™ Grass-Fed Whey Protein – Strawberry" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Grass-Fed Whey Protein – Strawberry</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/14~vr9fjQ" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128156.webp" alt="XS™ Grass-Fed Whey Protein – Vanilla" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Grass-Fed Whey Protein – Vanilla</span><span class="go">Shop</span></a></li></ul></div>
+        <div class="cluster"><h3>From the fridge<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/IwkAJiWQ3" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110369.webp" alt="XS™ Sports Protein Shakes – Rich Chocolate" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sports Protein Shakes – Rich Chocolate</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/ofcahKqvN" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110370.webp" alt="XS™ Sports Protein Shakes – Vanilla Crème" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sports Protein Shakes – Vanilla Crème</span><span class="go">Shop</span></a></li></ul></div>
+      </div>
+    </div>
   </div>
 </section>
-<section class="scene" id="scene-3" data-scene="3" style="--frames:56;--c0:#6a6274;--c1:#b09174" aria-labelledby="h-3">
-  <div class="stage"><canvas role="img" aria-label="Water running into a bottle on the counter, a scoop resting beside it."></canvas></div>
+<section class="scene" id="scene-3" data-scene="3" style="--frames:48;--c0:#cdb797;--c1:#a8a39a" aria-labelledby="h-3">
+  <div class="stage"><canvas role="img" aria-label="By the front door in flat hallway light; a training bag open on a bench, being packed, with a smaller bag beside it."></canvas></div>
   <div class="flow">
     <div class="beat">
-      <p class="eyebrow"><b>03</b> <u>Twist and load</u><s></s><i>06:30<span>–07:10</span></i></p>
-      <h2 id="h-3">Twist, and the<em> water changes colour</em></h2>
-      <p>Bottle under the tap. A scoop, a tube, done standing up.</p>
+      <p class="eyebrow"><b>03</b> <u>By the door</u><s></s><i>08:10<span>–08:25</span></i></p>
+      <h2 id="h-3">Packed<em> on the way out</em></h2>
+      <p>Open on the bench. Something for training, something for later.</p>
     </div>
-    <div class="cluster"><h3>The scoop<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/TcFtuhPvJ" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128463.webp" alt="XS™ Creatine+" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Creatine+</span><span class="go">Shop</span></a></li></ul></div>
-    <div class="cluster"><h3>The twist<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/s8elwQ-bb" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110922.webp" alt="Nutrilite™ Twist Tubes 2GO™ – Variety Pack" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Twist Tubes 2GO™ – Variety Pack</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/XjBUQPtjO" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110390.webp" alt="XS™ Sports Twist Tubes – Fruit Punch" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sports Twist Tubes – Fruit Punch</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/hzkCx98xw" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/305555.webp" alt="XS™ Sports Twist Tubes – Raspberry Lemonade" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sports Twist Tubes – Raspberry Lemonade</span><span class="go">Shop</span></a></li></ul></div>
-    <div class="cluster"><h3>The water<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/Dts4kqijP" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110601.webp" alt="XS™ CocoWater Hydration Drink Mix – Strawberry/Watermelon" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ CocoWater Hydration Drink Mix – Strawberry/Watermelon</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/enbKVnLlx" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110631.webp" alt="XS™ CocoWater Hydration Drink Mix – Pineapple/Coconut" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ CocoWater Hydration Drink Mix – Pineapple/Coconut</span><span class="go">Shop</span></a></li></ul></div>
+    <div class="box">
+      <button class="box-btn" type="button" aria-expanded="true" aria-controls="box-training-bag"><span class="box-name">Training bag</span><span class="box-count">25</span></button>
+      <div class="box-body" id="box-training-bag">
+        <div class="cluster"><h3>For training<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/ZsJafHG0E" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/316375.webp" alt="XS™ Pre-Workout Boost - Blue Raspberry (30 Serving Pouch)" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Pre-Workout Boost - Blue Raspberry (30 Serving Pouch)</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/Om6-lIl43" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/316376.webp" alt="XS™ Pre-Workout Boost - Green Apple (30 Serving Pouch)" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Pre-Workout Boost - Green Apple (30 Serving Pouch)</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/SattacJ5V" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/316377.webp" alt="XS™ Pre-Workout Boost - Blue Raspberry (12 Stick Packs)" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Pre-Workout Boost - Blue Raspberry (12 Stick Packs)</span><span class="go">Shop</span></a></li><li><a class="card photo" href="https://amway.com/share-link/m5Jg-DMsC" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/316378-en-US-690px-03?context=bWFzdGVyfGltYWdlc3w1NDEyODV8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g0NS9oZGQvOTY4MDU5MTc0OTE1MC8zMTYzNzgtZW4tVVMtNjkwcHgtMDN8ZWY5MDI5NzNkMDNmZDEwYTA1NTJmZjExMzhiMDMzMzI3YjAxMmFkMTMxNTdjYTQ2N2JjZTljOGJmY2Y5MGVlOQ" alt="XS™ Pre-Workout Boost - Green Apple (12 Stick Packs)" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Pre-Workout Boost - Green Apple (12 Stick Packs)</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/ZcBRI5loO" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/127811.webp" alt="XS™ Ignite Powder – Moro Blood Orange" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Ignite Powder – Moro Blood Orange</span><span class="go">Shop</span></a></li></ul></div>
+        <div class="cluster"><h3>For after<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/CBN8O~MnX" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/316379.webp" alt="XS™ Post-Workout Recovery - Fruit Punch (30 Serving Pouch)" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Post-Workout Recovery - Fruit Punch (30 Serving Pouch)</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/lrJlYVhGM" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/316380.webp" alt="XS™ Post-Workout Recovery - Fruit Punch (12 Stick Packs)" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Post-Workout Recovery - Fruit Punch (12 Stick Packs)</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/D2YioWCnT" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126753.webp" alt="XS™ Muscle Multiplier - Berry Blast" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Muscle Multiplier - Berry Blast</span><span class="go">Shop</span></a></li><li><a class="card photo" href="https://amway.com/share-link/WvhxbGmYf" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/126754-en-US-690px-03?context=bWFzdGVyfGltYWdlc3wxOTAwNDF8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g5Ny9oOTgvOTcwMTk1NTk5MzYzMC8xMjY3NTQtZW4tVVMtNjkwcHgtMDN8YjlmM2Q3NWMyMGIyOGQyZmNmZTlhMjU1NzQ4NDcwMTFmYzNiMzY5ZTVmYzRkN2Y1YWFhOGQ1YzVhNDU3ZmFkZg" alt="XS™ Muscle Multiplier – Watermelon" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Muscle Multiplier – Watermelon</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/AwIzUqvC1" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/296753.webp" alt="XS™ CBD Cream" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ CBD Cream</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/9EXfGTpU-" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/300323.webp" alt="XS™ CBD Pro Cream" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ CBD Pro Cream</span><span class="go">Shop</span></a></li></ul></div>
+        <div class="cluster"><h3>For the water bottle<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/Dts4kqijP" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110601.webp" alt="XS™ CocoWater Hydration Drink Mix – Strawberry/Watermelon" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ CocoWater Hydration Drink Mix – Strawberry/Watermelon</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/enbKVnLlx" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110631.webp" alt="XS™ CocoWater Hydration Drink Mix – Pineapple/Coconut" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ CocoWater Hydration Drink Mix – Pineapple/Coconut</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/XjBUQPtjO" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110390.webp" alt="XS™ Sports Twist Tubes – Fruit Punch" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sports Twist Tubes – Fruit Punch</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/hzkCx98xw" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/305555.webp" alt="XS™ Sports Twist Tubes – Raspberry Lemonade" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sports Twist Tubes – Raspberry Lemonade</span><span class="go">Shop</span></a></li></ul></div>
+        <div class="cluster"><h3>For later<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/FHubIOB6L" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110385.webp" alt="XS™ Sports Protein Bars – Chocolate Peanut Butter" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sports Protein Bars – Chocolate Peanut Butter</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/IMXmJE6Fb" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110386.webp" alt="XS™ Sports Protein Bars – Chocolate Berry" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sports Protein Bars – Chocolate Berry</span><span class="go">Shop</span></a></li><li><a class="card photo" href="https://amway.com/share-link/WsloZO1TV" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/316302-en-US-690px-02?context=bWFzdGVyfGltYWdlc3wyMjE1NzN8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g5MC9oYjIvOTc0MjgyMzY4NjE3NC8zMTYzMDItZW4tVVMtNjkwcHgtMDJ8MWI4MWI5YzBkODk3ZTA1ODIxNjVlYjIzMTM3NGY0ZDRlMzlhNDRlZjA5MzA1NDEzMGE0MTcyNDAyYTNmNDgyMw" alt="Nutrilite™ Organics All-in-One Bars – Peanut Butter" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Organics All-in-One Bars – Peanut Butter</span><span class="go">Shop</span></a></li><li><a class="card photo" href="https://amway.com/share-link/195NEh7tP" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/316303-en-US-690px-02?context=bWFzdGVyfGltYWdlc3wyMjg4MDd8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g2NS9oMzUvOTc0MjgyMTA5NzUwMi8zMTYzMDMtZW4tVVMtNjkwcHgtMDJ8YjIyODliODg5YTFiZTU1NjQxMmUzNDg5NWNhMzM4MDA1NDA4YTE4ZDBjMTlmYWEyNzg0Mjg5OTEwMzhiMGRiYg" alt="Nutrilite™ Organics All-in-One Bars – Double Chocolate" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Organics All-in-One Bars – Double Chocolate</span><span class="go">Shop</span></a></li><li><a class="card photo" href="https://amway.com/share-link/90MN2VV7h" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/316305-en-US-690px-02?context=bWFzdGVyfGltYWdlc3wyMTY1NjV8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g1MS9oMjcvOTc0MjgxMzM5NzAyMi8zMTYzMDUtZW4tVVMtNjkwcHgtMDJ8ODkwMjI3NmQwZGU3YzMzZTgwYzQzNWVhMTQzMDE2NDlmNDAyNGQwZjc4MjMyZTg1NDUyOTQ5YzQ4MWVjN2IwMg" alt="Nutrilite™ Organics All-in-One Bars – Berries &amp; Seeds" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Organics All-in-One Bars – Berries &amp; Seeds</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/yQu-NHOoT" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110627.webp" alt="XS™ Protein Crisps – Barbeque" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Protein Crisps – Barbeque</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/MVc4sISgs" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110628.webp" alt="XS™ Protein Crisps – Sriracha Lime" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Protein Crisps – Sriracha Lime</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/3i1Nxah8u" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128167.webp" alt="XS™ Grass-Fed Whey Protein Powder Sachets - Chocolate" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Grass-Fed Whey Protein Powder Sachets - Chocolate</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/vTiZNA5QUR" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128168.webp" alt="XS™ Grass-Fed Whey Protein Powder Sachets - Strawberry" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Grass-Fed Whey Protein Powder Sachets - Strawberry</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/V5QxGP6Xp" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128169.webp" alt="XS™ Grass-Fed Whey Protein Powder Sachets - Vanilla" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Grass-Fed Whey Protein Powder Sachets - Vanilla</span><span class="go">Shop</span></a></li></ul></div>
+      </div>
+    </div>
   </div>
 </section>
-<section class="scene" id="scene-4" data-scene="4" style="--frames:60;--c0:#b09174;--c1:#d8c6a8" aria-labelledby="h-4">
-  <div class="stage"><canvas role="img" aria-label="Morning kitchen in motion, a shaker being filled on the way past."></canvas></div>
+<section class="scene" id="scene-4" data-scene="4" style="--frames:72;--c0:#a8a39a;--c1:#8f8a80" aria-labelledby="h-4">
+  <div class="stage"><canvas role="img" aria-label="A plain desk in flat, tired afternoon light; a hand cracks open a can of XS."></canvas></div>
   <div class="flow">
     <div class="beat">
-      <p class="eyebrow"><b>04</b> <u>Kitchen</u><s></s><i>07:10<span>–08:00</span></i></p>
-      <h2 id="h-4">A scoop,<em> not a recipe</em></h2>
-      <p>Chocolate. Shaker. Out the door holding it.</p>
+      <p class="eyebrow"><b>04</b> <u>Desk</u><s></s><i>15:00<span>–15:40</span></i></p>
+      <h2 id="h-4">The slump<em> is the reason</em></h2>
+      <p>Mid-afternoon, the flattest light of the day. The can gets opened here.</p>
     </div>
-    <div class="cluster"><h3>Whey<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/o3K2G9Gau" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128154.webp" alt="XS™ Grass-Fed Whey Protein – Chocolate" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Grass-Fed Whey Protein – Chocolate</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/LYOT5kyHn" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128155.webp" alt="XS™ Grass-Fed Whey Protein – Strawberry" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Grass-Fed Whey Protein – Strawberry</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/14~vr9fjQ" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128156.webp" alt="XS™ Grass-Fed Whey Protein – Vanilla" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Grass-Fed Whey Protein – Vanilla</span><span class="go">Shop</span></a></li></ul></div>
-    <div class="cluster"><h3>Sachets, for the bag<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/3i1Nxah8u" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128167.webp" alt="XS™ Grass-Fed Whey Protein Powder Sachets - Chocolate" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Grass-Fed Whey Protein Powder Sachets - Chocolate</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/vTiZNA5QUR" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128168.webp" alt="XS™ Grass-Fed Whey Protein Powder Sachets - Strawberry" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Grass-Fed Whey Protein Powder Sachets - Strawberry</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/V5QxGP6Xp" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128169.webp" alt="XS™ Grass-Fed Whey Protein Powder Sachets - Vanilla" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Grass-Fed Whey Protein Powder Sachets - Vanilla</span><span class="go">Shop</span></a></li></ul></div>
-    <div class="cluster"><h3>Ready to go<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/IwkAJiWQ3" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110369.webp" alt="XS™ Sports Protein Shakes – Rich Chocolate" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sports Protein Shakes – Rich Chocolate</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/ofcahKqvN" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110370.webp" alt="XS™ Sports Protein Shakes – Vanilla Crème" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sports Protein Shakes – Vanilla Crème</span><span class="go">Shop</span></a></li></ul></div>
+    <div class="box">
+      <button class="box-btn" type="button" aria-expanded="true" aria-controls="box-desk-drawer"><span class="box-name">Desk drawer</span><span class="box-count">2</span></button>
+      <div class="box-body" id="box-desk-drawer">
+        <div class="cluster"><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/EXX8FgRW6" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/101593.webp" alt="XS™ Energy + Focus Dietary Supplement - 60 Tablets" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy + Focus Dietary Supplement - 60 Tablets</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/zFoRkr5eK" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/107846.webp" alt="XS™ Energy + Focus Dietary Supplement - 30 Tablets" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy + Focus Dietary Supplement - 30 Tablets</span><span class="go">Shop</span></a></li></ul></div>
+      </div>
+    </div>
+    <div class="box">
+      <button class="box-btn" type="button" aria-expanded="true" aria-controls="box-mini-fridge"><span class="box-name">Mini fridge</span><span class="box-count">21</span></button>
+      <div class="box-body" id="box-mini-fridge">
+        <div class="cluster"><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/gry6-Xg5l" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/266673.webp" alt="XS™ Elite + Focus Energy Drink – Peach Mango" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Elite + Focus Energy Drink – Peach Mango</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/xLah3mPV0" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/101444.webp" alt="XS™ Energy Drink 12 oz - Electric Lemon Limited Edition" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Electric Lemon Limited Edition</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/xwfpNhDqO" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126184.webp" alt="XS™ Energy Drink 12 oz - Citrus" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Citrus</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/WUc94jJH-" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126197.webp" alt="XS™ Energy Drink 12 oz - Cranberry-Grape" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Cranberry-Grape</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/W~TRQs7BM" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126198.webp" alt="XS™ Energy Drink 12 oz - Tamarindo" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Tamarindo</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/odDPLjdVi" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126199.webp" alt="XS™ Energy Drink 12 oz - Tropical" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Tropical</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/EGaxihDh9" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126201.webp" alt="XS™ Energy Drink 12 oz - Black Cherry Cola" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Black Cherry Cola</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/bYV674AFp" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126202.webp" alt="XS™ Energy Drink 12 oz - Root Beer" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Root Beer</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/uoKaQD8~a" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126883.webp" alt="XS™ Energy Drink 12 oz - Classic" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Classic</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/8ofd6z7Ow" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126981.webp" alt="XS™ Energy Drink 12 oz - Naranja" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Naranja</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/b40~kN2GF" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126982.webp" alt="XS™ Energy Drink 12 oz - Summit" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Summit</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/bTDU-QSAa" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126983.webp" alt="XS™ Energy Drink 12 oz - Caffeine Free Cranberry-Grape" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Caffeine Free Cranberry-Grape</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/mk5aRggdy" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126984.webp" alt="XS™ Sparkling Juiced Energy 12 oz - Caffeine Free Mango Pineapple Guava" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sparkling Juiced Energy 12 oz - Caffeine Free Mango Pineapple Guava</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/1-vD7GZEx" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126986.webp" alt="XS™ Sparkling Juiced Energy 12 oz - Mango Pineapple Guava" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sparkling Juiced Energy 12 oz - Mango Pineapple Guava</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/JGfJfQ8AB" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126987.webp" alt="XS™ Sparkling Juiced Energy 12 oz - Pink Grapefruit" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sparkling Juiced Energy 12 oz - Pink Grapefruit</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/OLeTQv5LC" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126998.webp" alt="XS™ Energy Drink 12 oz – Watermelon Lemonade" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz – Watermelon Lemonade</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/KP09m3teD" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/127070.webp" alt="XS™ Energy Drink 12 oz – Variety Case" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz – Variety Case</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/DwyiPxiIU" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/127071.webp" alt="XS™ Juiced and Burn 12 oz – Variety Case" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Juiced and Burn 12 oz – Variety Case</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/tV6oqMvMc" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/127935.webp" alt="XS™ Energy + Burn 12 oz – Blue Razz" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy + Burn 12 oz – Blue Razz</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/QVgQcE~fm" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/127936.webp" alt="XS™ Energy + Burn 12 oz – Kiwi Strawberry" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy + Burn 12 oz – Kiwi Strawberry</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/9vGPxSKNA" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128583.webp" alt="XS™ Energy Drink 12 oz – Rocket Blast Limited Edition" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz – Rocket Blast Limited Edition</span><span class="go">Shop</span></a></li></ul></div>
+      </div>
+    </div>
   </div>
 </section>
-<section class="scene" id="scene-5" data-scene="5" style="--frames:72;--c0:#d8c6a8;--c1:#cdc9bd" aria-labelledby="h-5">
-  <div class="stage"><canvas role="img" aria-label="At a desk through the middle of the day, light flattening across the room."></canvas></div>
+<section class="scene" id="scene-5" data-scene="5" style="--frames:56;--c0:#8f8a80;--c1:#3a3530" aria-labelledby="h-5">
+  <div class="stage"><canvas role="img" aria-label="Bathroom counter at night under the mirror light; hands at the sink, a little steam, the window black."></canvas></div>
   <div class="flow">
     <div class="beat">
-      <p class="eyebrow"><b>05</b> <u>Office</u><s></s><i>08:00<span>–14:40</span></i></p>
-      <h2 id="h-5">The middle of the day<em> passes here</em></h2>
-      <p>Three hours in, the screen stops being interesting.</p>
+      <p class="eyebrow"><b>05</b> <u>Bathroom counter</u><s></s><i>21:40<span>–22:05</span></i></p>
+      <h2 id="h-5">The end of the day<em> starts here</em></h2>
+      <p>Dark outside. The light over the mirror does all the work.</p>
     </div>
-    <div class="cluster"><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/EXX8FgRW6" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/101593.webp" alt="XS™ Energy + Focus Dietary Supplement - 60 Tablets" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy + Focus Dietary Supplement - 60 Tablets</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/zFoRkr5eK" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/107846.webp" alt="XS™ Energy + Focus Dietary Supplement - 30 Tablets" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy + Focus Dietary Supplement - 30 Tablets</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/gry6-Xg5l" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/266673.webp" alt="XS™ Elite + Focus Energy Drink – Peach Mango" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Elite + Focus Energy Drink – Peach Mango</span><span class="go">Shop</span></a></li></ul></div><p class="tail">Two emails matter. The rest is weather.</p>
+    <div class="box">
+      <button class="box-btn" type="button" aria-expanded="true" aria-controls="box-skin-nutrition"><span class="box-name">Skin Nutrition</span><span class="box-count">2</span></button>
+      <div class="box-body" id="box-skin-nutrition">
+        <div class="cluster"><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/hKMa0MHHc" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/123783V.webp" alt="Artistry Skin Nutrition™ Renewing Softening Toner" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Artistry Skin Nutrition™ Renewing Softening Toner</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/iWAplHgh3" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/125575.webp" alt="Artistry Skin Nutrition™ Sleeping Mask" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Artistry Skin Nutrition™ Sleeping Mask</span><span class="go">Shop</span></a></li></ul></div>
+      </div>
+    </div>
+    <div class="box">
+      <button class="box-btn" type="button" aria-expanded="true" aria-controls="box-glow-up"><span class="box-name">Glow Up</span><span class="box-count">1</span></button>
+      <div class="box-body" id="box-glow-up">
+        <div class="cluster"><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/2Vi-rjqyj" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/124812.webp" alt="Artistry Studio™ Glow Boss Cleanser + Exfoliator" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Artistry Studio™ Glow Boss Cleanser + Exfoliator</span><span class="go">Shop</span></a></li></ul></div>
+      </div>
+    </div>
   </div>
 </section>
-<section class="scene" id="scene-6" data-scene="6" style="--frames:48;--c0:#cdc9bd;--c1:#c9a97e" aria-labelledby="h-6">
-  <div class="stage"><canvas role="img" aria-label="Reaching into a drawer for a bar without looking up from the desk."></canvas></div>
+<section class="scene" id="scene-6" data-scene="6" style="--frames:66;--c0:#3a3530;--c1:#120f0d" aria-labelledby="h-6">
+  <div class="stage"><canvas role="img" aria-label="The same bedroom at night, lit only by the nightstand lamp; the drawer opens again."></canvas></div>
   <div class="flow">
     <div class="beat">
-      <p class="eyebrow"><b>06</b> <u>Hunger</u><s></s><i>14:40<span>–15:40</span></i></p>
-      <h2 id="h-6">The stomach<em> turns over</em></h2>
-      <p>Not a meal. Something to chew, and back to it.</p>
+      <p class="eyebrow"><b>06</b> <u>Nightstand</u><s></s><i>22:05<span>–22:40</span></i></p>
+      <h2 id="h-6">Same drawer,<em> different things in it</em></h2>
+      <p>The window is black. The lamp is the only light left.</p>
     </div>
-    <div class="cluster"><h3>The reach<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/FHubIOB6L" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110385.webp" alt="XS™ Sports Protein Bars – Chocolate Peanut Butter" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sports Protein Bars – Chocolate Peanut Butter</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/IMXmJE6Fb" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110386.webp" alt="XS™ Sports Protein Bars – Chocolate Berry" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sports Protein Bars – Chocolate Berry</span><span class="go">Shop</span></a></li></ul></div>
-    <div class="cluster"><h3>Also in the drawer<s></s></h3><ul class="grid"><li><a class="card photo" href="https://amway.com/share-link/WsloZO1TV" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/316302-en-US-690px-02?context=bWFzdGVyfGltYWdlc3wyMjE1NzN8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g5MC9oYjIvOTc0MjgyMzY4NjE3NC8zMTYzMDItZW4tVVMtNjkwcHgtMDJ8MWI4MWI5YzBkODk3ZTA1ODIxNjVlYjIzMTM3NGY0ZDRlMzlhNDRlZjA5MzA1NDEzMGE0MTcyNDAyYTNmNDgyMw" alt="Nutrilite™ Organics All-in-One Bars – Peanut Butter" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Organics All-in-One Bars – Peanut Butter</span><span class="go">Shop</span></a></li><li><a class="card photo" href="https://amway.com/share-link/195NEh7tP" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/316303-en-US-690px-02?context=bWFzdGVyfGltYWdlc3wyMjg4MDd8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g2NS9oMzUvOTc0MjgyMTA5NzUwMi8zMTYzMDMtZW4tVVMtNjkwcHgtMDJ8YjIyODliODg5YTFiZTU1NjQxMmUzNDg5NWNhMzM4MDA1NDA4YTE4ZDBjMTlmYWEyNzg0Mjg5OTEwMzhiMGRiYg" alt="Nutrilite™ Organics All-in-One Bars – Double Chocolate" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Organics All-in-One Bars – Double Chocolate</span><span class="go">Shop</span></a></li><li><a class="card photo" href="https://amway.com/share-link/90MN2VV7h" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/316305-en-US-690px-02?context=bWFzdGVyfGltYWdlc3wyMTY1NjV8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g1MS9oMjcvOTc0MjgxMzM5NzAyMi8zMTYzMDUtZW4tVVMtNjkwcHgtMDJ8ODkwMjI3NmQwZGU3YzMzZTgwYzQzNWVhMTQzMDE2NDlmNDAyNGQwZjc4MjMyZTg1NDUyOTQ5YzQ4MWVjN2IwMg" alt="Nutrilite™ Organics All-in-One Bars – Berries &amp; Seeds" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Organics All-in-One Bars – Berries &amp; Seeds</span><span class="go">Shop</span></a></li></ul></div>
-    <div class="cluster"><h3>Salt, some days<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/yQu-NHOoT" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110627.webp" alt="XS™ Protein Crisps – Barbeque" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Protein Crisps – Barbeque</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/MVc4sISgs" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/110628.webp" alt="XS™ Protein Crisps – Sriracha Lime" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Protein Crisps – Sriracha Lime</span><span class="go">Shop</span></a></li></ul></div>
+    <div class="box">
+      <button class="box-btn" type="button" aria-expanded="true" aria-controls="box-night-stack"><span class="box-name">Night stack</span><span class="box-count">5</span></button>
+      <div class="box-body" id="box-night-stack">
+        <div class="cluster"><ul class="grid"><li><a class="card photo" href="https://amway.com/share-link/ROw2AOp7v" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/128032-en-US-690px-03?context=bWFzdGVyfGltYWdlc3w4NDAwNzV8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2hhYi9oYzkvOTk3MjU0MDYwNDQ0Ni8xMjgwMzItZW4tVVMtNjkwcHgtMDN8ODhhYTYwZjM1ZmZmMWUxYzU2ZmI1YjJhMjg0NjFhNjJmOGQ3NzMzNWEyZjdiZDQyM2Y3ODU4N2M3YTU0NDhlYg" alt="Nutrilite™ Magnesium" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Magnesium</span><span class="go">Shop</span></a></li><li><a class="card photo" href="https://amway.com/share-link/SMhXOCNJy" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/308641-en-US-690px-04?context=bWFzdGVyfGltYWdlc3wxNzY5NTF8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2gxMS9oMDUvOTc3OTY4MzA5ODY1NC8zMDg2NDEtZW4tVVMtNjkwcHgtMDR8OWE3ZGUxYTliY2JhODAzZDM1Zjg2OGQ1Nzg2ZWRhOTFmNTIxNjgxZDAxYWRlNDQ0YTc0OTU0NDY3YWI5NzhlZg" alt="Nutrilite™ Organics Ashwagandha Capsules" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Organics Ashwagandha Capsules</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/PVUuzXLQ6" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/124506.webp" alt="n* by Nutrilite™ Sweet Dreams – Sleep Gummies" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">n* by Nutrilite™ Sweet Dreams – Sleep Gummies</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/o8m6KGk53" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/127940.webp" alt="Nutrilite™ Sleep Health" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Sleep Health</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/qe6JKbGxp" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/308636.webp" alt="Nutrilite™ Organics Chamomile Tea" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Organics Chamomile Tea</span><span class="go">Shop</span></a></li></ul></div>
+      </div>
+    </div>
   </div>
 </section>
-<section class="scene" id="scene-7" data-scene="7" style="--frames:72;--c0:#c9a97e;--c1:#8c5f45" aria-labelledby="h-7">
-  <div class="stage"><canvas role="img" aria-label="Late afternoon, a cold can lifted off the shelf on the way to train."></canvas></div>
-  <div class="flow">
-    <div class="beat">
-      <p class="eyebrow"><b>07</b> <u>Lift</u><s></s><i>15:40<span>–18:30</span></i></p>
-      <h2 id="h-7">Cold can,<em> then the bar</em></h2>
-      <p>The part of the day that belongs to nobody else.</p>
-    </div>
-    <div class="cluster"><h3>Before<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/ZsJafHG0E" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/316375.webp" alt="XS™ Pre-Workout Boost - Blue Raspberry (30 Serving Pouch)" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Pre-Workout Boost - Blue Raspberry (30 Serving Pouch)</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/Om6-lIl43" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/316376.webp" alt="XS™ Pre-Workout Boost - Green Apple (30 Serving Pouch)" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Pre-Workout Boost - Green Apple (30 Serving Pouch)</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/SattacJ5V" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/316377.webp" alt="XS™ Pre-Workout Boost - Blue Raspberry (12 Stick Packs)" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Pre-Workout Boost - Blue Raspberry (12 Stick Packs)</span><span class="go">Shop</span></a></li><li><a class="card photo" href="https://amway.com/share-link/m5Jg-DMsC" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/316378-en-US-690px-03?context=bWFzdGVyfGltYWdlc3w1NDEyODV8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g0NS9oZGQvOTY4MDU5MTc0OTE1MC8zMTYzNzgtZW4tVVMtNjkwcHgtMDN8ZWY5MDI5NzNkMDNmZDEwYTA1NTJmZjExMzhiMDMzMzI3YjAxMmFkMTMxNTdjYTQ2N2JjZTljOGJmY2Y5MGVlOQ" alt="XS™ Pre-Workout Boost - Green Apple (12 Stick Packs)" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Pre-Workout Boost - Green Apple (12 Stick Packs)</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/ZcBRI5loO" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/127811.webp" alt="XS™ Ignite Powder – Moro Blood Orange" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Ignite Powder – Moro Blood Orange</span><span class="go">Shop</span></a></li></ul></div>
-    <div class="cluster"><h3>The fridge<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/xLah3mPV0" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/101444.webp" alt="XS™ Energy Drink 12 oz - Electric Lemon Limited Edition" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Electric Lemon Limited Edition</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/xwfpNhDqO" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126184.webp" alt="XS™ Energy Drink 12 oz - Citrus" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Citrus</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/WUc94jJH-" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126197.webp" alt="XS™ Energy Drink 12 oz - Cranberry-Grape" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Cranberry-Grape</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/W~TRQs7BM" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126198.webp" alt="XS™ Energy Drink 12 oz - Tamarindo" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Tamarindo</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/odDPLjdVi" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126199.webp" alt="XS™ Energy Drink 12 oz - Tropical" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Tropical</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/EGaxihDh9" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126201.webp" alt="XS™ Energy Drink 12 oz - Black Cherry Cola" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Black Cherry Cola</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/bYV674AFp" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126202.webp" alt="XS™ Energy Drink 12 oz - Root Beer" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Root Beer</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/uoKaQD8~a" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126883.webp" alt="XS™ Energy Drink 12 oz - Classic" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Classic</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/8ofd6z7Ow" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126981.webp" alt="XS™ Energy Drink 12 oz - Naranja" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Naranja</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/b40~kN2GF" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126982.webp" alt="XS™ Energy Drink 12 oz - Summit" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Summit</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/bTDU-QSAa" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126983.webp" alt="XS™ Energy Drink 12 oz - Caffeine Free Cranberry-Grape" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz - Caffeine Free Cranberry-Grape</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/mk5aRggdy" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126984.webp" alt="XS™ Sparkling Juiced Energy 12 oz - Caffeine Free Mango Pineapple Guava" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sparkling Juiced Energy 12 oz - Caffeine Free Mango Pineapple Guava</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/1-vD7GZEx" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126986.webp" alt="XS™ Sparkling Juiced Energy 12 oz - Mango Pineapple Guava" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sparkling Juiced Energy 12 oz - Mango Pineapple Guava</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/JGfJfQ8AB" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126987.webp" alt="XS™ Sparkling Juiced Energy 12 oz - Pink Grapefruit" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Sparkling Juiced Energy 12 oz - Pink Grapefruit</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/OLeTQv5LC" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126998.webp" alt="XS™ Energy Drink 12 oz – Watermelon Lemonade" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz – Watermelon Lemonade</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/KP09m3teD" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/127070.webp" alt="XS™ Energy Drink 12 oz – Variety Case" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz – Variety Case</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/DwyiPxiIU" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/127071.webp" alt="XS™ Juiced and Burn 12 oz – Variety Case" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Juiced and Burn 12 oz – Variety Case</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/tV6oqMvMc" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/127935.webp" alt="XS™ Energy + Burn 12 oz – Blue Razz" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy + Burn 12 oz – Blue Razz</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/QVgQcE~fm" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/127936.webp" alt="XS™ Energy + Burn 12 oz – Kiwi Strawberry" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy + Burn 12 oz – Kiwi Strawberry</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/9vGPxSKNA" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/128583.webp" alt="XS™ Energy Drink 12 oz – Rocket Blast Limited Edition" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Energy Drink 12 oz – Rocket Blast Limited Edition</span><span class="go">Shop</span></a></li></ul></div>
-    <div class="cluster"><h3>After<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/CBN8O~MnX" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/316379.webp" alt="XS™ Post-Workout Recovery - Fruit Punch (30 Serving Pouch)" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Post-Workout Recovery - Fruit Punch (30 Serving Pouch)</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/lrJlYVhGM" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/316380.webp" alt="XS™ Post-Workout Recovery - Fruit Punch (12 Stick Packs)" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Post-Workout Recovery - Fruit Punch (12 Stick Packs)</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/D2YioWCnT" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/126753.webp" alt="XS™ Muscle Multiplier - Berry Blast" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Muscle Multiplier - Berry Blast</span><span class="go">Shop</span></a></li><li><a class="card photo" href="https://amway.com/share-link/WvhxbGmYf" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/126754-en-US-690px-03?context=bWFzdGVyfGltYWdlc3wxOTAwNDF8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g5Ny9oOTgvOTcwMTk1NTk5MzYzMC8xMjY3NTQtZW4tVVMtNjkwcHgtMDN8YjlmM2Q3NWMyMGIyOGQyZmNmZTlhMjU1NzQ4NDcwMTFmYzNiMzY5ZTVmYzRkN2Y1YWFhOGQ1YzVhNDU3ZmFkZg" alt="XS™ Muscle Multiplier – Watermelon" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ Muscle Multiplier – Watermelon</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/AwIzUqvC1" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/296753.webp" alt="XS™ CBD Cream" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ CBD Cream</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/9EXfGTpU-" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/300323.webp" alt="XS™ CBD Pro Cream" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">XS™ CBD Pro Cream</span><span class="go">Shop</span></a></li></ul></div>
-  </div>
-</section>
-<section class="scene" id="scene-8" data-scene="8" style="--frames:66;--c0:#8c5f45;--c1:#12141f" aria-labelledby="h-8">
-  <div class="stage"><canvas role="img" aria-label="Bathroom mirror at night, then the nightstand under a low lamp."></canvas></div>
-  <div class="flow">
-    <div class="beat">
-      <p class="eyebrow"><b>08</b> <u>Night</u><s></s><i>18:30<span>–22:40</span></i></p>
-      <h2 id="h-8">Wash the day off,<em> then the lamp</em></h2>
-      <p>A small pile by the bed, and the light goes down.</p>
-    </div>
-    <div class="cluster"><h3>The mirror<s></s></h3><ul class="grid"><li><a class="card cut" href="https://amway.com/share-link/2Vi-rjqyj" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/124812.webp" alt="Artistry Studio™ Glow Boss Cleanser + Exfoliator" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Artistry Studio™ Glow Boss Cleanser + Exfoliator</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/hKMa0MHHc" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/123783V.webp" alt="Artistry Skin Nutrition™ Renewing Softening Toner" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Artistry Skin Nutrition™ Renewing Softening Toner</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/iWAplHgh3" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/125575.webp" alt="Artistry Skin Nutrition™ Sleeping Mask" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Artistry Skin Nutrition™ Sleeping Mask</span><span class="go">Shop</span></a></li></ul></div>
-    <div class="cluster"><h3>The nightstand<s></s></h3><ul class="grid"><li><a class="card photo" href="https://amway.com/share-link/ROw2AOp7v" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/128032-en-US-690px-03?context=bWFzdGVyfGltYWdlc3w4NDAwNzV8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2hhYi9oYzkvOTk3MjU0MDYwNDQ0Ni8xMjgwMzItZW4tVVMtNjkwcHgtMDN8ODhhYTYwZjM1ZmZmMWUxYzU2ZmI1YjJhMjg0NjFhNjJmOGQ3NzMzNWEyZjdiZDQyM2Y3ODU4N2M3YTU0NDhlYg" alt="Nutrilite™ Magnesium" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Magnesium</span><span class="go">Shop</span></a></li><li><a class="card photo" href="https://amway.com/share-link/SMhXOCNJy" target="_blank" rel="noopener"><span class="shot"><img src="https://www.amway.com/medias/308641-en-US-690px-04?context=bWFzdGVyfGltYWdlc3wxNzY5NTF8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2gxMS9oMDUvOTc3OTY4MzA5ODY1NC8zMDg2NDEtZW4tVVMtNjkwcHgtMDR8OWE3ZGUxYTliY2JhODAzZDM1Zjg2OGQ1Nzg2ZWRhOTFmNTIxNjgxZDAxYWRlNDQ0YTc0OTU0NDY3YWI5NzhlZg" alt="Nutrilite™ Organics Ashwagandha Capsules" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Organics Ashwagandha Capsules</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/PVUuzXLQ6" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/124506.webp" alt="n* by Nutrilite™ Sweet Dreams – Sleep Gummies" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">n* by Nutrilite™ Sweet Dreams – Sleep Gummies</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/o8m6KGk53" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/127940.webp" alt="Nutrilite™ Sleep Health" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Sleep Health</span><span class="go">Shop</span></a></li><li><a class="card cut" href="https://amway.com/share-link/qe6JKbGxp" target="_blank" rel="noopener"><span class="shot"><img src="assets/products/308636.webp" alt="Nutrilite™ Organics Chamomile Tea" loading="lazy" decoding="async" width="690" height="690"></span><span class="name">Nutrilite™ Organics Chamomile Tea</span><span class="go">Shop</span></a></li></ul></div>
-  </div>
-</section>
+
+  <section class="overnight" id="overnight" aria-labelledby="h-overnight">
+    <p class="eyebrow"><u>Overnight</u><s></s><i>Launching November</i></p>
+    <h2 id="h-overnight">After the house<em> is asleep</em></h2>
+    <p class="ov-line">Everything above is the part of the day you can see. This is the part you can&#x27;t: what your body is actually short on, measured instead of guessed.</p>
+    <ol class="steps"><li><b>01</b><h3>Bloodwork, from home</h3><p>A kit comes to you. No clinic, no waiting room.</p></li><li><b>02</b><h3>A doctor reads it</h3><p>A licensed physician goes through your labs with you.</p></li><li><b>03</b><h3>A plan, if you need one</h3><p>Where it&#x27;s right for you, that can include peptide therapy — prescribed by the doctor and filled by a licensed compounding pharmacy.</p></li></ol>
+  </section>
 
   <section class="end" id="end">
     <h2>That was the day.</h2>
-    <p>65 products, each one where it actually belongs.</p>
-    <ol><li><a href="#scene-1"><b>05:48</b><span>Wake — before anything goes in</span></a></li><li><a href="#scene-2"><b>06:05</b><span>Gut, first thing — 2 products</span></a></li><li><a href="#scene-3"><b>06:30</b><span>Twist and load — 6 products</span></a></li><li><a href="#scene-4"><b>07:10</b><span>Kitchen — 8 products</span></a></li><li><a href="#scene-5"><b>08:00</b><span>Office — 3 products</span></a></li><li><a href="#scene-6"><b>14:40</b><span>Hunger — 7 products</span></a></li><li><a href="#scene-7"><b>15:40</b><span>Lift — 31 products</span></a></li><li><a href="#scene-8"><b>18:30</b><span>Night — 8 products</span></a></li></ol>
-    <p class="note">Motion is placeholder: every beat draws its own frame number
-      and the colour of its hour, so a scroll position can be read exactly.
-      Scene&nbsp;1 loads eagerly; every later beat is pulled in as it is
-      approached. Product photography is Amway's, served from source.</p>
+    <p>65 products, each one kept where it's actually used.</p>
+    <ol><li><a href="#scene-1"><b>06:10</b><span>Nightstand — Morning stack 4</span></a></li><li><a href="#scene-2"><b>07:40</b><span>Kitchen counter — The protein shelf 5</span></a></li><li><a href="#scene-3"><b>08:10</b><span>By the door — Training bag 25</span></a></li><li><a href="#scene-4"><b>15:00</b><span>Desk — Desk drawer 2, Mini fridge 21</span></a></li><li><a href="#scene-5"><b>21:40</b><span>Bathroom counter — Skin Nutrition 2, Glow Up 1</span></a></li><li><a href="#scene-6"><b>22:05</b><span>Nightstand — Night stack 5</span></a></li><li><a href="#overnight"><b>Night</b><span>Overnight — launching november</span></a></li></ol>
+    <p class="note">Motion is placeholder: every place draws its own frame
+      number and the colour of its hour, so a scroll position can be read
+      exactly. The first place loads eagerly; every later one is pulled in as it
+      is approached. Product photography is Amway's.</p>
   </section>
 </main>
 
-<script>window.__SCENES__=[{"n":1,"key":"wake","title":"Wake","frames":60,"t0":348,"t1":365,"c0":"#171c30","c1":"#2a3147","media":null},{"n":2,"key":"gut","title":"Gut, first thing","frames":48,"t0":365,"t1":390,"c0":"#2a3147","c1":"#6a6274","media":null},{"n":3,"key":"load","title":"Twist and load","frames":56,"t0":390,"t1":430,"c0":"#6a6274","c1":"#b09174","media":null},{"n":4,"key":"kitchen","title":"Kitchen","frames":60,"t0":430,"t1":480,"c0":"#b09174","c1":"#d8c6a8","media":null},{"n":5,"key":"office","title":"Office","frames":72,"t0":480,"t1":880,"c0":"#d8c6a8","c1":"#cdc9bd","media":null},{"n":6,"key":"hunger","title":"Hunger","frames":48,"t0":880,"t1":940,"c0":"#cdc9bd","c1":"#c9a97e","media":null},{"n":7,"key":"lift","title":"Lift","frames":72,"t0":940,"t1":1110,"c0":"#c9a97e","c1":"#8c5f45","media":null},{"n":8,"key":"night","title":"Night","frames":66,"t0":1110,"t1":1360,"c0":"#8c5f45","c1":"#12141f","media":null}];</script>
+<script>window.__SCENES__=[{"n":1,"key":"nightstand-am","title":"Nightstand","frames":60,"t0":370,"t1":395,"c0":"#1d2233","c1":"#7a6a5c","media":null},{"n":2,"key":"kitchen","title":"Kitchen counter","frames":144,"t0":460,"t1":490,"c0":"#7a6a5c","c1":"#cdb797","media":null},{"n":3,"key":"bag","title":"By the door","frames":48,"t0":490,"t1":505,"c0":"#cdb797","c1":"#a8a39a","media":null},{"n":4,"key":"desk","title":"Desk","frames":72,"t0":900,"t1":940,"c0":"#a8a39a","c1":"#8f8a80","media":null},{"n":5,"key":"bathroom","title":"Bathroom counter","frames":56,"t0":1300,"t1":1325,"c0":"#8f8a80","c1":"#3a3530","media":null},{"n":6,"key":"nightstand-pm","title":"Nightstand","frames":66,"t0":1325,"t1":1360,"c0":"#3a3530","c1":"#120f0d","media":null}];</script>
 <script>/* =====================================================================
    The day — scroll-driven scrub engine.
 
@@ -759,7 +848,9 @@ body{
     }
     elClock.textContent = clock(sc.t0 + (sc.t1 - sc.t0) * p);
     elBeat.textContent = sc.title;
-    elHud.textContent = "S" + sc.n + " " + String(Math.max(sc.frame, 0)).padStart(3, "0")
+    // from the scroll position, not the last painted frame, which is stale
+    // when a jump skips a scene entirely
+    elHud.textContent = "S" + sc.n + " " + String(Math.round(p * (sc.frames - 1))).padStart(3, "0")
                       + "/" + (sc.frames - 1);
     var col = mix(sc.c0, sc.c1, p), light = lum(col) > 0.42;
     var ink = light ? "d" : "l";
@@ -846,6 +937,23 @@ body{
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(restart);
 
   start();
+
+  /* ---- containers ---------------------------------------------------- */
+  // Opening one changes the page's height, which moves where every later
+  // place starts — so re-measure, or the scrub lands on the wrong frame.
+  [].forEach.call(document.querySelectorAll(".box"), function (box) {
+    var btn = box.querySelector(".box-btn");
+    function set(open) {
+      box.classList.toggle("is-open", open);
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    set(false);
+    btn.addEventListener("click", function () {
+      set(!box.classList.contains("is-open"));
+      restart();
+    });
+  });
+  restart();
 
   /* ---- beat index --------------------------------------------------- */
   var sheet = document.getElementById("sheet"), btn = document.getElementById("beatsbtn");

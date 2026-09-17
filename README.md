@@ -1,14 +1,22 @@
-# A day, in eight beats
+# One day, bed to bed
 
-One person's day as a single scroll-driven page. Each beat owns a stretch of
-scroll travel, and that travel scrubs its own clip — scroll down and it plays,
-scroll up and it reverses, stop and it holds.
+One day in one house as a single scroll-driven page, through six places:
+nightstand, kitchen counter, by the door, desk, bathroom counter, and the
+nightstand again. Each place owns a stretch of scroll travel, and that travel
+scrubs its own clip — scroll down and it plays, scroll up and it reverses,
+stop and it holds.
 
-**Motion here is placeholder.** Every beat draws its own frame number and the
+Each place has one container — a drawer, a bag, a counter — and the container
+is the clickable. What's inside it is data, so adding a product never means new
+footage.
+
+**Motion here is placeholder.** Every place draws its own frame number and the
 colour of its hour onto a canvas, so a scroll position can be read exactly.
 The scroll feel is the thing being tested; footage comes after.
 
-Phone first. 390px is the design; desktop is the adaptation.
+Phone first. 390px is the design; desktop is the adaptation. Footage is shot
+9:16 and never cropped: on a phone it fills the screen, on desktop it becomes a
+full-height column with the content beside it.
 
 ```bash
 python3 tools/build_scaffold.py     # writes scaffold.html
@@ -36,9 +44,15 @@ colour of the hour underneath, so first paint never waits on a clip.
 
 ## Loading
 
-Scene 1 is fetched eagerly after first paint. Every later beat is pulled by an
-IntersectionObserver as it is approached, never more than one ahead. Nothing
+The first place is fetched eagerly after first paint. Every later one is pulled
+by an IntersectionObserver as it is approached, never more than one ahead. Nothing
 below the fold is fetched early.
+
+## What's in each container
+
+`stops.tsv` — one row per product: which container, an optional sub-heading,
+and the product id. The build refuses to run if a product is in no container,
+in two, or isn't in the data layer.
 
 ## The data layer
 
@@ -71,7 +85,7 @@ At 390px, iPhone-class viewport:
 | scrub frame | 0.15 ms mean, 0.3 ms p95 |
 | scroll per frame | 20.3 px |
 | first paint | 16 KB, type only |
-| whole day | 1.2 MB, lazy per beat |
+| whole day | 1.2 MB, lazy per place |
 
 Re-measure in the console with `DAY.bench(3)`. It is synchronous on purpose —
 `requestAnimationFrame` is throttled in a background tab, which would measure
@@ -79,6 +93,6 @@ the browser rather than the page.
 
 ## Accessibility
 
-Reduced motion gets one still per beat, no scrubbing, every product still
-reachable. Keyboard navigable end to end. Real alt text on all 65 images.
+Reduced motion gets one still per place, no scrubbing, every product still
+reachable. Containers are real buttons and render open without JavaScript. Keyboard navigable end to end. Real alt text on all 65 images.
 Touch targets 44px minimum.

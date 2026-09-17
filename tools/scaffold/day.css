@@ -244,6 +244,68 @@ body{
 .card .go::after{content:"\2192";letter-spacing:0}
 .card:active .shot{transform:translateY(1px)}
 
+/* -------------------------------------------------------------- container */
+/* Each place has one container: a drawer, a bag, a cabinet. It is the
+   clickable; what is inside it is data. Rendered open, so everything is
+   reachable without JavaScript — the engine closes them once it runs. */
+.box{margin:4px 0 30px}
+.box-btn{
+  width:100%;min-height:58px;display:flex;align-items:center;gap:12px;
+  padding:14px 16px 14px 18px;text-align:left;
+  border:1px solid var(--rule);border-radius:14px;
+  background:var(--scrim);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  color:var(--ink);
+}
+.box-name{font-family:var(--serif);font-size:22px;font-weight:400;line-height:1.15;flex:1}
+.box-count{
+  min-width:28px;height:28px;padding:0 9px;border-radius:14px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;
+  border:1px solid var(--rule);color:var(--ink-dim);
+}
+.box-btn::after{
+  content:"";width:9px;height:9px;margin:0 4px 4px 2px;
+  border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+  transform:rotate(45deg);transition:transform .2s ease;
+}
+.box-btn[aria-expanded="true"]::after{transform:rotate(225deg);margin-bottom:-4px}
+.box-body{padding-top:22px}
+.js .box:not(.is-open) .box-body{display:none}
+
+/* ------------------------------------------------------------ overnight */
+/* After the day: no film, no products. It picks up the last colour of the
+   night and uses the same type as the stops, so it reads as the day's end
+   rather than a separate page. */
+.overnight{
+  --ink:#f4f1ec;--ink-dim:rgba(244,241,236,.66);--rule:rgba(255,255,255,.16);
+  position:relative;z-index:2;color:var(--ink);
+  background:linear-gradient(#120f0d 0,#0f0e14 60%,#0d0f18 100%);
+  padding:88px var(--padR) 84px var(--padL);
+}
+.overnight h2{
+  font-family:var(--serif);font-optical-sizing:auto;
+  font-size:clamp(34px,10vw,46px);font-weight:300;line-height:1.02;
+  letter-spacing:-.02em;margin:0 0 14px;max-width:9.4em;text-wrap:balance;
+}
+.overnight h2 em{font-style:italic;font-weight:400}
+.ov-line{margin:0 0 36px;font-size:17px;line-height:1.5;color:var(--ink-dim);max-width:32ch}
+.steps{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+.steps li{padding:22px 0 24px;border-bottom:1px solid var(--rule);
+  display:grid;grid-template-columns:3.2ch 1fr;column-gap:12px;align-content:start}
+.steps b{font-variant-numeric:tabular-nums;font-size:13px;font-weight:600;
+  color:var(--ink-dim);padding-top:5px}
+.steps h3{grid-column:2;margin:0 0 6px;font-family:var(--serif);
+  font-size:22px;font-weight:400;line-height:1.2}
+.steps p{grid-column:2;margin:0;font-size:15.5px;line-height:1.5;color:var(--ink-dim);max-width:36ch}
+@media (min-width:900px){
+  .overnight{padding:130px var(--rail) 120px}
+  .overnight h2{font-size:clamp(48px,4vw,64px)}
+  .ov-line{font-size:19px;max-width:40ch;margin-bottom:48px}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);column-gap:40px;border-top:0}
+  .steps li{border-top:1px solid var(--rule);border-bottom:0;padding-top:26px}
+}
+
 /* ------------------------------------------------------------------ end */
 .end{
   position:relative;z-index:2;background:#0d0f18;
@@ -262,31 +324,36 @@ body{
 
 /* ================================================== desktop adaptation === */
 @media (min-width:900px){
-  :root{--gut:40px}
+  :root{
+    --gut:40px;
+    /* Footage is shot 9:16. On a wide screen it becomes a full-height column
+       instead of being cropped to fill: the frame that was paid for is shown
+       whole, and the content lives beside it. */
+    --colw:min(calc(var(--stage) * 9 / 16), 44vw);
+    --rail:max(var(--padL), calc((100vw - 1360px) / 2));
+  }
   .bar{height:60px;gap:18px}
   .open{padding-bottom:64px}
   .open h1{font-size:clamp(68px,7.4vw,112px);max-width:14ch}
   .open p{font-size:19px;max-width:38ch}
 
-  /* the film keeps the left; the day is read down a column on the right   */
-  .flow{
-    padding-top:54vh;padding-bottom:16vh;
-    display:grid;grid-template-columns:1fr minmax(420px,38vw);
-  }
-  .flow>*{grid-column:2}
+  .scene{background:linear-gradient(160deg,var(--c0),var(--c1))}
+  .stage{width:var(--colw);margin-left:var(--rail)}
   .stage::after{
-    background:linear-gradient(90deg,transparent 30%,var(--scrim) 78%),
-               linear-gradient(180deg,var(--scrim) 0,transparent 24%);
+    background:linear-gradient(180deg,var(--scrim) 0,transparent 20%,
+                               transparent 82%,var(--scrim) 100%);
   }
+  .flow{
+    padding:54vh var(--rail) 16vh
+            calc(var(--rail) + var(--colw) + clamp(40px,5vw,88px));
+  }
+  .flow>*{max-width:620px}
   .beat h2{font-size:clamp(44px,3.6vw,58px)}
   .grid{grid-template-columns:repeat(3,1fr);gap:26px 16px}
   .card .name{font-size:13.5px}
   .end{padding:110px var(--padR) calc(80px + var(--safeB)) var(--padL)}
   .end h2{font-size:52px}
   .end ol{max-width:640px}
-}
-@media (min-width:1280px){
-  .flow{grid-template-columns:1fr minmax(560px,42vw)}
 }
 
 /* ================================================ reduced motion ======== */
@@ -296,10 +363,9 @@ body{
   .stage::after{background:linear-gradient(180deg,rgba(8,9,14,.45),rgba(8,9,14,.25))}
   .flow{margin-top:0;min-height:0;padding-top:26px;padding-bottom:56px}
   .card:active .shot{transform:none}
+  .box-btn::after{transition:none}
   @media (min-width:900px){
-    .stage{height:64svh}
-    .flow{display:block;padding-top:34px}
-    .flow>*{grid-column:auto}
-    .beat{max-width:34ch}
+    .stage{height:64svh;width:calc(64svh * 9 / 16);margin-left:var(--rail)}
+    .flow{padding:34px var(--rail) 56px}
   }
 }
