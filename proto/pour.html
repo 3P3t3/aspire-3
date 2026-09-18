@@ -72,6 +72,10 @@
   .shuffle:active{transform:scale(.97)}
   .look[aria-pressed="true"]{background:var(--l-ink);color:var(--l-bg);border-color:var(--l-ink)}
   .tokname{flex-basis:100%}
+  /* the style tools stay in the page for later, shown only with #tokens */
+  .tokbar .look,.tokbar #shuffle,.tokbar .tokname{display:none}
+  .show-tokens .tokbar .look,.show-tokens .tokbar #shuffle{display:inline-flex;align-items:center}
+  .show-tokens .tokbar .tokname{display:block}
   .tokname{font-variant-numeric:tabular-nums;letter-spacing:.02em}
   .down{display:inline-flex;align-items:center;justify-content:center;min-height:44px;
     padding:0 18px;border-radius:var(--r);background:var(--l-accent);color:var(--l-bg);
@@ -280,20 +284,22 @@
   }
   function useLook(id){
     var L = LOOKS[id]; seed = L.seed; apply(L.seed, L);
-    history.replaceState(null, '', '#look=' + id);
+    if (location.hash) history.replaceState(null, '',
+      '#look=' + id + (root.classList.contains('show-tokens') ? '&tokens' : ''));
   }
+  if (/tokens/.test(location.hash)) root.classList.add('show-tokens');
   var hashLook = /look=([AB])/.exec(location.hash);
   var seed = fromHash() || 1;
   if (hashLook) useLook(hashLook[1]);
   else if (fromHash()) apply(seed);
-  else useLook('A');                                // the shortlist leads until one wins
+  else useLook('A');                                // Look A is the design (2026-09-17)
   document.querySelectorAll('.look').forEach(function(b){
     b.addEventListener('click', function(){ useLook(b.dataset.look); });
   });
   document.getElementById('shuffle').addEventListener('click', function(){
     var next; do { next = 1 + Math.floor(Math.random() * 9999); } while (next === seed);
     seed = next; apply(seed);
-    history.replaceState(null, '', '#style=' + seed);
+    history.replaceState(null, '', '#style=' + seed + '&tokens');
   });
   window.TOKENS = {apply:apply, seed:function(){ return seed; }};
 })();
@@ -328,11 +334,12 @@
   ];
 
   /* ----------------------------------------------------------- the film */
-  // Two sizes of the same 75 frames: phones take the light set, big screens
-  // the tall one. Swapping footage is a change to these three lines.
+  // Every frame of the clip (150 at 30fps). Phones take the light set, big
+  // screens the tall one. Swapping footage is a change to these lines.
   var BIG = innerWidth > 900 || (devicePixelRatio > 2 && innerWidth > 480);
   var DIR = '../assets/generated/bakeoff/' + (BIG ? 'frames-counter-pour' : 'frames-pour-sm');
-  var FRAMES = 75, PPF = 24, CACHE = 14;
+  var FRAMES = 150, PPF = 12, CACHE = 28, AHEAD = 10;
+  var MAXSTEP = 3;   // frames per display frame at most: a flick plays, never cuts
 
   var run = document.getElementById('run'), stage = document.getElementById('stage');
   var cv = document.getElementById('film'), ctx = cv.getContext('2d', {alpha:false});
@@ -343,54 +350,82 @@
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
   var blobs = new Array(FRAMES), bmps = new Array(FRAMES), used = [];
-  var loaded = 0, last = -1, p = 0, dir = 1, ticking = false, w = 0, h = 0;
+  var w = 0, h = 0, pos = 0, target = 0, dir = 1, raf = 0, drawn = '';
 
   function url(i){ return DIR + '/' + String(i + 1).padStart(4, '0') + '.webp'; }
 
-  // first frame first, so there is something on screen immediately
+  // Load coarse to fine: every 8th frame first, then 4th, 2nd, the rest. A
+  // quick scroll on a slow connection plays a rougher pour instead of a stall.
+  function order(){
+    var seen = {}, out = [];
+    [8, 4, 2, 1].forEach(function(step){
+      for (var i = 0; i < FRAMES; i += step) if (!seen[i]){ seen[i] = 1; out.push(i); }
+    });
+    if (!seen[FRAMES - 1]) out.splice(1, 0, FRAMES - 1);
+    return out;
+  }
   function load(){
-    fetch(url(0)).then(function(r){ return r.blob(); }).then(function(b){
-      blobs[0] = b; loaded = 1; draw(0);
-      var i = 1;
-      (function next(){
-        if (i >= FRAMES) return;
-        var k = i++;
-        fetch(url(k)).then(function(r){ return r.blob(); }).then(function(b){
-          blobs[k] = b; loaded++; next();
-        }).catch(next);
-      })();
-    }).catch(function(){});
+    var queue = order(), live = 0;
+    (function pump(){
+      while (live < 4 && queue.length){                // a few requests in flight
+        var k = queue.shift(); live++;
+        (function(k){
+          fetch(url(k)).then(function(r){ return r.blob(); }).then(function(bl){
+            blobs[k] = bl;
+            if (Math.abs(k - pos) <= AHEAD) decode(k);
+          }).catch(function(){}).then(function(){ live--; pump(); });
+        })(k);
+      }
+    })();
   }
 
-  // decode on demand, keep a small window of bitmaps: 75 decoded frames would
-  // be hundreds of MB on a phone
+  // Decoded frames are big; keep a window around the playhead, not the clip.
   function decode(i){
-    if (bmps[i] || !blobs[i]) return;
+    if (i < 0 || i >= FRAMES || bmps[i] || !blobs[i]) return;
     bmps[i] = 'pending';
     createImageBitmap(blobs[i]).then(function(bm){
       bmps[i] = bm; used.push(i);
-      while (used.length > CACHE){
-        var old = used.shift();
-        if (old !== i && bmps[old] && bmps[old].close){ bmps[old].close(); bmps[old] = null; }
+      while (used.length > CACHE){                     // drop the frame furthest away
+        var far = 0;
+        for (var j = 1; j < used.length; j++)
+          if (Math.abs(used[j] - pos) > Math.abs(used[far] - pos)) far = j;
+        var gone = used.splice(far, 1)[0];
+        if (bmps[gone] && bmps[gone].close) bmps[gone].close();
+        bmps[gone] = null;
       }
-      if (i === last) paint(bm);
+      paint(true);
     }).catch(function(){ bmps[i] = null; });
   }
-
-  function paint(bm){
-    var s = Math.max(w / bm.width, h / bm.height);
-    var dw = bm.width * s, dh = bm.height * s;
-    ctx.drawImage(bm, (w - dw) / 2, (h - dh) / 2, dw, dh);
+  function ready(i){ return bmps[i] && bmps[i] !== 'pending'; }
+  function nearest(i){
+    for (var d = 0; d < FRAMES; d++){
+      if (ready(i - d)) return i - d;
+      if (ready(i + d)) return i + d;
+    }
+    return -1;
   }
 
-  function draw(i){
-    last = i;
-    decode(i); decode(i + dir); decode(i + 2 * dir);
-    for (var d = 0; d < FRAMES; d++){                 // nearest frame we can show
-      var a = i - d, b = i + d;
-      if (bmps[a] && bmps[a] !== 'pending'){ paint(bmps[a]); return; }
-      if (bmps[b] && bmps[b] !== 'pending'){ paint(bmps[b]); return; }
-    }
+  function blit(bm, alpha){
+    var s = Math.max(w / bm.width, h / bm.height), dw = bm.width * s, dh = bm.height * s;
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(bm, (w - dw) / 2, (h - dh) / 2, dw, dh);
+    ctx.globalAlpha = 1;
+  }
+
+  // Draw the playhead between two frames: the next one fades over the first by
+  // the fraction in between. Scroll positions between frames become motion.
+  function paint(force){
+    var i = Math.floor(pos), f = pos - i, key;
+    for (var k = 1; k <= AHEAD; k++) decode(i + k * dir);
+    decode(i); decode(i + 1); decode(i - dir);
+    var a = ready(i) ? i : nearest(i);
+    if (a < 0) return;
+    var b = a === i && f > 0.02 && ready(i + 1) ? i + 1 : -1;
+    key = a + ':' + (b < 0 ? 0 : Math.round(f * 20));
+    if (key === drawn && !force) return;
+    drawn = key;
+    blit(bmps[a], 1);
+    if (b >= 0) blit(bmps[b], f);
   }
 
   function size(){
@@ -400,29 +435,42 @@
     ctx.setTransform(r, 0, 0, r, 0, 0);
     ctx.imageSmoothingQuality = 'high';
     run.style.height = (reduced ? h : h + FRAMES * PPF) + 'px';
-    if (last >= 0) draw(last); else draw(0);
+    drawn = ''; paint(true);
   }
 
-  function render(){
-    ticking = false;
+  function progress(){
     var travel = run.offsetHeight - h;                // the film starts below the landing
-    var q = travel > 0 ? Math.min(1, Math.max(0, (scrollY - run.offsetTop) / travel)) : 1;
-    dir = q >= p ? 1 : -1; p = q;
-    var i = Math.round(p * (FRAMES - 1));
-    if (i !== last) draw(i);
+    return travel > 0 ? Math.min(1, Math.max(0, (scrollY - run.offsetTop) / travel)) : 1;
+  }
 
+  // The playhead eases toward the scroll position instead of jumping to it,
+  // so a flick of the thumb plays through frames rather than cutting.
+  function step(){
+    raf = 0;
+    var d = target - pos;
+    if (Math.abs(d) < 0.01) pos = target;
+    else {
+      dir = d > 0 ? 1 : -1;
+      var v = d * 0.22;
+      pos += Math.max(-MAXSTEP, Math.min(MAXSTEP, v));
+    }
+    paint(false);
+    var p = pos / (FRAMES - 1);
     beat.style.opacity = String(Math.max(0, 1 - p * 5));   // the line clears early
     cap.style.opacity = String(Math.max(0, 1 - p * 8));
-    var open = p > 0.88;
-    roomsEl.classList.toggle('on', open);
+    roomsEl.classList.toggle('on', p > 0.88);
+    if (pos !== target) raf = requestAnimationFrame(step);
   }
-  function tick(){ if (!ticking){ ticking = true; requestAnimationFrame(render); } }
+  function onScroll(){
+    target = progress() * (FRAMES - 1);
+    if (!raf) raf = requestAnimationFrame(step);
+  }
 
-  addEventListener('scroll', tick, {passive:true});
+  addEventListener('scroll', onScroll, {passive:true});
   addEventListener('resize', function(){
     // height-only changes (mobile Safari's toolbar) must not re-size the stage
     if (stage.offsetWidth === w && stage.offsetHeight === h) return;
-    size(); render();
+    size(); onScroll();
   });
 
   /* ------------------------------------------------------ rooms and sheet */
@@ -451,10 +499,12 @@
   document.getElementById('back').addEventListener('click', close);
   addEventListener('keydown', function(e){ if (e.key === 'Escape') close(); });
 
-  size(); load(); render();
+  size(); load(); onScroll();
   if (reduced){ roomsEl.classList.add('on'); beat.style.opacity = 1; }
 
-  window.POUR = {frames:FRAMES, ppf:PPF, dir:DIR, travel:function(){ return FRAMES * PPF; }};
+  window.POUR = {frames:FRAMES, ppf:PPF, dir:DIR, pos:function(){ return pos; },
+    decoded:function(){ return bmps.filter(function(x){ return x && x !== 'pending'; }).length; },
+    loaded:function(){ return blobs.filter(Boolean).length; }};
 })();
 </script>
 </body>
