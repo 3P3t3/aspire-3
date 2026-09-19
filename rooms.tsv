@@ -1,0 +1,74 @@
+# Rooms: where every product lives on the pour page (proto/pour.html).
+# One row per product. Move a product by changing its room; add one by adding
+# a row (it must exist in catalog.json or shelves.tsv). Rows show in this order.
+#
+# room    sunrise | protein | energy | recovery | skin
+# group   the mini category inside the room (its carousel section)
+# id      product id
+#
+# room	group	id
+sunrise	Morning gut	127725
+sunrise	Morning gut	120571
+sunrise	Hydrate first	110922
+sunrise	Hydrate first	110601
+sunrise	Hydrate first	110631
+sunrise	Daily strength	128463
+protein	Grass-fed whey	128154
+protein	Grass-fed whey	128155
+protein	Grass-fed whey	128156
+protein	Whey on the go	128167
+protein	Whey on the go	128168
+protein	Whey on the go	128169
+protein	Ready to drink	110369
+protein	Ready to drink	110370
+protein	Bars and crisps	110385
+protein	Bars and crisps	110386
+protein	Bars and crisps	316302
+protein	Bars and crisps	316303
+protein	Bars and crisps	316305
+protein	Bars and crisps	110627
+protein	Bars and crisps	110628
+energy	The hero	266673
+energy	XS cans	126883
+energy	XS cans	101444
+energy	XS cans	126184
+energy	XS cans	126197
+energy	XS cans	126198
+energy	XS cans	126199
+energy	XS cans	126201
+energy	XS cans	126202
+energy	XS cans	126981
+energy	XS cans	126982
+energy	XS cans	126998
+energy	XS cans	128583
+energy	XS cans	127070
+energy	Caffeine free	126983
+energy	Caffeine free	126984
+energy	Juiced and burn	126986
+energy	Juiced and burn	126987
+energy	Juiced and burn	127935
+energy	Juiced and burn	127936
+energy	Juiced and burn	127071
+energy	Focus	101593
+energy	Focus	107846
+energy	Pre-workout	316375
+energy	Pre-workout	316376
+energy	Pre-workout	316377
+energy	Pre-workout	316378
+energy	Pre-workout	127811
+energy	Pre-workout	126753
+energy	Pre-workout	126754
+recovery	Post-workout	316379
+recovery	Post-workout	316380
+recovery	On the move	110390
+recovery	On the move	305555
+recovery	CBD	296753
+recovery	CBD	300323
+recovery	Sleep stack	127940
+recovery	Sleep stack	124506
+recovery	Sleep stack	128032
+recovery	Sleep stack	308641
+recovery	Sleep stack	308636
+skin	Skin nutrition	123783V
+skin	Skin nutrition	125575
+skin	Glow up	124812

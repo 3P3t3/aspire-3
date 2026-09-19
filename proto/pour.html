@@ -24,6 +24,7 @@
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
     -webkit-text-size-adjust:100%}
   :focus-visible{outline:2px solid #ffd36a;outline-offset:3px;border-radius:6px}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
   .stage{position:sticky;top:0;height:var(--stage);overflow:hidden;background:var(--bg)}
   .stage canvas{display:block;width:100%;height:100%;object-fit:cover}
@@ -99,7 +100,7 @@
     color:var(--ink-dim);transition:opacity .35s;pointer-events:none}
 
   /* the rooms, once the pour has filled the frame */
-  .rooms{position:fixed;inset:auto 0 0;z-index:4;
+  .rooms{position:absolute;inset:auto 0 0;z-index:4;
     padding:26px 16px calc(22px + var(--safeB));
     color:var(--l-ink,var(--ink));
     background:linear-gradient(transparent 0,
@@ -128,25 +129,116 @@
     transition:opacity .4s ease-out,transform .5s cubic-bezier(.16,.84,.28,1),visibility .5s}
   .sheet.on{opacity:1;visibility:visible;transform:none}
   .sheet header{display:flex;align-items:flex-start;gap:12px;padding:0 20px}
-  .sheet h2{font-family:var(--serif);font-weight:400;font-size:29px;margin:0;flex:1}
+  .sheet h2{font-family:var(--serif);font-weight:var(--d-weight);font-size:29px;margin:0}
+  .sheet header > div{flex:1}
+  .sheet .hint{margin:4px 0 0;font-size:14px;color:var(--l-dim)}
   .back{width:44px;height:44px;flex:none;border:1px solid currentColor;border-radius:50%;
     background:transparent;color:inherit;font-size:17px;cursor:pointer}
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:0 20px;-webkit-overflow-scrolling:touch}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:none;min-height:40px;padding:0 14px;border-radius:999px;font:500 13.5px/1 var(--sans);
+    border:1px solid color-mix(in srgb,var(--l-ink,#fff) 26%,transparent);
+    background:transparent;color:inherit;cursor:pointer;white-space:nowrap}
+  .chip[aria-current="true"]{background:var(--l-ink);color:var(--l-bg);border-color:var(--l-ink)}
   .rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
-    padding:4px 20px 14px;-webkit-overflow-scrolling:touch}
+    padding:4px 20px 14px;-webkit-overflow-scrolling:touch;scroll-padding-inline:20px}
   .rail::-webkit-scrollbar{display:none}
-  .mini{scroll-snap-align:start;flex:0 0 76%;min-height:172px;border-radius:var(--r,16px);
-    border:1px solid color-mix(in srgb,var(--l-ink,#fff) 20%,transparent);
-    background:color-mix(in srgb,var(--l-ink,#fff) 6%,transparent);padding:16px;
-    display:flex;flex-direction:column;gap:6px}
-  .mini b{font-size:15px}
-  .mini p{margin:0;font-size:13.5px;line-height:1.45;color:var(--l-dim,var(--ink-dim))}
-  .mini b{font-family:var(--serif);font-weight:var(--d-weight);font-size:19px}
-  .mini ul{margin:auto 0 0;padding:0;list-style:none;display:flex;gap:6px;flex-wrap:wrap}
-  .mini li{font-size:11.5px;border:1px solid color-mix(in srgb,var(--l-ink,#fff) 24%,transparent);border-radius:999px;padding:4px 9px}
+
+  /* a product: the photo, the name, the share-link. Used in rooms and results */
+  .pcard{scroll-snap-align:start;flex:0 0 64%;display:flex;flex-direction:column;
+    border-radius:var(--r,14px);overflow:hidden;
+    border:1px solid color-mix(in srgb,var(--l-ink,#fff) 16%,transparent);
+    background:color-mix(in srgb,var(--l-ink,#fff) 5%,transparent)}
+  .pcard .ph{position:relative;aspect-ratio:1;background:color-mix(in srgb,var(--l-ink,#fff) 7%,transparent)}
+  .pcard .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:14px}
+  .pcard .ph.photo img{object-fit:cover;padding:0}
+  .pcard .tx{padding:12px 14px 14px;display:flex;flex-direction:column;gap:4px;flex:1}
+  .pcard small{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--l-dim)}
+  .pcard b{font-weight:600;font-size:14.5px;line-height:1.3}
+  .pcard .why{margin:2px 0 0;font-size:13px;line-height:1.45;color:var(--l-dim)}
+  .pcard .grp{font-size:11.5px;color:var(--l-accent)}
+  .buy{margin-top:auto;display:inline-flex;align-items:center;justify-content:center;min-height:44px;
+    border-radius:var(--r,12px);background:var(--l-accent);color:var(--l-bg);
+    font:600 14px/1 var(--sans);text-decoration:none;margin-top:10px}
+  .inroom{display:inline-flex;align-items:center;min-height:44px;background:none;border:0;padding:0;
+    color:var(--l-ink);font:500 13.5px/1 var(--sans);text-decoration:underline;
+    text-underline-offset:3px;cursor:pointer;text-align:left}
+
+  /* ---------------------------------------------------------------- quiz */
+  /* Its own tokens, rolled from a seed like the landing: how options look,
+     how progress shows, which accent leads, how the results lay out. */
+  .quiz{position:relative;min-height:100vh;min-height:100svh;background:var(--l-bg);color:var(--l-ink);
+    padding:calc(56px + var(--safeT)) 20px calc(40px + var(--safeB));display:flex;flex-direction:column;gap:18px}
+  .quiz .eyebrow{margin:0;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--q-acc)}
+  .quiz h2{margin:0;font-family:var(--serif);font-weight:var(--d-weight);letter-spacing:var(--d-track);
+    font-size:calc(clamp(30px,8.6vw,52px) * var(--q-size));line-height:1.05;max-width:14ch}
+  .quiz .hint{margin:0;font-size:15px;line-height:1.5;color:var(--l-dim);max-width:34ch}
+  .q-prog{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--l-dim);font-variant-numeric:tabular-nums}
+  .q-prog i{flex:1;height:3px;border-radius:2px;background:color-mix(in srgb,var(--l-ink) 16%,transparent)}
+  .q-prog i.on{background:var(--q-acc)}
+  .p-dots .q-prog i{flex:none;width:8px;height:8px;border-radius:50%}
+  .p-count .q-prog i{display:none}
+  .p-bar .q-prog span,.p-dots .q-prog span{display:none}
+  .q-opts{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
+  .q-opt{min-height:48px;padding:0 18px;border-radius:999px;cursor:pointer;
+    font:500 15.5px/1.2 var(--sans);color:inherit;text-align:left;
+    border:1px solid color-mix(in srgb,var(--l-ink) 28%,transparent);background:transparent;
+    transition:background-color .2s,border-color .2s,color .2s}
+  .q-opt[aria-pressed="true"]{background:var(--q-acc);border-color:var(--q-acc);color:var(--q-on)}
+  .o-tiles .q-opts{display:grid;grid-template-columns:1fr 1fr}
+  .o-tiles .q-opt{width:100%;min-height:76px;border-radius:var(--r,12px);padding:14px 16px;align-items:flex-end;display:flex}
+  .o-list .q-opts{flex-direction:column}
+  .o-list .q-opt{width:100%;border-radius:var(--r,12px);min-height:56px}
+  .c-filled .q-opt:not([aria-pressed="true"]){background:color-mix(in srgb,var(--l-ink) 7%,transparent);border-color:transparent}
+  .c-glass .q-opt:not([aria-pressed="true"]){background:color-mix(in srgb,var(--l-ink) 4%,transparent);
+    -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+  .q-nav{display:flex;gap:10px;align-items:center;margin-top:auto;padding-top:8px}
+  .q-btn{min-height:48px;padding:0 22px;border-radius:var(--r,12px);cursor:pointer;
+    font:600 15px/1 var(--sans);border:1px solid var(--l-ink);background:var(--l-ink);color:var(--l-bg)}
+  .q-btn[disabled]{opacity:.35;cursor:default}
+  .q-btn.ghost{background:transparent;color:var(--l-ink);border-color:color-mix(in srgb,var(--l-ink) 30%,transparent)}
+  .q-body{display:flex;flex-direction:column;gap:18px;transition:opacity .25s,transform .25s}
+  .q-body.out{opacity:0;transform:translateY(8px)}
+  .q-res{display:flex;flex-direction:column;gap:12px}
+  .r-rail .q-res{flex-direction:row;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -20px;padding:0 20px 8px}
+  .r-rail .q-res::-webkit-scrollbar{display:none}
+  .r-stack .q-res .pcard{flex-direction:row;flex-basis:auto}
+  .r-stack .q-res .pcard .ph{flex:0 0 38%;aspect-ratio:auto;min-height:150px}
+  .q-more{margin:0;font-size:14.5px;line-height:1.5;color:var(--l-dim)}
+  .q-more a{color:var(--l-ink)}
+  .qtok{display:none;gap:10px;align-items:center;font-size:12px;color:var(--l-dim)}
+  .show-tokens .qtok{display:flex}
+
+  /* ------------------------------------------------------------ clinical */
+  /* PLACEHOLDER COPY — the program's approved wording and whatever disclosures
+     it requires replace this before it goes live. */
+  .clinic{background:color-mix(in srgb,var(--l-bg) 70%,#000);color:var(--l-ink);
+    padding:calc(72px + var(--safeT)) 20px calc(64px + var(--safeB))}
+  .clinic .eyebrow{margin:0 0 14px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--l-accent)}
+  .clinic h2{margin:0 0 14px;font-family:var(--serif);font-weight:var(--d-weight);letter-spacing:var(--d-track);
+    font-size:clamp(32px,9vw,56px);line-height:1.04;max-width:13ch}
+  .clinic h2 em{font-family:var(--g-font,var(--serif));font-style:normal;color:transparent;
+    -webkit-text-stroke:.03em var(--l-accent)}
+  .clinic .lead{margin:0 0 34px;font-size:16.5px;line-height:1.55;color:var(--l-dim);max-width:34ch}
+  .steps{list-style:none;margin:0;padding:0;border-top:1px solid color-mix(in srgb,var(--l-ink) 16%,transparent)}
+  .steps li{display:grid;grid-template-columns:3ch 1fr;gap:4px 12px;padding:20px 0 22px;align-content:start;
+    border-bottom:1px solid color-mix(in srgb,var(--l-ink) 16%,transparent)}
+  .steps b{grid-row:span 2;font-size:13px;font-weight:600;color:var(--l-accent);padding-top:4px;font-variant-numeric:tabular-nums}
+  .steps h3{margin:0;font-family:var(--serif);font-weight:500;font-size:21px}
+  .steps p{margin:0;font-size:15px;line-height:1.5;color:var(--l-dim);max-width:36ch}
+  .soon{display:inline-flex;align-items:center;gap:10px;margin-top:28px;font-size:13px;color:var(--l-dim)}
+  .soon i{width:8px;height:8px;border-radius:50%;background:var(--l-accent)}
+  .foot{background:var(--l-bg);color:var(--l-dim);padding:28px 20px calc(28px + var(--safeB));font-size:12.5px}
 
   @media (min-width:900px){
+    .quiz,.clinic{padding-left:7vw;padding-right:7vw}
+    .quiz > *,.clinic > *{max-width:760px}
+    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;border-top:0}
+    .steps li{border-top:1px solid color-mix(in srgb,var(--l-ink) 16%,transparent);border-bottom:0}
+    .r-rail .q-res .pcard{flex-basis:260px}
     .beat{left:7vw;right:auto;top:calc(var(--safeT) + 20vh)}
     .rooms{max-width:440px;left:7vw;border-radius:18px 18px 0 0}
+  .sheet .pcard{flex-basis:240px}
     .mini{flex-basis:320px}
   }
 
@@ -155,6 +247,7 @@
     .run{height:auto !important}
     .cap{display:none}
     .rooms{position:static;opacity:1;visibility:visible;transform:none;background:var(--bg)}
+    .q-body,.q-opt{transition:none}
   }
 </style>
 </head>
@@ -186,17 +279,46 @@
       <p>Scroll. The can does the rest.</p>
     </div>
     <p class="cap" id="cap">Scroll</p>
+    <nav class="rooms" id="rooms" aria-label="Rooms">
+      <h2>Where do you want to start?</h2>
+      <ul id="room-list"></ul>
+    </nav>
   </div>
 </div>
 
-<nav class="rooms" id="rooms" aria-label="Rooms">
-  <h2>Where do you want to start?</h2>
-  <ul id="room-list"></ul>
-</nav>
+<section class="quiz" id="quiz" aria-labelledby="q-title">
+  <p class="eyebrow">Find your stack</p>
+  <div class="q-prog" id="q-prog" aria-hidden="true"></div>
+  <div class="q-body" id="q-body" aria-live="polite"></div>
+  <div class="q-nav" id="q-nav">
+    <button class="q-btn ghost" id="q-back" type="button">Back</button>
+    <button class="q-btn" id="q-next" type="button">Next</button>
+  </div>
+  <div class="qtok"><button class="shuffle" id="q-shuffle" type="button">Shuffle quiz style</button>
+    <span id="q-tokname"></span></div>
+</section>
+
+<section class="clinic" id="clinic" aria-labelledby="c-title">
+  <p class="eyebrow">Launching November</p>
+  <h2 id="c-title">Holistic wellness, <em>built from your bloodwork.</em></h2>
+  <p class="lead">Everything above starts from what you tell us. This starts from what your
+    body shows: clinical data, read by a doctor, turned into a plan that's yours.</p>
+  <ol class="steps">
+    <li><b>01</b><h3>Bloodwork, from home</h3><p>A kit comes to you. No clinic, no waiting room.</p></li>
+    <li><b>02</b><h3>A doctor reads it</h3><p>A licensed physician goes through your labs with you.</p></li>
+    <li><b>03</b><h3>A protocol, built for you</h3><p>Nutrition matched to your results, and where it's
+      right for you, peptide therapy, prescribed by the doctor and filled by a licensed
+      compounding pharmacy.</p></li>
+  </ol>
+  <p class="soon"><i></i>Available November</p>
+</section>
+
+<footer class="foot">Aspire Health · A prototype. Products link to their Amway pages.</footer>
 
 <section class="sheet" id="sheet" aria-hidden="true" aria-labelledby="sheet-title">
-  <header><h2 id="sheet-title"></h2>
-    <button class="back" id="back" aria-label="Back to the rooms">&times;</button></header>
+  <header><div><h2 id="sheet-title"></h2><p class="hint" id="sheet-line"></p></div>
+    <button class="back" id="back" aria-label="Close the room">&times;</button></header>
+  <div class="chips" id="chips" role="tablist" aria-label="Categories"></div>
   <div class="rail" id="rail"></div>
 </section>
 
@@ -309,29 +431,11 @@
 (function(){
   'use strict';
 
-  /* ------------------------------------------------------------ the rooms */
-  var ROOMS = [
-    {name:'Sunrise Stack', n:12, minis:[
-      ['Morning greens','What the day starts on.',['GI Primer','Daily fibre']],
-      ['Multivitamin','The base layer.',['Double X','Vitamin D']],
-      ['First water','Before the coffee.',['Electrolytes']]]},
-    {name:'Protein Snack Pack', n:15, minis:[
-      ['Shakes','Whey and plant.',['Vanilla','Chocolate']],
-      ['Bars','Pocket protein.',['PB bar','Crisp bar']],
-      ['Add-ins','Into anything.',['Collagen','Creamer']]]},
-    {name:'Energy Elevation', n:14, minis:[
-      ['XS cans','The hero.',['Peach Mango Elite','Electric Lemon']],
-      ['Pre-workout','Before the session.',['Sports pre','Twist tubes']],
-      ['Focus','Without the crash.',['Elite + Focus']]]},
-    {name:'Recovery Room', n:13, minis:[
-      ['Post-workout','After the session.',['Recovery blend']],
-      ['Calm','Down-regulate.',['CBD','Ashwagandha']],
-      ['Sleep stack','The overnight shift.',['Sleep Health','Sweet Dreams']]]},
-    {name:'Skin Redefined', n:11, minis:[
-      ['Cleanse','Start clean.',['Cleanser','Toner']],
-      ['Treat','The actives.',['Serum','Sleeping mask']],
-      ['Nutrition','From the inside.',['Skin nutrition','Glow up']]]}
-  ];
+  /* -------------------------------------------- the data layer (built) */
+  // Written by tools/build_pour.py from catalog.json, shelves.tsv and rooms.tsv.
+  /*DATA*/
+  var DATA = {"products":{"101444":{"n":"Energy Drink 12 oz - Electric Lemon Limited Edition","b":"XS™","u":"https://amway.com/share-link/xLah3mPV0","i":"../assets/products/101444.webp","k":"cut","f":"drink","c":1},"126184":{"n":"Energy Drink 12 oz - Citrus","b":"XS™","u":"https://amway.com/share-link/xwfpNhDqO","i":"../assets/products/126184.webp","k":"cut","f":"drink","c":1},"126197":{"n":"Energy Drink 12 oz - Cranberry-Grape","b":"XS™","u":"https://amway.com/share-link/WUc94jJH-","i":"../assets/products/126197.webp","k":"cut","f":"drink","c":1},"126198":{"n":"Energy Drink 12 oz - Tamarindo","b":"XS™","u":"https://amway.com/share-link/W~TRQs7BM","i":"../assets/products/126198.webp","k":"cut","f":"drink","c":1},"126199":{"n":"Energy Drink 12 oz - Tropical","b":"XS™","u":"https://amway.com/share-link/odDPLjdVi","i":"../assets/products/126199.webp","k":"cut","f":"drink","c":1},"126201":{"n":"Energy Drink 12 oz - Black Cherry Cola","b":"XS™","u":"https://amway.com/share-link/EGaxihDh9","i":"../assets/products/126201.webp","k":"cut","f":"drink","c":1},"126202":{"n":"Energy Drink 12 oz - Root Beer","b":"XS™","u":"https://amway.com/share-link/bYV674AFp","i":"../assets/products/126202.webp","k":"cut","f":"drink","c":1},"126883":{"n":"Energy Drink 12 oz - Classic","b":"XS™","u":"https://amway.com/share-link/uoKaQD8~a","i":"../assets/products/126883.webp","k":"cut","f":"drink","c":1},"126981":{"n":"Energy Drink 12 oz - Naranja","b":"XS™","u":"https://amway.com/share-link/8ofd6z7Ow","i":"../assets/products/126981.webp","k":"cut","f":"drink","c":1},"126982":{"n":"Energy Drink 12 oz - Summit","b":"XS™","u":"https://amway.com/share-link/b40~kN2GF","i":"../assets/products/126982.webp","k":"cut","f":"drink","c":1},"126983":{"n":"Energy Drink 12 oz - Caffeine Free Cranberry-Grape","b":"XS™","u":"https://amway.com/share-link/bTDU-QSAa","i":"../assets/products/126983.webp","k":"cut","f":"drink","c":0},"126984":{"n":"Sparkling Juiced Energy 12 oz - Caffeine Free Mango Pineapple Guava","b":"XS™","u":"https://amway.com/share-link/mk5aRggdy","i":"../assets/products/126984.webp","k":"cut","f":"drink","c":0},"126986":{"n":"Sparkling Juiced Energy 12 oz - Mango Pineapple Guava","b":"XS™","u":"https://amway.com/share-link/1-vD7GZEx","i":"../assets/products/126986.webp","k":"cut","f":"drink","c":1},"126987":{"n":"Sparkling Juiced Energy 12 oz - Pink Grapefruit","b":"XS™","u":"https://amway.com/share-link/JGfJfQ8AB","i":"../assets/products/126987.webp","k":"cut","f":"drink","c":1},"126998":{"n":"Energy Drink 12 oz - Watermelon Lemonade","b":"XS™","u":"https://amway.com/share-link/OLeTQv5LC","i":"../assets/products/126998.webp","k":"cut","f":"drink","c":1},"127070":{"n":"Energy Drink 12 oz - Variety Case","b":"XS™","u":"https://amway.com/share-link/KP09m3teD","i":"../assets/products/127070.webp","k":"cut","f":"drink","c":1},"127071":{"n":"Juiced and Burn 12 oz - Variety Case","b":"XS™","u":"https://amway.com/share-link/DwyiPxiIU","i":"../assets/products/127071.webp","k":"cut","f":"drink","c":1},"127935":{"n":"Energy + Burn 12 oz - Blue Razz","b":"XS™","u":"https://amway.com/share-link/tV6oqMvMc","i":"../assets/products/127935.webp","k":"cut","f":"drink","c":1},"127936":{"n":"Energy + Burn 12 oz - Kiwi Strawberry","b":"XS™","u":"https://amway.com/share-link/QVgQcE~fm","i":"../assets/products/127936.webp","k":"cut","f":"drink","c":1},"128583":{"n":"Energy Drink 12 oz - Rocket Blast Limited Edition","b":"XS™","u":"https://amway.com/share-link/9vGPxSKNA","i":"../assets/products/128583.webp","k":"cut","f":"drink","c":1},"266673":{"n":"Elite + Focus Energy Drink - Peach Mango","b":"XS™","u":"https://amway.com/share-link/gry6-Xg5l","i":"../assets/products/266673.webp","k":"cut","f":"drink","c":1},"101593":{"n":"Energy + Focus Dietary Supplement - 60 Tablets","b":"XS™","u":"https://amway.com/share-link/EXX8FgRW6","i":"../assets/products/101593.webp","k":"cut","f":"capsule","c":1},"107846":{"n":"Energy + Focus Dietary Supplement - 30 Tablets","b":"XS™","u":"https://amway.com/share-link/zFoRkr5eK","i":"../assets/products/107846.webp","k":"cut","f":"capsule","c":1},"110369":{"n":"Sports Protein Shakes - Rich Chocolate","b":"XS™","u":"https://amway.com/share-link/IwkAJiWQ3","i":"../assets/products/110369.webp","k":"cut","f":"drink","c":0},"110370":{"n":"Sports Protein Shakes - Vanilla Crème","b":"XS™","u":"https://amway.com/share-link/ofcahKqvN","i":"../assets/products/110370.webp","k":"cut","f":"drink","c":0},"110385":{"n":"Sports Protein Bars - Chocolate Peanut Butter","b":"XS™","u":"https://amway.com/share-link/FHubIOB6L","i":"../assets/products/110385.webp","k":"cut","f":"snack","c":0},"110386":{"n":"Sports Protein Bars - Chocolate Berry","b":"XS™","u":"https://amway.com/share-link/IMXmJE6Fb","i":"../assets/products/110386.webp","k":"cut","f":"snack","c":0},"110390":{"n":"Sports Twist Tubes - Fruit Punch","b":"XS™","u":"https://amway.com/share-link/XjBUQPtjO","i":"../assets/products/110390.webp","k":"cut","f":"powder","c":0},"110601":{"n":"CocoWater Hydration Drink Mix - Strawberry/Watermelon","b":"XS™","u":"https://amway.com/share-link/Dts4kqijP","i":"../assets/products/110601.webp","k":"cut","f":"powder","c":0},"110627":{"n":"Protein Crisps - Barbeque","b":"XS™","u":"https://amway.com/share-link/yQu-NHOoT","i":"../assets/products/110627.webp","k":"cut","f":"snack","c":0},"110628":{"n":"Protein Crisps - Sriracha Lime","b":"XS™","u":"https://amway.com/share-link/MVc4sISgs","i":"../assets/products/110628.webp","k":"cut","f":"snack","c":0},"110631":{"n":"CocoWater Hydration Drink Mix - Pineapple/Coconut","b":"XS™","u":"https://amway.com/share-link/enbKVnLlx","i":"../assets/products/110631.webp","k":"cut","f":"powder","c":0},"126753":{"n":"Muscle Multiplier - Berry Blast","b":"XS™","u":"https://amway.com/share-link/D2YioWCnT","i":"../assets/products/126753.webp","k":"cut","f":"powder","c":0},"126754":{"n":"Muscle Multiplier - Watermelon","b":"XS™","u":"https://amway.com/share-link/WvhxbGmYf","i":"https://www.amway.com/medias/126754-en-US-690px-03?context=bWFzdGVyfGltYWdlc3wxOTAwNDF8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g5Ny9oOTgvOTcwMTk1NTk5MzYzMC8xMjY3NTQtZW4tVVMtNjkwcHgtMDN8YjlmM2Q3NWMyMGIyOGQyZmNmZTlhMjU1NzQ4NDcwMTFmYzNiMzY5ZTVmYzRkN2Y1YWFhOGQ1YzVhNDU3ZmFkZg","k":"photo","f":"powder","c":0},"127811":{"n":"Ignite Powder - Moro Blood Orange","b":"XS™","u":"https://amway.com/share-link/ZcBRI5loO","i":"../assets/products/127811.webp","k":"cut","f":"powder","c":1},"128154":{"n":"Grass-Fed Whey Protein - Chocolate","b":"XS™","u":"https://amway.com/share-link/o3K2G9Gau","i":"../assets/products/128154.webp","k":"cut","f":"powder","c":0},"128155":{"n":"Grass-Fed Whey Protein - Strawberry","b":"XS™","u":"https://amway.com/share-link/LYOT5kyHn","i":"../assets/products/128155.webp","k":"cut","f":"powder","c":0},"128156":{"n":"Grass-Fed Whey Protein - Vanilla","b":"XS™","u":"https://amway.com/share-link/14~vr9fjQ","i":"../assets/products/128156.webp","k":"cut","f":"powder","c":0},"128167":{"n":"Grass-Fed Whey Protein Powder Sachets - Chocolate","b":"XS™","u":"https://amway.com/share-link/3i1Nxah8u","i":"../assets/products/128167.webp","k":"cut","f":"powder","c":0},"128168":{"n":"Grass-Fed Whey Protein Powder Sachets - Strawberry","b":"XS™","u":"https://amway.com/share-link/vTiZNA5QUR","i":"../assets/products/128168.webp","k":"cut","f":"powder","c":0},"128169":{"n":"Grass-Fed Whey Protein Powder Sachets - Vanilla","b":"XS™","u":"https://amway.com/share-link/V5QxGP6Xp","i":"../assets/products/128169.webp","k":"cut","f":"powder","c":0},"128463":{"n":"Creatine+","b":"XS™","u":"https://amway.com/share-link/TcFtuhPvJ","i":"../assets/products/128463.webp","k":"cut","f":"powder","c":0},"296753":{"n":"CBD Cream","b":"XS™","u":"https://amway.com/share-link/AwIzUqvC1","i":"../assets/products/296753.webp","k":"cut","f":"topical","c":0},"300323":{"n":"CBD Pro Cream","b":"XS™","u":"https://amway.com/share-link/9EXfGTpU-","i":"../assets/products/300323.webp","k":"cut","f":"topical","c":0},"305555":{"n":"Sports Twist Tubes - Raspberry Lemonade","b":"XS™","u":"https://amway.com/share-link/hzkCx98xw","i":"../assets/products/305555.webp","k":"cut","f":"powder","c":0},"316375":{"n":"Pre-Workout Boost - Blue Raspberry (30 Serving Pouch)","b":"XS™","u":"https://amway.com/share-link/ZsJafHG0E","i":"../assets/products/316375.webp","k":"cut","f":"powder","c":1},"316376":{"n":"Pre-Workout Boost - Green Apple (30 Serving Pouch)","b":"XS™","u":"https://amway.com/share-link/Om6-lIl43","i":"../assets/products/316376.webp","k":"cut","f":"powder","c":1},"316377":{"n":"Pre-Workout Boost - Blue Raspberry (12 Stick Packs)","b":"XS™","u":"https://amway.com/share-link/SattacJ5V","i":"../assets/products/316377.webp","k":"cut","f":"powder","c":1},"316378":{"n":"Pre-Workout Boost - Green Apple (12 Stick Packs)","b":"XS™","u":"https://amway.com/share-link/m5Jg-DMsC","i":"https://www.amway.com/medias/316378-en-US-690px-03?context=bWFzdGVyfGltYWdlc3w1NDEyODV8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g0NS9oZGQvOTY4MDU5MTc0OTE1MC8zMTYzNzgtZW4tVVMtNjkwcHgtMDN8ZWY5MDI5NzNkMDNmZDEwYTA1NTJmZjExMzhiMDMzMzI3YjAxMmFkMTMxNTdjYTQ2N2JjZTljOGJmY2Y5MGVlOQ","k":"photo","f":"powder","c":1},"316379":{"n":"Post-Workout Recovery - Fruit Punch (30 Serving Pouch)","b":"XS™","u":"https://amway.com/share-link/CBN8O~MnX","i":"../assets/products/316379.webp","k":"cut","f":"powder","c":0},"316380":{"n":"Post-Workout Recovery - Fruit Punch (12 Stick Packs)","b":"XS™","u":"https://amway.com/share-link/lrJlYVhGM","i":"../assets/products/316380.webp","k":"cut","f":"powder","c":0},"128032":{"n":"Magnesium","b":"Nutrilite™","u":"https://amway.com/share-link/ROw2AOp7v","i":"https://www.amway.com/medias/128032-en-US-690px-03?context=bWFzdGVyfGltYWdlc3w4NDAwNzV8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2hhYi9oYzkvOTk3MjU0MDYwNDQ0Ni8xMjgwMzItZW4tVVMtNjkwcHgtMDN8ODhhYTYwZjM1ZmZmMWUxYzU2ZmI1YjJhMjg0NjFhNjJmOGQ3NzMzNWEyZjdiZDQyM2Y3ODU4N2M3YTU0NDhlYg","k":"photo","f":"capsule","c":0},"127940":{"n":"Sleep Health","b":"Nutrilite™","u":"https://amway.com/share-link/o8m6KGk53","i":"../assets/products/127940.webp","k":"cut","f":"capsule","c":0},"308636":{"n":"Chamomile Tea","b":"Nutrilite™ Organics","u":"https://amway.com/share-link/qe6JKbGxp","i":"../assets/products/308636.webp","k":"cut","f":"drink","c":0},"124506":{"n":"Sweet Dreams - Sleep Gummies","b":"n* by Nutrilite™","u":"https://amway.com/share-link/PVUuzXLQ6","i":"../assets/products/124506.webp","k":"cut","f":"capsule","c":0},"308641":{"n":"Ashwagandha Capsules","b":"Nutrilite™ Organics","u":"https://amway.com/share-link/SMhXOCNJy","i":"https://www.amway.com/medias/308641-en-US-690px-04?context=bWFzdGVyfGltYWdlc3wxNzY5NTF8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2gxMS9oMDUvOTc3OTY4MzA5ODY1NC8zMDg2NDEtZW4tVVMtNjkwcHgtMDR8OWE3ZGUxYTliY2JhODAzZDM1Zjg2OGQ1Nzg2ZWRhOTFmNTIxNjgxZDAxYWRlNDQ0YTc0OTU0NDY3YWI5NzhlZg","k":"photo","f":"capsule","c":0},"127725":{"n":"Daily GI Primer","b":"Nutrilite Begin™","u":"https://amway.com/share-link/FOhn2MdGS","i":"https://www.amway.com/medias/127725-en-US-690px-03?context=bWFzdGVyfGltYWdlc3w2Mjc2NDJ8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2hjZi9oNDYvOTgzMjAwMjU1MTgzOC8xMjc3MjUtZW4tVVMtNjkwcHgtMDN8ZWJjMDRmZjU0NmI4MzRjN2MxMDhlNGNmNzk3MGE2ZGE5MTMxZjQxZTA2ZjU3ODAyM2M4YTQxNmE5NmE1NDNjMA","k":"photo","f":"powder","c":0},"120571":{"n":"Balance Within™ Probiotic","b":"Nutrilite™","u":"https://amway.com/share-link/k5GGxS-5u","i":"../assets/products/120571.webp","k":"cut","f":"capsule","c":0},"110922":{"n":"Twist Tubes 2GO™ - Variety Pack","b":"Nutrilite™","u":"https://amway.com/share-link/s8elwQ-bb","i":"../assets/products/110922.webp","k":"cut","f":"powder","c":0},"316305":{"n":"All-in-One Bars - Berries & Seeds","b":"Nutrilite™ Organics","u":"https://amway.com/share-link/90MN2VV7h","i":"https://www.amway.com/medias/316305-en-US-690px-02?context=bWFzdGVyfGltYWdlc3wyMTY1NjV8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g1MS9oMjcvOTc0MjgxMzM5NzAyMi8zMTYzMDUtZW4tVVMtNjkwcHgtMDJ8ODkwMjI3NmQwZGU3YzMzZTgwYzQzNWVhMTQzMDE2NDlmNDAyNGQwZjc4MjMyZTg1NDUyOTQ5YzQ4MWVjN2IwMg","k":"photo","f":"snack","c":0},"316303":{"n":"All-in-One Bars - Double Chocolate","b":"Nutrilite™ Organics","u":"https://amway.com/share-link/195NEh7tP","i":"https://www.amway.com/medias/316303-en-US-690px-02?context=bWFzdGVyfGltYWdlc3wyMjg4MDd8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g2NS9oMzUvOTc0MjgyMTA5NzUwMi8zMTYzMDMtZW4tVVMtNjkwcHgtMDJ8YjIyODliODg5YTFiZTU1NjQxMmUzNDg5NWNhMzM4MDA1NDA4YTE4ZDBjMTlmYWEyNzg0Mjg5OTEwMzhiMGRiYg","k":"photo","f":"snack","c":0},"316302":{"n":"All-in-One Bars - Peanut Butter","b":"Nutrilite™ Organics","u":"https://amway.com/share-link/WsloZO1TV","i":"https://www.amway.com/medias/316302-en-US-690px-02?context=bWFzdGVyfGltYWdlc3wyMjE1NzN8aW1hZ2UvcG5nfHN5cy1tYXN0ZXIvaW1hZ2VzL2g5MC9oYjIvOTc0MjgyMzY4NjE3NC8zMTYzMDItZW4tVVMtNjkwcHgtMDJ8MWI4MWI5YzBkODk3ZTA1ODIxNjVlYjIzMTM3NGY0ZDRlMzlhNDRlZjA5MzA1NDEzMGE0MTcyNDAyYTNmNDgyMw","k":"photo","f":"snack","c":0},"124812":{"n":"Studio™ Glow Boss Cleanser + Exfoliator","b":"Artistry","u":"https://amway.com/share-link/2Vi-rjqyj","i":"../assets/products/124812.webp","k":"cut","f":"capsule","c":0},"123783V":{"n":"Skin Nutrition™ Renewing Softening Toner","b":"Artistry","u":"https://amway.com/share-link/hKMa0MHHc","i":"../assets/products/123783V.webp","k":"cut","f":"capsule","c":0},"125575":{"n":"Skin Nutrition™ Sleeping Mask","b":"Artistry","u":"https://amway.com/share-link/iWAplHgh3","i":"../assets/products/125575.webp","k":"cut","f":"capsule","c":0}},"rooms":[{"key":"sunrise","name":"Sunrise Stack","line":"What the day starts on.","groups":[{"g":"Morning gut","ids":["127725","120571"]},{"g":"Hydrate first","ids":["110922","110601","110631"]},{"g":"Daily strength","ids":["128463"]}],"n":6},{"key":"protein","name":"Protein Snack Pack","line":"Protein in every form you'll actually eat.","groups":[{"g":"Grass-fed whey","ids":["128154","128155","128156"]},{"g":"Whey on the go","ids":["128167","128168","128169"]},{"g":"Ready to drink","ids":["110369","110370"]},{"g":"Bars and crisps","ids":["110385","110386","316302","316303","316305","110627","110628"]}],"n":15},{"key":"energy","name":"Energy Elevation","line":"XS, and what goes before the session.","groups":[{"g":"The hero","ids":["266673"]},{"g":"XS cans","ids":["126883","101444","126184","126197","126198","126199","126201","126202","126981","126982","126998","128583","127070"]},{"g":"Caffeine free","ids":["126983","126984"]},{"g":"Juiced and burn","ids":["126986","126987","127935","127936","127071"]},{"g":"Focus","ids":["101593","107846"]},{"g":"Pre-workout","ids":["316375","316376","316377","316378","127811","126753","126754"]}],"n":30},{"key":"recovery","name":"Recovery Room","line":"After the session, and after dark.","groups":[{"g":"Post-workout","ids":["316379","316380"]},{"g":"On the move","ids":["110390","305555"]},{"g":"CBD","ids":["296753","300323"]},{"g":"Sleep stack","ids":["127940","124506","128032","308641","308636"]}],"n":11},{"key":"skin","name":"Skin Redefined","line":"Skin, fed from the inside.","groups":[{"g":"Skin nutrition","ids":["123783V","125575"]},{"g":"Glow up","ids":["124812"]}],"n":3}],"goals":[{"key":"energy","label":"More energy","ids":["266673","126883","101593","126983"],"why":"Clean energy without the sugar crash."},{"key":"focus","label":"Sharper focus","ids":["266673","107846","101593"],"why":"Caffeine plus focus nutrients for the afternoon slump."},{"key":"sleep","label":"Better sleep","ids":["127940","124506","128032","308636"],"why":"Winds the day down so the night can do its work."},{"key":"stress","label":"Less stress","ids":["308641","308636","296753"],"why":"Adaptogens and calm for a nervous system that's been on all day."},{"key":"gut","label":"Gut health","ids":["127725","120571"],"why":"Fibre, pre- and probiotics: the base everything else sits on."},{"key":"strength","label":"Build strength","ids":["128156","128463","126753","316375"],"why":"Protein and creatine to turn training into muscle."},{"key":"recovery","label":"Recover faster","ids":["316379","300323","110601"],"why":"Refuel, rehydrate, and ease what's sore."},{"key":"skin","label":"Skin and glow","ids":["123783V","125575","124812"],"why":"Nutrition for skin, from the inside out."},{"key":"hydrate","label":"Hydration","ids":["110601","110631","110922"],"why":"Electrolytes that make water work harder."},{"key":"snacks","label":"Smarter snacks","ids":["110385","316302","110627","110370"],"why":"Protein that fits in a bag and tastes like a treat."}],"roomOf":{"127725":"sunrise","120571":"sunrise","110922":"sunrise","110601":"sunrise","110631":"sunrise","128463":"sunrise","128154":"protein","128155":"protein","128156":"protein","128167":"protein","128168":"protein","128169":"protein","110369":"protein","110370":"protein","110385":"protein","110386":"protein","316302":"protein","316303":"protein","316305":"protein","110627":"protein","110628":"protein","266673":"energy","126883":"energy","101444":"energy","126184":"energy","126197":"energy","126198":"energy","126199":"energy","126201":"energy","126202":"energy","126981":"energy","126982":"energy","126998":"energy","128583":"energy","127070":"energy","126983":"energy","126984":"energy","126986":"energy","126987":"energy","127935":"energy","127936":"energy","127071":"energy","101593":"energy","107846":"energy","316375":"energy","316376":"energy","316377":"energy","316378":"energy","127811":"energy","126753":"energy","126754":"energy","316379":"recovery","316380":"recovery","110390":"recovery","305555":"recovery","296753":"recovery","300323":"recovery","127940":"recovery","124506":"recovery","128032":"recovery","308641":"recovery","308636":"recovery","123783V":"skin","125575":"skin","124812":"skin"}};
+  /*END DATA*/
 
   /* ----------------------------------------------------------- the film */
   // Every frame of the clip (150 at 30fps). Phones take the light set, big
@@ -434,13 +538,14 @@
     cv.width = Math.round(w * r); cv.height = Math.round(h * r);
     ctx.setTransform(r, 0, 0, r, 0, 0);
     ctx.imageSmoothingQuality = 'high';
-    run.style.height = (reduced ? h : h + FRAMES * PPF) + 'px';
+    // + a hold at the end: the rooms rest on the last frame before it scrolls on
+    run.style.height = (reduced ? h : h + FRAMES * PPF + Math.round(h * 0.7)) + 'px';
     drawn = ''; paint(true);
   }
 
   function progress(){
-    var travel = run.offsetHeight - h;                // the film starts below the landing
-    return travel > 0 ? Math.min(1, Math.max(0, (scrollY - run.offsetTop) / travel)) : 1;
+    var travel = FRAMES * PPF;                        // the film starts below the landing
+    return reduced ? 1 : Math.min(1, Math.max(0, (scrollY - run.offsetTop) / travel));
   }
 
   // The playhead eases toward the scroll position instead of jumping to it,
@@ -474,30 +579,224 @@
   });
 
   /* ------------------------------------------------------ rooms and sheet */
+  function esc(t){ return String(t).replace(/[&<>"]/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  var ROOM = {}; DATA.rooms.forEach(function(r){ ROOM[r.key] = r; });
+
+  // one product card: photo, name, share-link; optionally why it was picked
+  function card(pid, extra){
+    var p = DATA.products[pid]; if (!p) return '';
+    return '<article class="pcard" data-id="' + pid + '">' +
+      '<div class="ph ' + (p.k === 'photo' ? 'photo' : '') + '"><img src="' + esc(p.i) +
+      '" alt="' + esc((p.b ? p.b + ' ' : '') + p.n) + '" loading="lazy" decoding="async"></div>' +
+      '<div class="tx">' + (p.b ? '<small>' + esc(p.b) + '</small>' : '') +
+      '<b>' + esc(p.n) + '</b>' + (extra || '') +
+      '<a class="buy" href="' + esc(p.u) + '" target="_blank" rel="noopener">Shop' +
+      '<span class="sr"> ' + esc(p.n) + '</span></a></div></article>';
+  }
+
   var list = document.getElementById('room-list');
   var sheet = document.getElementById('sheet'), rail = document.getElementById('rail');
-  ROOMS.forEach(function(r){
+  var chips = document.getElementById('chips'), opener = null;
+  DATA.rooms.forEach(function(r){
     var li = document.createElement('li');
     var b = document.createElement('button');
     b.className = 'room'; b.type = 'button';
-    b.innerHTML = '<i></i><b>' + r.name + '</b><span>' + r.n + '</span>';
-    b.addEventListener('click', function(){ open(r); });
+    b.innerHTML = '<i></i><b>' + esc(r.name) + '</b><span>' + r.n + '</span>';
+    b.addEventListener('click', function(){ openRoom(r.key, null, b); });
     li.appendChild(b); list.appendChild(li);
   });
-  function open(r){
+
+  function openRoom(key, focusId, from){
+    var r = ROOM[key]; opener = from || document.activeElement;
     document.getElementById('sheet-title').textContent = r.name;
-    rail.innerHTML = r.minis.map(function(m){
-      return '<article class="mini"><b>' + m[0] + '</b><p>' + m[1] + '</p><ul>' +
-        m[2].map(function(t){ return '<li>' + t + '</li>'; }).join('') + '</ul></article>';
+    document.getElementById('sheet-line').textContent = r.line;
+    chips.innerHTML = r.groups.map(function(g, i){
+      return '<button class="chip" type="button" data-g="' + i + '" aria-current="' + (i === 0) + '">' +
+        esc(g.g) + '</button>';
+    }).join('');
+    rail.innerHTML = r.groups.map(function(g, i){
+      return g.ids.map(function(id, j){
+        return card(id, j === 0 ? '<span class="grp" data-start="' + i + '">' + esc(g.g) + '</span>' : '')
+          .replace('class="pcard"', 'class="pcard" data-g="' + i + '"');
+      }).join('');
     }).join('');
     sheet.classList.add('on'); sheet.setAttribute('aria-hidden', 'false');
+    if (focusId){
+      var el = rail.querySelector('[data-id="' + focusId + '"]');
+      if (el) rail.scrollLeft = el.offsetLeft - 20;
+    }
     document.getElementById('back').focus();
   }
+  chips.addEventListener('click', function(e){
+    var c = e.target.closest('.chip'); if (!c) return;
+    var first = rail.querySelector('.pcard[data-g="' + c.dataset.g + '"]');
+    if (first) rail.scrollTo({left:first.offsetLeft - 20, behavior:reduced ? 'auto' : 'smooth'});
+  });
+  // the chip follows the rail as you swipe
+  rail.addEventListener('scroll', function(){
+    var x = rail.scrollLeft + 40, g = '0';
+    rail.querySelectorAll('.pcard').forEach(function(c){ if (c.offsetLeft <= x) g = c.dataset.g; });
+    chips.querySelectorAll('.chip').forEach(function(c){
+      var on = c.dataset.g === g; c.setAttribute('aria-current', String(on));
+      if (on && c.scrollIntoView && sheet.classList.contains('on'))
+        chips.scrollLeft = c.offsetLeft - 20;
+    });
+  }, {passive:true});
   function close(){
     sheet.classList.remove('on'); sheet.setAttribute('aria-hidden', 'true');
+    if (opener && opener.focus) opener.focus();
   }
   document.getElementById('back').addEventListener('click', close);
-  addEventListener('keydown', function(e){ if (e.key === 'Escape') close(); });
+  addEventListener('keydown', function(e){ if (e.key === 'Escape' && sheet.classList.contains('on')) close(); });
+
+  /* --------------------------------------------------------------- quiz */
+  var QUESTIONS = [
+    {key:'goals', multi:3, title:'What do you want to feel better?', hint:'Pick up to three.',
+     opts:DATA.goals.map(function(g){ return [g.key, g.label]; })},
+    {key:'caffeine', title:'How do you feel about caffeine?',
+     opts:[['yes', 'Bring it on'], ['some', 'A little, early'], ['none', 'None for me']]},
+    {key:'train', title:'When do you train?',
+     opts:[['am', 'Mornings'], ['pm', 'Evenings'], ['none', 'Not right now']]},
+    {key:'form', title:'How do you like to take things?',
+     opts:[['drink', 'Something to drink'], ['powder', 'A scoop in water'], ['capsule', 'Capsules or gummies'], ['any', 'No preference']]}
+  ];
+  var ans = {goals:[]}, qi = 0;
+  var qBody = document.getElementById('q-body'), qProg = document.getElementById('q-prog');
+  var qNext = document.getElementById('q-next'), qBack = document.getElementById('q-back');
+  var GOAL = {}; DATA.goals.forEach(function(g){ GOAL[g.key] = g; });
+
+  function answered(){
+    var q = QUESTIONS[qi];
+    return q ? (q.multi ? ans.goals.length > 0 : !!ans[q.key]) : true;
+  }
+  function prog(){
+    var n = QUESTIONS.length, on = Math.min(qi + 1, n);
+    qProg.innerHTML = QUESTIONS.map(function(_, i){ return '<i class="' + (i < on ? 'on' : '') + '"></i>'; }).join('') +
+      '<span>' + (qi < n ? 'Question ' + on + ' of ' + n : 'Done') + '</span>';
+  }
+  function swap(html){
+    if (reduced){ qBody.innerHTML = html; return; }
+    qBody.classList.add('out');
+    setTimeout(function(){ qBody.innerHTML = html; qBody.classList.remove('out'); }, 180);
+  }
+  function renderQ(){
+    prog();
+    if (qi >= QUESTIONS.length){ renderResult(); return; }
+    var q = QUESTIONS[qi];
+    var chosen = function(k){ return q.multi ? ans.goals.indexOf(k) > -1 : ans[q.key] === k; };
+    swap('<h2 id="q-title">' + esc(q.title) + '</h2>' + (q.hint ? '<p class="hint">' + esc(q.hint) + '</p>' : '') +
+      '<ul class="q-opts">' + q.opts.map(function(o){
+        return '<li><button class="q-opt" type="button" data-k="' + o[0] + '" aria-pressed="' + chosen(o[0]) + '">' +
+          esc(o[1]) + '</button></li>';
+      }).join('') + '</ul>');
+    document.getElementById('q-nav').style.display = '';
+    qBack.style.visibility = qi ? 'visible' : 'hidden';
+    qNext.disabled = !answered();
+    qNext.textContent = qi === QUESTIONS.length - 1 ? 'See my stack' : 'Next';
+  }
+  qBody.addEventListener('click', function(e){
+    var b = e.target.closest('.q-opt'); if (!b) return;
+    var q = QUESTIONS[qi], k = b.dataset.k;
+    if (q.multi){
+      var at = ans.goals.indexOf(k);
+      if (at > -1) ans.goals.splice(at, 1);
+      else { if (ans.goals.length >= q.multi) ans.goals.shift(); ans.goals.push(k); }
+      qBody.querySelectorAll('.q-opt').forEach(function(o){
+        o.setAttribute('aria-pressed', String(ans.goals.indexOf(o.dataset.k) > -1)); });
+      qNext.disabled = !answered();
+    } else {
+      ans[q.key] = k;
+      qBody.querySelectorAll('.q-opt').forEach(function(o){ o.setAttribute('aria-pressed', String(o === b)); });
+      qNext.disabled = false;
+      setTimeout(function(){ if (QUESTIONS[qi] === q){ qi++; renderQ(); } }, 260);   // one tap moves on
+    }
+  });
+  qNext.addEventListener('click', function(){ if (answered()){ qi++; renderQ(); } });
+  qBack.addEventListener('click', function(){ if (qi > 0){ qi--; renderQ(); } });
+
+  // Only reorders and filters what each goal already names; never invents a pick.
+  function recommend(){
+    var score = {}, why = {}, firsts = [];
+    var PRE = /Pre-Workout|Ignite|Muscle Multiplier|Creatine/;
+    ans.goals.forEach(function(gk, gi){
+      var g = GOAL[gk];
+      g.ids.forEach(function(id, r){
+        var p = DATA.products[id];
+        if (ans.caffeine === 'none' && p.c) return;
+        var v = 10 - r * 2 - gi * 0.5;
+        var full = (p.b + ' ' + p.n);
+        if (ans.train === 'none' && PRE.test(full)) v -= 4;
+        if (ans.train === 'pm' && /Post-Workout|Recovery|CBD/.test(full)) v += 1.5;
+        if (ans.train === 'am' && /Pre-Workout|Creatine/.test(full)) v += 1;
+        if (ans.caffeine === 'some' && p.c && /Energy|Focus/.test(full)) v -= 1;
+        if (ans.form && ans.form !== 'any' && p.f === ans.form) v += 2;
+        if (!(id in score) || v > score[id]){ score[id] = v; why[id] = g; }
+      });
+    });
+    // the best answer to each goal is always in, then the strongest of the rest
+    ans.goals.forEach(function(gk){
+      var best = GOAL[gk].ids.filter(function(id){ return id in score; })
+        .sort(function(a, b){ return score[b] - score[a]; })[0];
+      if (best && firsts.indexOf(best) < 0) firsts.push(best);
+    });
+    var rest = Object.keys(score).filter(function(id){ return firsts.indexOf(id) < 0; })
+      .sort(function(a, b){ return score[b] - score[a]; });
+    var picks = firsts.concat(rest).slice(0, Math.max(3, Math.min(5, firsts.length + 2)));
+    return picks.map(function(id){ return {id:id, g:why[id]}; });
+  }
+  function renderResult(){
+    var picks = recommend();
+    var names = ans.goals.map(function(k){ return GOAL[k].label.toLowerCase(); });
+    swap('<h2 id="q-title">Your stack</h2>' +
+      '<p class="hint">For ' + esc(names.join(', ').replace(/, ([^,]*)$/, ' and $1')) + '.</p>' +
+      '<div class="q-res">' + picks.map(function(x){
+        var room = ROOM[DATA.roomOf[x.id]];
+        return card(x.id, '<p class="why">' + esc(x.g.why) + '</p>' +
+          (room ? '<button class="inroom" type="button" data-room="' + room.key + '" data-id="' + x.id +
+            '">In ' + esc(room.name) + '</button>' : ''));
+      }).join('') + '</div>' +
+      '<p class="q-more">Want it built from your bloodwork instead? <a href="#clinic">That’s coming in November.</a></p>' +
+      '<div><button class="q-btn ghost" id="q-again" type="button">Start over</button></div>');
+    document.getElementById('q-nav').style.display = 'none';
+  }
+  qBody.addEventListener('click', function(e){
+    var r = e.target.closest('.inroom');
+    if (r) openRoom(r.dataset.room, r.dataset.id, r);
+    if (e.target.id === 'q-again'){ ans = {goals:[]}; qi = 0; renderQ(); }
+  });
+  renderQ();
+
+  /* --------------------------------------------------------- quiz tokens */
+  var QOPT = ['chips', 'tiles', 'list'], QPROG = ['bar', 'dots', 'count'],
+      QCARD = ['outline', 'filled', 'glass'], QACC = ['orange', 'green'], QRES = ['stack', 'rail'],
+      QSIZE = [1, 1.1, 0.92];
+  var quizEl = document.getElementById('quiz');
+  function qrng(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function qpick(r, a){ return a[Math.floor(r() * a.length)]; }
+  function applyQuiz(seed){
+    var r = qrng(seed * 7919), o = qpick(r, QOPT), pr = qpick(r, QPROG), c = qpick(r, QCARD),
+        ac = qpick(r, QACC), rs = qpick(r, QRES), sz = qpick(r, QSIZE);
+    quizEl.className = 'quiz o-' + o + ' p-' + pr + ' c-' + c + ' r-' + rs;
+    quizEl.style.setProperty('--q-acc', ac === 'orange' ? 'var(--l-accent)' : 'var(--l-accent2)');
+    quizEl.style.setProperty('--q-on', 'var(--l-bg)');
+    quizEl.style.setProperty('--q-size', sz);
+    document.getElementById('q-tokname').textContent = 'Quiz style ' + String(seed).padStart(4, '0') +
+      ' · ' + o + ' · ' + pr + ' · ' + c + ' · ' + ac + ' · ' + rs;
+    quizSeed = seed;
+  }
+  var quizSeed, qm = /quiz=(\d{1,4})/.exec(location.hash);
+  applyQuiz(qm ? +qm[1] : 11);                     // style 0011: tiles, the pick so far
+  document.getElementById('q-shuffle').addEventListener('click', function(){
+    var n; do { n = 1 + Math.floor(Math.random() * 9999); } while (n === quizSeed);
+    applyQuiz(n);
+    var h = location.hash.replace(/&?quiz=\d+/, '');
+    history.replaceState(null, '', (h || '#') + (h && h !== '#' ? '&' : '') + 'quiz=' + n);
+  });
+  window.QUIZ = {apply:applyQuiz, seed:function(){ return quizSeed; }, recommend:recommend,
+    answer:function(a){ ans = a; qi = QUESTIONS.length; renderQ(); }};
 
   size(); load(); onScroll();
   if (reduced){ roomsEl.classList.add('on'); beat.style.opacity = 1; }
